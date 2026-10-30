@@ -179,6 +179,18 @@ nav button{font-size:11px}
 nav button .ic{font-size:19px}
 .relbox{border:1px solid var(--line);border-radius:12px;padding:8px 10px;margin-bottom:8px}
 .relh{font-size:15px;margin-bottom:2px}
+.tools{display:flex;gap:8px;overflow-x:auto;padding:4px 0 2px;margin:8px 0}
+.tools button{flex:0 0 auto;background:var(--card);border:1px solid var(--line);color:var(--ink);font-weight:500;font-size:14px;border-radius:999px;padding:8px 14px}
+.tools button.on{background:var(--accent);color:#fff;border-color:var(--accent)}
+.txbox{margin-top:8px}
+.txl{padding:8px 10px;border-radius:10px;background:var(--bg);margin-bottom:6px;font-size:17px;line-height:1.6}
+.txl.tricky{background:#f3e3b5;color:#5a4300}
+.hid{background:var(--accent-soft);color:var(--accent);border-radius:4px;padding:0 4px;cursor:pointer;letter-spacing:1px}
+.hid.shown{letter-spacing:0}
+.miss{background:var(--warn-soft);color:var(--warn);border-radius:4px;padding:0 3px}
+.emos{display:flex;flex-wrap:wrap;gap:0;margin-top:4px}.emos button{padding:2px 4px;font-size:18px}
+.chip.wrong{background:var(--warn-soft);color:var(--warn)}
+#park-banner{background:var(--accent-soft)}
 .toast{position:fixed;bottom:84px;left:50%;transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:10px;font-size:14px;opacity:0;transition:opacity .25s;pointer-events:none;z-index:9}
 .toast.show{opacity:1}
 </style>
@@ -203,6 +215,9 @@ nav button .ic{font-size:19px}
     <div class="stat"><b id="s-due">0</b><span>חזרות היום</span></div>
     <div class="stat"><b id="s-streak">0</b><span>ימי רצף 🔥</span></div>
   </div>
+
+  <div class="card hide" id="park-banner"></div>
+  <div class="tools" id="today-tools"><button data-tool="park">🚗 איפה חניתי</button><button data-tool="text">🎤 שינון טקסט</button><button data-tool="routine">🏋️ רצפי תרגילים</button><button data-tool="exam">📖 חומר למבחן</button></div>
 
   <div class="card hide" id="parked-card">
     <h2>🅿️ עזבתם באמצע — לא לשכוח לחזור</h2>
@@ -233,6 +248,7 @@ nav button .ic{font-size:19px}
       <input id="task-input" placeholder="מה צריך לעשות?" enterkeyhint="done">
       <button class="primary shrink" id="task-add">הוסף</button>
     </div>
+    <div class="small hide" id="cap-hint" style="margin-top:6px;color:var(--accent)"></div>
     <div class="chips" id="when-chips">
       <button class="chip on" data-when="today">היום</button>
       <button class="chip" data-when="tomorrow">מחר</button>
@@ -254,6 +270,14 @@ nav button .ic{font-size:19px}
       <div id="gantt"></div>
       <div class="small" style="margin-top:6px">לחצו על משימה כדי לקבוע "מתאריך" ו"עד תאריך". 🟥 באיחור · 🟨 ממתין לאחרים</div>
     </div>
+  </div>
+
+  <div class="card hide" id="daymem-card">
+    <h2>🧠 לזכור את המשימות של היום — בלי להסתכל</h2>
+    <div class="small">בחרו שיטה, השקיעו דקה, ואז בחנו את עצמכם. ככה מתאמנים על הזיכרון עם המשימות האמיתיות שלכם.</div>
+    <div class="chips" id="dm-methods"><button class="chip on" data-dm="peg">🔢 מספרים־תמונות</button><button class="chip" data-dm="palace">🏛️ ארמון</button><button class="chip" data-dm="acro">🔤 ראשי תיבות</button><button class="chip" data-dm="story">🔗 סיפור</button></div>
+    <div id="daymem-body" style="margin-top:8px"></div>
+    <button class="primary" style="width:100%;margin-top:8px" id="dm-test">🎯 בחנו אותי</button>
   </div>
 
   <div class="card" id="warm-card">
@@ -348,6 +372,8 @@ nav button .ic{font-size:19px}
 
 <!-- ========== ממו ========== -->
 <section id="tab-memo" class="hide">
+  <div class="tools" id="tools-row"><button data-tool="park">🚗 איפה חניתי</button><button data-tool="text">🎤 שינון טקסט</button><button data-tool="routine">🏋️ רצפי תרגילים</button><button data-tool="exam">📖 חומר למבחן</button></div>
+  <div class="card hide" id="tool-panel"></div>
   <div class="card">
     <h2>📝 פתק חדש</h2>
     <textarea id="n-text" style="min-height:80px" placeholder="כל מה שצריך לזכור בפרטים: מתכון, קוד לשער, מה אמר הרופא, מידות…"></textarea>
@@ -420,6 +446,18 @@ nav button .ic{font-size:19px}
       <button class="primary shrink" data-game="rev">שחק</button>
     </div>
     <div class="card game">
+      <div class="ic">🧮</div>
+      <div class="txt"><b>תרגילי חשיבה</b><div class="small">חשבון בראש, השלמת סדרות, יוצא דופן ושטף מילים — מהירות, גמישות ושליפה.</div></div>
+      <button class="primary shrink" data-game="think">שחק</button>
+    </div>
+    <div class="card" id="skill-card">
+      <h2>🎯 מיומנות חדשה</h2>
+      <div class="small">ללמוד משהו חדש ומאתגר הוא אחד האימונים הטובים למוח. רשמו מה אתם לומדים, וסמנו כל יום כמה תרגלתם.</div>
+      <div id="skill-list" style="margin-top:6px"></div>
+      <div class="row" style="margin-top:6px"><input id="skill-in" placeholder="מה לומדים? (שפה, כלי נגינה…)"><button class="shrink" id="skill-add">הוסף</button></div>
+      <div class="chips" id="skill-sug"><button class="chip" data-s="שפה חדשה">🗣️ שפה</button><button class="chip" data-s="כלי נגינה">🎸 כלי נגינה</button><button class="chip" data-s="ציור">🎨 ציור</button><button class="chip" data-s="ריקוד">💃 ריקוד</button><button class="chip" data-s="תכנות">💻 תכנות</button><button class="chip" data-s="בישול">🍳 בישול</button></div>
+    </div>
+    <div class="card game">
       <div class="ic">🙂</div>
       <div class="txt"><b>שמות ופרצופים</b><div class="small">פוגשים כמה אנשים, ואז צריך לזכור מי זה מי. מאמן בדיוק את מה שקשה במפגשים אמיתיים.</div></div>
       <button class="primary shrink" data-game="faces">שחק</button>
@@ -441,6 +479,13 @@ nav button .ic{font-size:19px}
     </div>
 
 
+  </div>
+
+  <!-- think -->
+  <div class="card hide" id="g-think">
+    <h2>🧮 תרגילי חשיבה</h2>
+    <div id="th-body"></div>
+    <button class="ghost" style="width:100%;margin-top:8px" data-back>חזרה לתפריט</button>
   </div>
 
   <!-- schulte -->
@@ -658,7 +703,7 @@ function load(){
   let s=null;
   try{ s=JSON.parse(localStorage.getItem(KEY)); }catch(e){}
   if(!s && mem) s=mem;
-  return Object.assign({tasks:[],cards:[],log:{},parked:[],plans:[],focus:null,notes:[],view:'list',qSeen:{},qPeople:[],qTopics:[],profile:null,best:{digit:0,rev:0,words:0,recall:0}},s||{},{best:Object.assign({digit:0,rev:0,words:0,recall:0,missing:0,pairs:{},sudoku:0},(s||{}).best||{})});
+  return Object.assign({tasks:[],cards:[],log:{},parked:[],plans:[],focus:null,notes:[],texts:[],routines:[],exams:[],skills:[],parking:null,view:'list',qSeen:{},qPeople:[],qTopics:[],profile:null,best:{digit:0,rev:0,words:0,recall:0}},s||{},{best:Object.assign({digit:0,rev:0,words:0,recall:0,missing:0,pairs:{},sudoku:0},(s||{}).best||{})});
 }
 let S=load();
 function save(){
@@ -826,7 +871,7 @@ function renderCards(){
   $('review-summary').textContent=d?`${d} נושאים מחכים לחזרה היום`:(S.cards.length?'אין חזרות להיום 🎉 נתראה מחר':'עוד אין נושאים. הוסיפו למטה דברים שחשוב לכם לזכור לאורך זמן.');
   $('review-start').disabled=!d;
   const list=[...S.cards].sort((a,b)=>a.due.localeCompare(b.due));
-  $('card-list').innerHTML=list.length?list.map(c=>`<div class="cardrow"><div class="txt">${esc(c.front)}<div class="small">חזרה הבאה: ${fmtDate(c.due)}${c.reps?` · ${c.reps} חזרות`:''}</div></div><button class="ghost" data-cdel="${c.id}">✕</button></div>`).join(''):'<div class="empty">אין נושאים עדיין</div>';
+  $('card-list').innerHTML=list.length?list.map(c=>`<div class="cardrow"><div class="txt">${c.deck?'📖 ':''}${esc(c.front)}<div class="small">חזרה הבאה: ${fmtDate(c.due)}${c.reps?` · ${c.reps} חזרות`:''}</div></div><button class="ghost" data-cdel="${c.id}">✕</button></div>`).join(''):'<div class="empty">אין נושאים עדיין</div>';
 }
 $('card-list').onclick=e=>{const b=e.target.closest('[data-cdel]');if(b&&confirmDel()){S.cards=S.cards.filter(c=>c.id!==b.dataset.cdel);save();render();}};
 function confirmDel(){return true;}
@@ -855,13 +900,13 @@ document.querySelectorAll('.rate button').forEach(b=>b.onclick=()=>{
     if(r===1){c.interval=Math.max(1,Math.round((c.interval||1)*1.2));c.ease=Math.max(1.3,c.ease-.15);}
     if(r===2){c.interval=c.reps===0?1:c.reps===1?3:Math.round(c.interval*c.ease);}
     if(r===3){c.interval=c.reps===0?3:Math.round(Math.max(c.interval,1)*c.ease*1.3);c.ease+=.15;}
-    c.reps++;c.due=addDays(c.interval);
+    c.reps++;c.due=addDays(c.interval);capExam(c);
   }
   logAct('reviews');save();qi++;showCard();
 });
 
 /* ---------- training games ---------- */
-const GAMES=['g-digit','g-words','g-sudoku','g-pairs','g-missing','g-schulte','g-faces'];
+const GAMES=['g-digit','g-words','g-sudoku','g-pairs','g-missing','g-schulte','g-faces','g-think'];
 function showGame(id){$('train-menu').classList.add('hide');GAMES.forEach(g=>$(g).classList.toggle('hide',g!==id));window.scrollTo(0,0);}
 function backMenu(){clearTimeout(gTimer);clearInterval(gInt);clearInterval(sdT);clearInterval(prT);$('train-menu').classList.remove('hide');GAMES.forEach(g=>$(g).classList.add('hide'));render();}
 document.querySelectorAll('[data-back]').forEach(b=>b.onclick=backMenu);
@@ -873,6 +918,7 @@ document.querySelectorAll('[data-game]').forEach(b=>b.onclick=()=>{
   else if(g==='missing'){showGame('g-missing');msStart();}
   else if(g==='schulte'){showGame('g-schulte');shReset();}
   else if(g==='faces'){showGame('g-faces');fcReset();}
+  else if(g==='think'){showGame('g-think');thMenu();}
   else{showGame('g-digit');digitStart(g==='rev');}
 });
 let gTimer,gInt;
@@ -1319,7 +1365,7 @@ $('fb-more').onclick=()=>{S.focus.min+=10;save();tickFocus();};
 function doPark(){park(S.focus,$('fb-note').value.trim());S.focus=null;$('fb-park').classList.add('hide');save();render();toast('🅿️ חנה — תמצאו אותו בראש מסך "היום"');}
 $('fb-park-save').onclick=doPark;
 $('fb-note').addEventListener('keydown',e=>{if(e.key==='Enter')doPark();});
-function ago(ts){const m=Math.round((Date.now()-ts)/60000);if(m<60)return `לפני ${m} דק׳`;const h=Math.round(m/60);if(h<24)return `לפני ${h} שע׳`;return `לפני ${Math.round(h/24)} ימים`;}
+function ago(ts){const m=Math.round((Date.now()-ts)/60000);if(m<1)return 'עכשיו';if(m<60)return `לפני ${m} דק׳`;const h=Math.round(m/60);if(h<24)return `לפני ${h} שע׳`;return `לפני ${Math.round(h/24)} ימים`;}
 function renderParked(){
   $('parked-card').classList.toggle('hide',!S.parked.length);
   $('parked-list').innerHTML=S.parked.map(p=>`<div class="task"><div class="txt">${esc(p.text)}<div class="meta">${p.note?'עצרתם ב: '+esc(p.note)+' · ':''}${ago(p.at)}</div></div>
@@ -1400,6 +1446,18 @@ const METHODS=[
  {id:'names',e:'🙂',t:'שמות ופרצופים',why:'הזיכרון החזותי חזק בהרבה מהזיכרון למילים — נשתמש בו: השם הופך לתמונה, והתמונה נתלית על הפנים.',
   how:['בזמן ההיכרות: חזרו על השם בקול ("נעים מאוד, בועז").','בחרו פרט אחד בולט בפנים: גבות, משקפיים, אף, שיער.','הפכו את השם לתמונה ("בועז" ← בוץ, "ליאת" ← לביאה) ודמיינו אותה על הפרט הזה.','אחרי המפגש: רשמו בשורה מי פגשתם ופרט אחד עליו — ושימו כנושא בחזרות.'],
   ex:'"תמר עם השיער המתולתל" ← תמרים תלויים לה בתלתלים.',go:'game:faces',goL:'תרגול בשמות ופרצופים'},
+ {id:'senses',e:'👂',t:'יותר מחוש אחד',why:'מה שנקלט בכמה ערוצים — שמיעה, ראייה, תנועה, כתיבה — נזכר טוב יותר, כי יש לו כמה "דרכים" לחזור.',
+  how:['קראו בקול, ולא רק בעיניים.','כתבו ביד — הכתיבה עצמה מקבעת.','הוסיפו תנועה: הצביעו, ספרו על האצבעות, הסתובבו בחדר תוך כדי שינון.','צרו תמונה בראש — ואם אפשר, ציירו אותה.'],
+  ex:'לשנן נאום: לקרוא בקול (שמיעה), לכתוב את הפתיחה (כתיבה), לבחור תמונה לכל פסקה (ראייה), ולהגיד אותו תוך הליכה (תנועה).',go:'tool:text',goL:'לשינון טקסט'},
+ {id:'imagery',e:'🎨',t:'אסוציאציות ודימויים',why:'המוח זוכר תמונות, רגשות והפתעות הרבה יותר טוב ממילים יבשות. מחברים את החדש למשהו שכבר מכירים.',
+  how:['הפכו את המידע לתמונה: מוגזמת, צבעונית, זזה ואפילו מגוחכת.','חברו למשהו מוכר: "הגבינה הזו מלוחה כמו הים בתל אביב".','הוסיפו רגש או הומור — מה שמצחיק נזכר.','שאלו "למה זה מזכיר לי?" — והשתמשו בתשובה הראשונה.'],
+  ex:'להחזיר ספר לספרייה ביום ג׳ ← ספר ענק עם 3 רגליים צועד לבד לספרייה.',go:'game:words',goL:'תרגול ברשימת מילים'},
+ {id:'intonation',e:'🎭',t:'קול מצחיק לקטע שנשכח',why:'בשינון בעל פה תמיד יש "חור" שחוזר. כשאומרים דווקא אותו בקול אחר — הוא הופך לבולט ונזכר.',
+  how:['זהו את הקטע שנוטים לשכוח (מבחן כתיבה מראה אותו).','אמרו אותו בקול אחר: לוחש, דרמטי, במבטא, או בשיר.','הגזימו! ככל שזה מוזר יותר — כך הוא נדבק יותר.','בשינון הבא אמרו אותו רגיל — הזיכרון של ה"הצגה" יחזיר אותו.'],
+  ex:'השורה שתמיד נעלמת בברכה ← אומרים אותה כמו קריין חדשות דרמטי. ב"שינון טקסט" מסמנים אותה 🎭.',go:'tool:text',goL:'לשינון טקסט'},
+ {id:'visualorg',e:'🗺️',t:'ארגון ויזואלי',why:'מידע מסודר במבנה — טבלה, מפה, צבעים — קל יותר לזכור מאשר רשימה ארוכה, כי המוח זוכר גם את המקום.',
+  how:['מפת מושגים: הנושא במרכז, וענפים לתתי־נושאים.','טבלה להשוואות: שורות ועמודות.','צבע לכל קטגוריה — וקבוע: למשל ירוק לבית, כחול לעבודה.','ציר זמן לרצפים ותהליכים.'],
+  ex:'חומר למבחן: דף אחד עם מפת מושגים צבעונית. בפתקים: צבע לכל נושא, ופתק נעוץ לחשובים.',go:'tool:exam',goL:'לחומר למבחן'},
  {id:'palace',e:'🏛️',t:'ארמון הזיכרון',why:'השיטה הוותיקה והחזקה ביותר לרשימות — כמו רשימת קניות או נקודות לשיחה.',
   how:['בחרו מסלול שאתם מכירים היטב: דלת, מסדרון, סלון, מטבח…','"הניחו" כל פריט בתחנה אחרת, בתמונה מוגזמת ומצחיקה.','כדי לשחזר — עוברים בדמיון לאורך המסלול.'],
   ex:'חלב נשפך מהדלת, לחם ענק חוסם את המסדרון, ביצים מתגלגלות על הספה.',go:'game:words',goL:'תרגול ברשימת מילים'},
@@ -1439,6 +1497,7 @@ function runGo(go){
   else if(go==='q'){goTab('today');$('q-start').click();$('q-card').scrollIntoView({block:'start'});}
   else if(go==='recall'){goTab('today');$('recall-start').click();$('recall-card').scrollIntoView({block:'start'});}
   else if(go==='warm')openWarm('',null);
+  else if(go.startsWith('tool:'))openTool(go.slice(5));
 }
 const IFTHEN_SUG=['כשאני מכבה את המנוע ← כותב ב"מם או…" מה חשבתי בדרך','כשמבקשים ממני משהו ← חוזר במילים שלי ומוסיף 🙋','כשאני עוזב משימה באמצע ← לוחץ "עוצר באמצע" וכותב את הצעד הבא','אחרי הקפה של הבוקר ← אימון של היום','כשמסתיימת שיחה חשובה ← רושם מה צריך לעשות'];
 function renderMethods(){
@@ -1482,7 +1541,7 @@ $('methods').addEventListener('click',e=>{
 renderMethods();
 
 /* ---- daily training ---- */
-const DAILY_GAMES=[['faces','🙂 שמות ופרצופים'],['digit','🔢 רצף מספרים'],['words','📝 רשימת מילים'],['pairs','🃏 מצא את הזוג'],['missing','🔍 מה חסר?'],['sudoku','🔲 סודוקו'],['rev','↩️ רצף הפוך']];
+const DAILY_GAMES=[['think','🧮 תרגילי חשיבה'],['faces','🙂 שמות ופרצופים'],['digit','🔢 רצף מספרים'],['words','📝 רשימת מילים'],['pairs','🃏 מצא את הזוג'],['missing','🔍 מה חסר?'],['sudoku','🔲 סודוקו'],['rev','↩️ רצף הפוך']];
 function dayRand(k){let a=(dayNum()*7919+k*104729)>>>0;a=(a+0x6D2B79F5)>>>0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;}
 function dayNum(){const d=new Date();return Math.floor((d-new Date(d.getFullYear(),0,0))/864e5);}
 function renderDaily(){
@@ -1494,13 +1553,19 @@ function renderDaily(){
     {k:'g_'+g[0],l:g[1],go:'game:'+g[0]},
     {k:'m_'+m.id,l:'📚 שיטה של היום: '+m.t,go:'method:'+m.id},
   ];
+  if(todaysTasks().length>=3)items.push({k:'g_daymem',l:'🧠 לזכור את משימות היום בעל פה',go:'daymem'});
+  const dueT=S.texts.filter(isDue)[0];if(dueT)items.push({k:'g_text',l:'🎤 לתרגל: '+esc(dueT.title),go:'text:'+dueT.id});
+  const dueR=S.routines.filter(isDue)[0];if(dueR)items.push({k:'g_routine',l:'🏋️ לתרגל: '+esc(dueR.title),go:'routine:'+dueR.id});
   const done=items.filter(i=>L[i.k]).length;
   $('daily-list').innerHTML=items.map(i=>`<div class="task ${L[i.k]?'done':''}"><span class="chk" style="display:grid">${L[i.k]?'✓':''}</span><div class="txt">${i.l}</div><button class="shrink" data-dgo="${i.go}">${L[i.k]?'שוב':'התחל'}</button></div>`).join('');
-  $('daily-sum').textContent=done===3?'🎉 האימון של היום הושלם!':`${done}/3 · בערך 5–7 דקות`;
+  $('daily-sum').textContent=done>=items.length?'🎉 האימון של היום הושלם!':`${done}/${items.length} · בערך ${items.length*2}–${items.length*3} דקות`;
   $('daily-plan').textContent=S.plans.length?'🚦 '+S.plans[Math.floor(dayRand(4)*S.plans.length)]:'⚓ הצמידו את האימון להרגל קבוע — למשל אחרי הקפה של הבוקר.';
 }
 $('daily-list').onclick=e=>{const b=e.target.closest('[data-dgo]');if(!b)return;const go=b.dataset.dgo;
   if(go.startsWith('method:')){const id=go.slice(7);goTab('methods');const card=$('m-'+id);if(card.querySelector('.mb').classList.contains('hide'))card.querySelector('[data-open]').click();setTimeout(()=>card.scrollIntoView({behavior:'smooth',block:'start'}),50);}
+  else if(go==='daymem'){$('daymem-card').scrollIntoView({behavior:'smooth',block:'start'});}
+  else if(go.startsWith('text:'))openTool('text',go.slice(5));
+  else if(go.startsWith('routine:'))openTool('routine',go.slice(8));
   else runGo(go);};
 
 /* ---- knowledge tab: methods / tips cards ---- */
@@ -1846,8 +1911,8 @@ $('sheet').addEventListener('click',e=>{if(e.target.id==='sheet'&&S._obOpen){e.s
 setTimeout(()=>{if(!S.profile)startOnboarding();},400);
 
 /* personalized weights for daily training & method of the day */
-const ISSUE_GAMES={names:['faces'],told:['faces','words'],switch:['schulte','missing'],distract:['schulte','missing'],thread:['digit','rev','schulte'],reading:['schulte','words'],details:['words','pairs'],learned:['words'],pw:['digit','rev'],tongue:['words'],nav:['pairs','missing'],places:['missing','pairs'],room:['digit','missing'],didit:['missing'],leave:['missing','words'],drive:['digit','words'],asks:['words','digit'],calls:['digit'],appts:['words'],bills:['digit'],dates:['digit'],start:['schulte']};
-const ISSUE_METHODS={drive:['drive','ifthen'],asks:['say','ifthen'],calls:['ifthen','say'],switch:['park','anchor'],distract:['park','anchor'],thread:['say','chunk'],reading:['retrieve','chunk'],names:['names'],told:['say','retrieve'],dates:['spaced','peg'],details:['recipe','palace','peg','chunk'],learned:['retrieve','spaced'],pw:['chunk','peg'],tongue:['story','retrieve'],nav:['palace'],appts:['appt','spaced','ifthen'],bills:['ifthen','appt'],habit:['anchor','ifthen'],start:['ifthen','park'],places:['acro','say'],room:['say','ifthen'],didit:['say','ifthen'],leave:['acro','ifthen'],meds:['ifthen','anchor']};
+const ISSUE_GAMES={names:['faces'],tongue:['think','words'],start:['think','schulte'],told:['faces','words'],switch:['schulte','missing'],distract:['schulte','missing'],thread:['digit','rev','schulte'],reading:['schulte','words'],details:['words','pairs'],learned:['words'],pw:['digit','rev'],nav:['pairs','missing'],places:['missing','pairs'],room:['digit','missing'],didit:['missing'],leave:['missing','words'],drive:['digit','words'],asks:['words','digit'],calls:['digit'],appts:['words'],bills:['digit'],dates:['digit'],start:['think']};
+const ISSUE_METHODS={drive:['drive','ifthen','imagery'],learned:['senses','visualorg','retrieve'],asks:['say','ifthen'],calls:['ifthen','say'],switch:['park','anchor'],distract:['park','anchor'],thread:['say','chunk'],reading:['retrieve','chunk'],names:['names'],told:['say','retrieve'],dates:['spaced','peg'],details:['recipe','palace','peg','chunk'],pw:['chunk','peg'],tongue:['story','retrieve'],nav:['palace'],appts:['appt','spaced','ifthen'],bills:['ifthen','appt'],habit:['anchor','ifthen'],start:['ifthen','park'],places:['acro','say'],room:['say','ifthen'],didit:['say','ifthen'],leave:['acro','ifthen'],meds:['ifthen','anchor']};
 function pickWeighted(list,key,map,seed){
   const iss=(S.profile&&S.profile.issues)||[];const fav=new Set(iss.flatMap(i=>map[i]||[]));
   const pool=list.flatMap(x=>fav.has(key(x))?[x,x,x]:[x]);return pool[Math.floor(dayRand(seed)*pool.length)];
@@ -1870,6 +1935,343 @@ $('contact-list').onclick=e=>{const b=e.target.closest('[data-ct]');if(!b)return
   if(b.dataset.a==='task'){S.tasks.push({id:uid(),text:'להתקשר ל'+p.name,due:TODAY(),done:false,created:Date.now(),kind:'call'});p.snooze=addDays(1);toast('נוסף: 📞 להתקשר ל'+p.name);}
   save();render();};
 function touchContact(t){(S.people||[]).forEach(p=>{if(t.text.includes(p.name)&&(t.kind==='call'||t.kind==='ask')){p.last=TODAY();p.snooze=null;}});}
+/* ================= v6: tools (parking, text, routines, exams), thinking games, skill, daily-task memory ================= */
+S.texts=S.texts||[];S.routines=S.routines||[];S.exams=S.exams||[];S.skills=S.skills||[];
+const SR_STEPS=[1,2,4,7,14,30,60];
+function srNext(item,rate){ // rate 0 hard,1 ok,2 great
+  item.reps=(item.reps||0)+1;let st=item.step||0;
+  st=rate===0?Math.max(0,st-1):rate===2?Math.min(SR_STEPS.length-1,st+2):Math.min(SR_STEPS.length-1,st+1);
+  item.step=st;item.next=addDays(rate===0?1:SR_STEPS[st]);item.last=TODAY();
+}
+const isDue=x=>!x.next||x.next<=TODAY();
+
+/* ---------- tool router ---------- */
+let curTool=null;
+function openTool(t,arg){goTab('memo');curTool=t;$('tool-panel').classList.remove('hide');
+  document.querySelectorAll('#tools-row [data-tool]').forEach(b=>b.classList.toggle('on',b.dataset.tool===t));
+  ({park:toolPark,text:toolText,routine:toolRoutine,exam:toolExam})[t](arg);
+  setTimeout(()=>$('tool-panel').scrollIntoView({behavior:'smooth',block:'start'}),30);}
+function closeTool(){curTool=null;$('tool-panel').classList.add('hide');document.querySelectorAll('#tools-row [data-tool]').forEach(b=>b.classList.remove('on'));}
+document.addEventListener('click',e=>{const b=e.target.closest('[data-tool]');if(!b)return;
+  if(b.closest('#tools-row')&&curTool===b.dataset.tool){closeTool();return;}openTool(b.dataset.tool);});
+const P=h=>{$('tool-panel').innerHTML=h+'<button class="ghost" style="width:100%;margin-top:10px" data-tclose>סגור</button>';$('tool-panel').querySelector('[data-tclose]').onclick=closeTool;};
+
+/* ---------- 🚗 parking ---------- */
+function toolPark(){
+  const pk=S.parking;
+  P(`<h2>🚗 איפה חניתי?</h2>
+   ${pk?`<div class="answer">${esc(pk.text||'')}${pk.photo?`<img src="${pk.photo}" style="width:100%;border-radius:10px;margin-top:8px">`:''}<div class="small" style="margin-top:6px">${ago(pk.at)}</div></div>
+     <button class="primary" style="width:100%" id="pk-found">✓ מצאתי — נקה</button><div class="small" style="margin:10px 0 4px">או חנייה חדשה:</div>`:''}
+   <input id="pk-text" placeholder="קומה, שורה, צבע עמוד, רחוב…">
+   <div class="row" style="margin-top:8px"><label class="chip shrink" style="cursor:pointer">📷 תמונה<input type="file" accept="image/*" capture="environment" id="pk-photo" class="hide"></label><button class="primary" id="pk-save">שמור חנייה</button></div>
+   <div class="tip">💡 שיטה: <b>אמרו בקול</b> + <b>דימוי</b>. "קומה 2, שורה C — ⚽ 2 כדורים בשער C". שני חושים ותמונה מצחיקה = זוכרים גם בלי לפתוח את האפליקציה.</div>`);
+  let photo=null;
+  $('pk-photo').onchange=e=>{const f=e.target.files[0];if(!f)return;const img=new Image();img.onload=()=>{const c=document.createElement('canvas'),k=Math.min(1,480/Math.max(img.width,img.height));c.width=img.width*k;c.height=img.height*k;c.getContext('2d').drawImage(img,0,0,c.width,c.height);photo=c.toDataURL('image/jpeg',.6);toast('📷 התמונה צורפה');};img.src=URL.createObjectURL(f);};
+  $('pk-save').onclick=()=>{const t=$('pk-text').value.trim();if(!t&&!photo){toast('כתבו איפה, או צרפו תמונה');return;}S.parking={text:t,photo,at:Date.now()};save();render();toolPark();toast('🚗 נשמר');};
+  if($('pk-found'))$('pk-found').onclick=()=>{S.parking=null;save();render();toolPark();};
+}
+function renderParkBanner(){const pk=S.parking,show=pk&&Date.now()-pk.at<3*864e5;$('park-banner').classList.toggle('hide',!show);
+  if(show)$('park-banner').innerHTML=`<div class="row"><div class="txt">🚗 <b>חנית:</b> ${esc(pk.text||'(תמונה)')} <span class="small">· ${ago(pk.at)}</span></div><button class="shrink" data-tool="park">פתח</button></div>`;}
+
+/* ---------- 🎤 memorize text ---------- */
+let tx=null,txMode='read';
+function loadScript(src){return new Promise((ok,no)=>{const s=document.createElement('script');s.src=src;s.onload=ok;s.onerror=no;document.head.appendChild(s);});}
+function shrinkImg(file,max){return new Promise(ok=>{const img=new Image();img.onload=()=>{const c=document.createElement('canvas'),k=Math.min(1,max/Math.max(img.width,img.height));c.width=img.width*k;c.height=img.height*k;c.getContext('2d').drawImage(img,0,0,c.width,c.height);c.toBlob(b=>ok(b),'image/jpeg',.8);};img.src=URL.createObjectURL(file);});}
+async function ocrImage(file){
+  const blob=await shrinkImg(file,1600);
+  try{if(window.claude&&claude.use){const sm=await claude.use('sample');if(sm){const lim=await sm.limits();if(lim&&lim.images){
+    const r=await sm('Transcribe exactly all the text that appears in this image, in its original language, preserving the line breaks. Output only the text itself — no comments, no quotes, no translation.',{images:[blob],modelTier:'quick'});
+    if(r&&r.text&&r.text.trim())return r.text.trim();}}}}catch(e){}
+  try{if(!window.Tesseract)await loadScript('https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js');
+    const w=await Tesseract.createWorker('heb+eng');const {data}=await w.recognize(blob);await w.terminate();return (data.text||'').trim();}catch(e){return null;}
+}
+function toolText(id){
+  if(id){tx=S.texts.find(x=>x.id===id);tx.tricky=tx.tricky||[];tx.pics=tx.pics||{};return txPractice();}
+  const L=S.texts;
+  P(`<h2>🎤 שינון טקסט בעל פה</h2>
+   <div class="small">נאום, ברכה, שיר, תפילה, פסקה למבחן… מצלמים או מדביקים, ומתרגלים בדרכים שונות עד שזה יושב.</div>
+   ${L.map(t=>`<div class="task"><div class="txt" data-txopen="${t.id}">${esc(t.title)}<div class="meta">${isDue(t)?'⏰ זמן לתרגל':'תרגול הבא: '+fmtDate(t.next)} · שלב ${t.level||0}/4${t.best!=null?' · מבחן כתיבה: '+t.best+'%':''}</div></div><button class="shrink" data-txopen="${t.id}">תרגל</button><button class="ghost" data-txdel="${t.id}">✕</button></div>`).join('')}
+   <input id="tx-title" style="margin-top:10px" placeholder="שם הטקסט">
+   <label class="chip" style="cursor:pointer;display:inline-block;margin-top:8px">📷 צלמו או בחרו תמונה של הטקסט<input type="file" accept="image/*" capture="environment" id="tx-photo" class="hide"></label>
+   <div class="small hide" id="tx-ocr" style="margin-top:6px">⏳ מזהה את הטקסט מהתמונה…</div>
+   <textarea id="tx-body" style="margin-top:8px" placeholder="…או הדביקו כאן את הטקסט. כל שורה = יחידת שינון."></textarea>
+   <button class="primary" style="width:100%;margin-top:8px" id="tx-add">הוסף ותרגל</button>`);
+  $('tx-photo').onchange=async e=>{const f=e.target.files[0];if(!f)return;$('tx-ocr').classList.remove('hide');$('tx-ocr').textContent='⏳ מזהה את הטקסט מהתמונה… (עד דקה)';
+    const t=await ocrImage(f);
+    if(t){$('tx-body').value=t;$('tx-ocr').textContent='✓ זוהה. בדקו ותקנו אם צריך, ואז "הוסף ותרגל".';}
+    else $('tx-ocr').textContent='לא הצלחתי לזהות טקסט מהתמונה כאן. אפשר להעתיק את הטקסט מהתמונה בטלפון (Google Lens / "העתק טקסט") ולהדביק.';};
+  $('tx-add').onclick=()=>{const b=$('tx-body').value.trim();if(!b){toast('צלמו או הדביקו טקסט');return;}
+    const t={id:uid(),title:$('tx-title').value.trim()||b.split('\n')[0].slice(0,30),body:b,tricky:[],pics:{},level:0,created:Date.now()};S.texts.unshift(t);save();toolText(t.id);};
+  $('tool-panel').onclick=e=>{const o=e.target.closest('[data-txopen]'),d=e.target.closest('[data-txdel]');
+    if(o)toolText(o.dataset.txopen);if(d){S.texts=S.texts.filter(x=>x.id!==d.dataset.txdel);save();toolText();}};
+}
+const TX_MODES=[['read','📖 קריאה'],['listen','🔊 האזנה'],['pics','🎨 תמונה לשורה'],['letters','🔤 אותיות ראשונות'],['fade','🫥 העלמה'],['cloze','🧩 השלמת מילים'],['order','🔀 סדר שורות'],['lines','➡️ שורה־שורה'],['write','✍️ מבחן כתיבה']];
+const TX_EMO='☀️ 🌙 ⭐ 🌊 🔥 🌳 🌸 🍎 🍞 🏠 🚪 🛣️ 🚗 ✈️ ⛵ 🐦 🐟 🐎 🦁 👑 ❤️ 🤝 👶 👴 📖 ✉️ 🔑 💡 🕯️ 🎵 🎁 ⏰ ⚖️ 🛡️ 🌈 ⛰️ 💧 🌾 🍷 🙏'.split(' ');
+function speak(text,rate){try{speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(text);u.lang=/[֐-׿]/.test(text)?'he-IL':'en-US';u.rate=rate||.9;speechSynthesis.speak(u);return true;}catch(e){toast('הדפדפן לא תומך בהקראה');return false;}}
+function wordsOf(s){return norm(s).split(/\s+/).filter(Boolean);}
+function lcsMatch(a,b){const n=a.length,m=b.length,d=Array.from({length:n+1},()=>new Uint16Array(m+1));
+  for(let i=n-1;i>=0;i--)for(let j=m-1;j>=0;j--)d[i][j]=a[i]===b[j]?d[i+1][j+1]+1:Math.max(d[i+1][j],d[i][j+1]);
+  const hit=new Set();let i=0,j=0;while(i<n&&j<m){if(a[i]===b[j]){hit.add(i);i++;j++;}else if(d[i+1][j]>=d[i][j+1])i++;else j++;}return hit;}
+function txPractice(){
+  const lines=tx.body.split('\n').filter(l=>l.trim());
+  const help={read:'קראו בקול 2–3 פעמים. לחצו על שורה שנוטים לשכוח כדי לסמן אותה 🎭 — ואותה תגידו בקול מצחיק, לוחש או במנגינה. אינטונציה שונה = עוד "וו" לזיכרון.',
+    listen:'שמיעה היא חוש נוסף. האזינו לשורה, חזרו אחריה בקול — ורק אז הקשיבו לבאה. (ההקראה תלויה בקולות שמותקנים במכשיר.)',
+    pics:'בחרו לכל שורה תמונה שמזכירה אותה. אחר כך מתרגלים רק מהתמונות — כמו ארמון זיכרון לטקסט.',
+    letters:'רואים רק אות ראשונה של כל מילה. אמרו את השורה בקול, ולחצו עליה כדי לבדוק.',
+    fade:'חלק מהמילים נעלמו. ככל שעולים שלב — נעלמות יותר. לחצו על ___ כדי לגלות.',
+    cloze:'בכל שורה חסרה מילה — בחרו את הנכונה.',order:'השורות התערבבו. לחצו עליהן לפי הסדר הנכון.',
+    lines:'אמרו בקול את השורה הבאה, ואז לחצו "הצג" כדי לבדוק.',write:'כתבו את הטקסט מהזיכרון (אפשר לנקד, לא חובה). תקבלו ציון וסימון של מה שחסר.'}[txMode];
+  const lvl=tx.level||0,hideP=[.2,.35,.5,.7,.9][lvl],tcl=i=>tx.tricky.includes(i)?'tricky':'';
+  let body='';
+  if(txMode==='read')body=lines.map((l,i)=>`<div class="txl ${tcl(i)}" data-tl="${i}">${tx.tricky.includes(i)?'🎭 ':''}${tx.pics[i]?tx.pics[i]+' ':''}${esc(l)}</div>`).join('');
+  if(txMode==='listen')body=`<div class="row"><button class="primary" data-say="all">🔊 הקרא הכול</button><button data-say="slow">🐢 לאט</button><button data-say="stop" class="shrink">⏹</button></div>`+lines.map((l,i)=>`<div class="txl ${tcl(i)}"><button class="ghost" data-say="${i}" style="padding:0 6px">🔊</button> <span class="lsn hide" id="ls${i}">${esc(l)}</span><span class="small" data-show="${i}" style="cursor:pointer">שורה ${i+1} — הקשיבו וחזרו בקול (לחצו להצגה)</span></div>`).join('');
+  if(txMode==='pics')body=lines.map((l,i)=>`<div class="txl"><div class="row"><span style="font-size:26px" class="shrink">${tx.pics[i]||'❔'}</span><span>${esc(l)}</span></div><div class="emos">${TX_EMO.map(e=>`<button class="ghost" data-pic="${i}" data-e="${e}">${e}</button>`).join('')}</div></div>`).join('')+
+    `<button class="primary" style="width:100%;margin-top:8px" data-picq>🧠 תרגלו מהתמונות בלבד</button>`;
+  if(txMode==='picq')body=lines.map((l,i)=>`<div class="txl" data-tr="${i}"><span class="fl" style="font-size:28px">${tx.pics[i]||'❔'}</span><span class="full hide">${tx.pics[i]||''} ${esc(l)}</span></div>`).join('');
+  if(txMode==='letters')body=lines.map((l,i)=>`<div class="txl ${tcl(i)}" data-tr="${i}"><span class="fl">${esc(l.split(/\s+/).map(w=>w.replace(/^([^\s]).*?([.,!?:;״"׳']*)$/u,'$1$2')).join(' '))}</span><span class="full hide">${esc(l)}</span></div>`).join('');
+  if(txMode==='fade'){let seed=lvl*97+1;const rnd=()=>{seed=(seed*9301+49297)%233280;return seed/233280;};
+    body=lines.map((l,i)=>`<div class="txl ${tcl(i)}">${l.split(/\s+/).map(w=>w.length>1&&rnd()<hideP?`<span class="hid" data-w="${esc(w)}">${'_'.repeat(Math.min(w.length,6))}</span>`:esc(w)).join(' ')}</div>`).join('');}
+  if(txMode==='cloze'){tx._cz=tx._cz||{k:0,score:0,order:[...lines.keys()].sort(()=>Math.random()-.5).slice(0,Math.min(8,lines.length))};const cz=tx._cz;
+    if(cz.k>=cz.order.length)body=`<div class="flash">${cz.score} / ${cz.order.length}</div>`;
+    else{const li=cz.order[cz.k],ws=lines[li].split(/\s+/),cand=ws.map((w,i)=>[w,i]).filter(([w])=>w.length>2);const [ans,ai]=cand.length?cand[Math.floor(Math.random()*cand.length)]:[ws[0],0];
+      const all=[...new Set(tx.body.split(/\s+/).filter(w=>w.length>2&&w!==ans))].sort(()=>Math.random()-.5).slice(0,3);
+      body=`<div class="small">${cz.k+1} / ${cz.order.length}</div><div class="txl" style="font-size:18px">${ws.map((w,i)=>i===ai?'<b>_____</b>':esc(w)).join(' ')}</div>
+        <div class="opts" style="grid-template-columns:1fr 1fr">${[ans,...all].sort(()=>Math.random()-.5).map(o=>`<button data-cz="${esc(o)}" data-ans="${esc(ans)}" style="font-size:17px">${esc(o)}</button>`).join('')}</div>`;}}
+  if(txMode==='order'){tx._or=tx._or||{pool:[...lines.keys()].sort(()=>Math.random()-.5),picked:[],mist:0};const o=tx._or;
+    body=`<ol>${o.picked.map(i=>`<li>${esc(lines[i])}</li>`).join('')}</ol>`+(o.picked.length<lines.length?o.pool.filter(i=>!o.picked.includes(i)).map(i=>`<div class="txl" data-or="${i}" style="cursor:pointer">${esc(lines[i])}</div>`).join(''):`<div class="flash">🎉 טעויות: ${o.mist}</div>`);}
+  if(txMode==='lines'){tx._ln=tx._ln||0;body=lines.slice(0,tx._ln).map((l,i)=>`<div class="txl ${tcl(i)}">${esc(l)}</div>`).join('')+(tx._ln<lines.length?`<div class="txl" style="opacity:.6">שורה ${tx._ln+1} מתוך ${lines.length} — אמרו אותה בקול…${tx.pics[tx._ln]?' רמז: '+tx.pics[tx._ln]:''}</div><button class="primary" style="width:100%;margin-top:6px" id="tx-reveal">הצג</button>`:'<div class="flash">🎉 סיימתם את כל השורות</div>');}
+  if(txMode==='write')body=tx._wr?tx._wr:`<textarea id="tx-w" style="min-height:160px" placeholder="כתבו כאן את הטקסט מהזיכרון…"></textarea><button class="primary" style="width:100%;margin-top:6px" id="tx-check">בדיקה</button>`;
+  P(`<h2>🎤 ${esc(tx.title)}</h2>
+   <div class="chips">${TX_MODES.map(([k,l])=>`<button class="chip ${txMode===k||(k==='pics'&&txMode==='picq')?'on':''}" data-txm="${k}">${l}</button>`).join('')}</div>
+   ${txMode==='fade'?`<div class="row small" style="margin-top:6px">שלב ${lvl}/4 <button class="chip shrink" data-lv="-1">−</button><button class="chip shrink" data-lv="1">+</button></div>`:''}
+   <div class="tip">${help||'נסו להיזכר בשורה לפי התמונה, ולחצו כדי לבדוק.'}</div>
+   <div class="txbox">${body}</div>
+   <div class="small" style="margin-top:10px;text-align:center">סיימתם לתרגל? איך היה?</div>
+   <div class="rate" style="grid-template-columns:repeat(3,1fr)"><button class="r0" data-txr="0">קשה</button><button data-txr="1">בסדר</button><button data-txr="2">ידעתי בעל פה</button></div>
+   <button class="ghost" style="width:100%" data-txback>→ לכל הטקסטים</button>`);
+  $('tool-panel').onclick=e=>{
+    const m=e.target.closest('[data-txm]');if(m){txMode=m.dataset.txm;tx._ln=0;tx._cz=null;tx._or=null;tx._wr=null;try{speechSynthesis.cancel();}catch(_){}return txPractice();}
+    const lv=e.target.closest('[data-lv]');if(lv){tx.level=Math.max(0,Math.min(4,(tx.level||0)+ +lv.dataset.lv));save();return txPractice();}
+    const tl=e.target.closest('[data-tl]');if(tl){const i=+tl.dataset.tl,k=tx.tricky.indexOf(i);if(k>=0)tx.tricky.splice(k,1);else tx.tricky.push(i);save();return txPractice();}
+    const tr=e.target.closest('[data-tr]');if(tr){tr.querySelector('.fl').classList.toggle('hide');tr.querySelector('.full').classList.toggle('hide');return;}
+    const h=e.target.closest('.hid');if(h){h.textContent=h.dataset.w;h.classList.add('shown');return;}
+    const sy=e.target.closest('[data-say]');if(sy){const v=sy.dataset.say;if(v==='stop'){try{speechSynthesis.cancel();}catch(_){}}else if(v==='all'||v==='slow')speak(lines.join('\n'),v==='slow'?.7:.9);else speak(lines[+v]);return;}
+    const sh=e.target.closest('[data-show]');if(sh){$('ls'+sh.dataset.show).classList.toggle('hide');return;}
+    const pc=e.target.closest('[data-pic]');if(pc){tx.pics[pc.dataset.pic]=pc.dataset.e;save();return txPractice();}
+    if(e.target.closest('[data-picq]')){txMode='picq';return txPractice();}
+    const cz=e.target.closest('[data-cz]');if(cz){const ok=cz.dataset.cz===cz.dataset.ans;if(ok){tx._cz.score++;toast('✓');}else toast('✗ '+cz.dataset.ans);tx._cz.k++;return setTimeout(txPractice,350);}
+    const or=e.target.closest('[data-or]');if(or){const o=tx._or,i=+or.dataset.or;if(i===o.picked.length)o.picked.push(i);else{o.mist++;toast('לא זו — מה בא עכשיו?');}return txPractice();}
+    if(e.target.id==='tx-reveal'){tx._ln++;return txPractice();}
+    if(e.target.id==='tx-check'){const a=wordsOf(tx.body),b=wordsOf($('tx-w').value),hit=lcsMatch(a,b),pct=Math.round(hit.size/Math.max(1,a.length)*100);
+      if(tx.best==null||pct>tx.best)tx.best=pct;save();
+      const raw=tx.body.split(/\s+/).filter(Boolean);let wi=0;
+      tx._wr=`<div class="flash">${pct}% מהמילים</div><div class="txl" style="line-height:2">${raw.map(w=>{const nw=norm(w);if(!nw)return esc(w);const ok=hit.has(wi);wi++;return ok?esc(w):`<span class="miss">${esc(w)}</span>`;}).join(' ')}</div><div class="small">מסומן = מילים שחסרו או שהתבלבלו. שווה לסמן את השורות האלה 🎭 ולתרגל אותן בקול מצחיק.</div><button style="width:100%;margin-top:6px" data-txm="write">ניסיון נוסף</button>`;
+      logAct('g_text');return txPractice();}
+    const r=e.target.closest('[data-txr]');if(r){const v=+r.dataset.txr;srNext(tx,v);if(v===2)tx.level=Math.min(4,(tx.level||0)+1);if(v===0)tx.level=Math.max(0,(tx.level||0)-1);
+      logAct('games');logAct('g_text');save();render();toast(`נשמר · תרגול הבא: ${fmtDate(tx.next)}`);return toolText();}
+    if(e.target.closest('[data-txback]'))return toolText();
+  };
+}
+
+/* ---------- 🏋️ routines ---------- */
+let rt=null;
+const RT_KINDS=[['yoga','🧘 יוגה'],['swim','🏊 שחייה'],['gym','🏋️ כושר'],['run','🏃 ריצה'],['physio','🩹 פיזיותרפיה'],['dance','💃 ריקוד'],['other','✨ אחר']];
+function toolRoutine(id){
+  if(id){rt=S.routines.find(x=>x.id===id);return rtMenu();}
+  P(`<h2>🏋️ רצפי תרגילים</h2>
+   <div class="small">יוגה, שחייה, תוכנית כושר, תרגילי פיזיותרפיה — רשמו את הרצף ותתרגלו לזכור אותו בלי דף.</div>
+   ${S.routines.map(r=>`<div class="task"><div class="txt" data-rtopen="${r.id}">${(RT_KINDS.find(k=>k[0]===r.kind)||['','✨'])[1].split(' ')[0]} ${esc(r.title)}<div class="meta">${r.steps.length} תרגילים · ${isDue(r)?'⏰ זמן לתרגל':'הבא: '+fmtDate(r.next)}</div></div><button class="shrink" data-rtopen="${r.id}">פתח</button><button class="ghost" data-rtdel="${r.id}">✕</button></div>`).join('')}
+   <input id="rt-title" style="margin-top:10px" placeholder="שם הרצף (למשל: ברכת השמש)">
+   <div class="chips" id="rt-kind">${RT_KINDS.map(([k,l],i)=>`<button class="chip ${i===0?'on':''}" data-k="${k}">${l}</button>`).join('')}</div>
+   <textarea id="rt-steps" style="margin-top:8px" placeholder="תרגיל בכל שורה. אפשר להוסיף זמן או חזרות אחרי מקף:\nכלב מביט מטה — 30 שנ׳\nלאנג׳ ימין — 5 נשימות\nחתירה — 4 בריכות"></textarea>
+   <button class="primary" style="width:100%;margin-top:8px" id="rt-add">שמור רצף</button>`);
+  let kind='yoga';$('rt-kind').onclick=e=>{const b=e.target.closest('[data-k]');if(!b)return;kind=b.dataset.k;$('rt-kind').querySelectorAll('.chip').forEach(x=>x.classList.toggle('on',x===b));};
+  $('rt-add').onclick=()=>{const st=$('rt-steps').value.split('\n').map(x=>x.trim()).filter(Boolean);if(st.length<2){toast('לפחות 2 תרגילים');return;}
+    const r={id:uid(),title:$('rt-title').value.trim()||'רצף חדש',kind,steps:st,created:Date.now()};S.routines.unshift(r);save();toolRoutine(r.id);};
+  $('tool-panel').onclick=e=>{const o=e.target.closest('[data-rtopen]'),d=e.target.closest('[data-rtdel]');if(o)toolRoutine(o.dataset.rtopen);if(d){S.routines=S.routines.filter(x=>x.id!==d.dataset.rtdel);save();toolRoutine();}};
+}
+function rtMenu(){
+  P(`<h2>${esc(rt.title)}</h2><div class="small">${rt.steps.length} תרגילים</div>
+   <button class="primary" style="width:100%;margin-top:10px" data-rtm="order">🔀 סדרו את הרצף מהזיכרון</button>
+   <button style="width:100%;margin-top:8px" data-rtm="next">➡️ מה בא אחרי?</button>
+   <button style="width:100%;margin-top:8px" data-rtm="run">▶ ביצוע צעד־צעד</button>
+   <div class="tip">💡 כדי לזכור רצף: תנו לו <b>סיפור</b> ("השמש עולה, הכלב מתמתח, הלוחם יוצא לקרב…"), או חברו כל תרגיל ל<b>תחושה בגוף</b>. גוף + תמונה = שני חושים.</div>
+   <ol class="small">${rt.steps.map(s=>`<li>${esc(s)}</li>`).join('')}</ol>
+   <button class="ghost" style="width:100%" data-rtback>→ לכל הרצפים</button>`);
+  $('tool-panel').onclick=e=>{const m=e.target.closest('[data-rtm]');if(m)({order:rtOrder,next:rtNext,run:rtRun})[m.dataset.rtm]();if(e.target.closest('[data-rtback]'))toolRoutine();};
+}
+function rtDone(score,total){const v=score===total?2:score>=total*.6?1:0;srNext(rt,v);logAct('games');logAct('g_routine');save();render();
+  P(`<div class="flash">${score} / ${total}</div><div class="small" style="text-align:center">תרגול הבא: ${fmtDate(rt.next)}</div><button class="primary" style="width:100%;margin-top:10px" data-rtagain>חזרה לרצף</button>`);
+  $('tool-panel').querySelector('[data-rtagain]').onclick=rtMenu;}
+function rtOrder(){
+  const pool=rt.steps.map((s,i)=>({s,i})).sort(()=>Math.random()-.5);let picked=[],mist=0;
+  const draw=()=>{P(`<h2>🔀 ${esc(rt.title)}</h2><div class="small">לחצו על התרגילים לפי הסדר הנכון.</div>
+    <ol>${picked.map(p=>`<li>${esc(p.s)}</li>`).join('')}</ol>
+    <div class="chips">${pool.filter(p=>!picked.includes(p)).map(p=>`<button class="chip" data-o="${p.i}">${esc(p.s)}</button>`).join('')}</div><div class="small" style="margin-top:6px">טעויות: ${mist}</div>`);
+    $('tool-panel').onclick=e=>{const b=e.target.closest('[data-o]');if(!b)return;const i=+b.dataset.o;
+      if(i===picked.length){picked.push(pool.find(p=>p.i===i));if(picked.length===rt.steps.length)return rtDone(Math.max(0,rt.steps.length-mist),rt.steps.length);draw();}
+      else{mist++;b.classList.add('wrong');setTimeout(draw,400);toast('לא זה — מה בא עכשיו?');}};};
+  draw();
+}
+function rtNext(){
+  const n=rt.steps.length,qs=[...Array(n-1).keys()].sort(()=>Math.random()-.5).slice(0,Math.min(6,n-1));let k=0,score=0;
+  const ask=()=>{if(k>=qs.length)return rtDone(score,qs.length);const i=qs[k],ans=rt.steps[i+1];
+    const opts=[ans,...rt.steps.filter((s,j)=>j!==i+1&&j!==i).sort(()=>Math.random()-.5).slice(0,3)].sort(()=>Math.random()-.5);
+    P(`<h2>➡️ מה בא אחרי?</h2><div class="small">${k+1} / ${qs.length}</div><div class="flash">${esc(rt.steps[i])}</div>
+      <div class="opts" style="grid-template-columns:1fr">${opts.map(o=>`<button style="font-size:16px" data-a="${esc(o)}">${esc(o)}</button>`).join('')}</div>`);
+    $('tool-panel').onclick=e=>{const b=e.target.closest('[data-a]');if(!b)return;if(b.dataset.a===ans){score++;toast('✓');}else toast('✗ '+ans);k++;setTimeout(ask,350);};};
+  ask();
+}
+function parseDur(s){const m=s.match(/(\d+)\s*(שנ|ש׳|sec|s\b)/);if(m)return +m[1];const d=s.match(/(\d+)\s*(דק|min)/);if(d)return +d[1]*60;return 0;}
+function rtRun(){
+  let i=0,t=null,left=0;
+  const draw=()=>{clearInterval(t);const s=rt.steps[i],d=parseDur(s);left=d;
+    P(`<h2>▶ ${esc(rt.title)}</h2><div class="small">${i+1} / ${rt.steps.length}</div><div class="flash" style="font-size:24px">${esc(s)}</div>
+      ${d?`<div class="big" id="rt-t">${d}</div>`:''}
+      ${i+1<rt.steps.length?`<div class="small" style="text-align:center">הבא: <span class="hid" id="rt-nx">נסו להיזכר… (לחצו)</span></div>`:''}
+      <div class="row" style="margin-top:12px"><button data-rv="-1">→ הקודם</button><button class="primary" data-rv="1">${i+1<rt.steps.length?'הבא ←':'סיום ✓'}</button></div>`);
+    if(d)t=setInterval(()=>{left--;const el=$('rt-t');if(el)el.textContent=Math.max(0,left);if(left<=0)clearInterval(t);},1000);
+    $('tool-panel').onclick=e=>{if(e.target.id==='rt-nx'){e.target.textContent=rt.steps[i+1];return;}const b=e.target.closest('[data-rv]');if(!b)return;
+      i+= +b.dataset.rv;if(i<0)i=0;if(i>=rt.steps.length){clearInterval(t);logAct('games');logAct('g_routine');save();toast('🎉 כל הכבוד!');return rtMenu();}draw();};};
+  draw();
+}
+
+/* ---------- 📖 exams ---------- */
+let exm=null;
+function toolExam(id){
+  if(id){exm=S.exams.find(x=>x.id===id);return exMenu();}
+  P(`<h2>📖 חומר למבחן</h2><div class="small">יוצרים מבחן עם תאריך, מוסיפים שאלות ותשובות — והחזרות מתוזמנות כך שהכול יישב עד יום המבחן.</div>
+   ${S.exams.map(x=>{const left=diffD(TODAY(),x.date),n=S.cards.filter(c=>c.deck===x.id).length;
+     return `<div class="task"><div class="txt" data-exopen="${x.id}">${esc(x.title)}<div class="meta">${left>=0?`עוד ${left} ימים`:'עבר'} · ${n} כרטיסים</div></div><button class="shrink" data-exopen="${x.id}">פתח</button><button class="ghost" data-exdel="${x.id}">✕</button></div>`;}).join('')}
+   <div class="row" style="margin-top:10px"><input id="ex-title" placeholder="שם המבחן"><input type="date" id="ex-date" class="shrink" style="width:150px"></div>
+   <button class="primary" style="width:100%;margin-top:8px" id="ex-add">צור מבחן</button>`);
+  $('ex-add').onclick=()=>{const d=$('ex-date').value;if(!d){toast('בחרו תאריך');return;}const x={id:uid(),title:$('ex-title').value.trim()||'מבחן',date:d};S.exams.unshift(x);save();toolExam(x.id);};
+  $('tool-panel').onclick=e=>{const o=e.target.closest('[data-exopen]'),d=e.target.closest('[data-exdel]');if(o)toolExam(o.dataset.exopen);
+    if(d){S.cards=S.cards.filter(c=>c.deck!==d.dataset.exdel);S.exams=S.exams.filter(x=>x.id!==d.dataset.exdel);save();render();toolExam();}};
+}
+function exMenu(){
+  const cards=S.cards.filter(c=>c.deck===exm.id),left=diffD(TODAY(),exm.date),due=cards.filter(c=>c.due<=TODAY());
+  P(`<h2>📖 ${esc(exm.title)}</h2><div class="small">${left>0?`עוד ${left} ימים · `:left===0?'היום! · ':''}${cards.length} כרטיסים · ${due.length} לחזרה היום</div>
+   <div class="row" style="margin-top:10px"><button class="primary" data-exr="due" ${due.length?'':'disabled'}>חזרה של היום (${due.length})</button><button data-exr="all" ${cards.length?'':'disabled'}>כל החומר</button></div>
+   <div class="tip">💡 <b>ארגון ויזואלי</b>: לפני שמשננים — סדרו את החומר בטבלה או במפת מושגים על דף. <b>לבחון את עצמך</b> עדיף על קריאה חוזרת. ו<b>ללמד מישהו אחר</b> — הכי חזק.</div>
+   <div class="small" style="margin-top:8px">הוספת כרטיסים — שורה לכל כרטיס: <b>שאלה | תשובה</b></div>
+   <textarea id="ex-bulk" placeholder="מהי בירת צרפת? | פריז\nנוסחת שטח עיגול | πr²"></textarea>
+   <button style="width:100%;margin-top:6px" id="ex-cards">הוסף כרטיסים</button>
+   <div style="margin-top:8px">${cards.map(c=>`<div class="cardrow"><div class="txt">${esc(c.front)}<div class="small">${esc(c.back)}</div></div></div>`).join('')}</div>
+   <button class="ghost" style="width:100%" data-exback>→ לכל המבחנים</button>`);
+  $('tool-panel').onclick=e=>{
+    if(e.target.id==='ex-cards'){const L=$('ex-bulk').value.split('\n').map(l=>l.split('|')).filter(p=>p[0]&&p[0].trim());
+      L.forEach(([f,b])=>S.cards.push({id:uid(),front:f.trim(),back:(b||'').trim(),interval:0,ease:2.5,reps:0,due:TODAY(),created:Date.now(),deck:exm.id}));save();render();toast(`נוספו ${L.length} כרטיסים`);return exMenu();}
+    const r=e.target.closest('[data-exr]');if(r){const list=r.dataset.exr==='due'?due:cards;startReview([...list].sort(()=>Math.random()-.5));return;}
+    if(e.target.closest('[data-exback]'))toolExam();};
+}
+function startReview(list){goTab('cards');queue=list;qi=0;$('review-box').classList.add('hide');$('review-run').classList.remove('hide');showCard();window.scrollTo(0,0);}
+function capExam(c){if(!c.deck)return;const ex=S.exams.find(x=>x.id===c.deck);if(!ex)return;const left=diffD(TODAY(),ex.date);
+  if(left>0){c.interval=Math.min(c.interval,Math.max(1,Math.floor(left/2)));c.due=addDays(c.interval);}}
+
+/* ---------- 🧮 thinking games ---------- */
+const ODD_CATS={'פירות':['תפוח','בננה','ענבים','אגס','מנגו','אבטיח','שזיף','דובדבן'],'ירקות':['גזר','מלפפון','חציל','כרוב','פלפל','בצל','קישוא','עגבנייה'],
+ 'חיות':['כלב','אריה','סוס','ג׳ירפה','ארנב','זאב','פיל','חתול'],'כלי תחבורה':['אוטובוס','רכבת','מטוס','אופניים','סירה','משאית','מונית','קטנוע'],
+ 'צבעים':['אדום','כחול','ירוק','צהוב','סגול','כתום','ורוד','חום'],'כלי נגינה':['גיטרה','פסנתר','חליל','תוף','כינור','חצוצרה','עוגב','צ׳לו'],
+ 'מקצועות':['רופא','נגר','מורה','טבח','שוטר','נהג','צלם','חשמלאי'],'ערים בישראל':['חיפה','אילת','טבריה','נתניה','עכו','רחובות','צפת','אשדוד'],
+ 'רהיטים':['כיסא','שולחן','ארון','מיטה','ספה','מדף','שידה','כורסה'],'ספורט':['כדורגל','טניס','שחייה','ריצה','כדורסל','יוגה','שחמט','רכיבה']};
+const FLU_CATS=['חיות','פירות וירקות','ערים בעולם','מקצועות','דברים במטבח','שמות של אנשים','דברים ירוקים','דברים שיש בים','כלי עבודה','מילים שמתחילות ב־מ','מילים שמתחילות ב־ש','מילים שמתחילות ב־ר','בגדים','ארצות','דברים שעושים בחופש'];
+let th=null;
+function thMenu(){$('th-body').innerHTML=`<div class="small">בחרו תרגיל:</div>
+  <button class="primary" style="width:100%;margin-top:8px" data-th="math">➕ חשבון בראש — 60 שניות</button>
+  <button style="width:100%;margin-top:8px" data-th="series">🔢 השלמת סדרה</button>
+  <button style="width:100%;margin-top:8px" data-th="odd">🧩 יוצא דופן</button>
+  <button style="width:100%;margin-top:8px" data-th="flu">🗣️ שטף מילים — 60 שניות</button>
+  <div class="tip">תרגילי חשיבה מאמנים מהירות, גמישות ושליפה של מילים — דברים שמשפיעים ישירות על הזיכרון היומיומי.</div>`;}
+function thEnd(score,key,label){const rec=score>(S.best[key]||0);if(rec)S.best[key]=score;logAct('games');logAct('g_think');save();
+  $('th-body').innerHTML=`<div class="flash">${rec?'🏆 ':''}${label}: ${score}</div><div class="small" style="text-align:center">שיא: ${S.best[key]}</div><button class="primary" style="width:100%;margin-top:8px" data-thm>עוד תרגיל</button>`;}
+$('g-think').addEventListener('click',e=>{const b=e.target.closest('[data-th]');if(b)({math:thMath,series:thSeries,odd:thOdd,flu:thFlu})[b.dataset.th]();if(e.target.closest('[data-thm]'))thMenu();});
+function thTimer(sec,onEnd){let left=sec;$('th-t').textContent=left;clearInterval(gInt);gInt=setInterval(()=>{left--;const el=$('th-t');if(el)el.textContent=left;if(left<=0){clearInterval(gInt);onEnd();}},1000);}
+function thMath(){let score=0,q;const mk=()=>{const op=['+','−','×'][Math.floor(Math.random()*3)];let a,b,r;
+    if(op==='+'){a=10+Math.floor(Math.random()*80);b=5+Math.floor(Math.random()*60);r=a+b;}
+    if(op==='−'){a=20+Math.floor(Math.random()*80);b=5+Math.floor(Math.random()*(a-5));r=a-b;}
+    if(op==='×'){a=2+Math.floor(Math.random()*11);b=2+Math.floor(Math.random()*11);r=a*b;}q={t:`${a} ${op} ${b}`,r};};
+  mk();$('th-body').innerHTML=`<div class="row small"><span>נכון: <b id="th-s">0</b></span><span class="shrink">⏱ <b id="th-t"></b></span></div><div class="big" id="th-q" style="direction:ltr">${q.t}</div>
+    <input id="th-in" inputmode="numeric" style="text-align:center;font-size:24px;direction:ltr" placeholder="?">`;
+  $('th-in').focus();$('th-in').oninput=e=>{if(+e.target.value===q.r&&e.target.value!==''){score++;$('th-s').textContent=score;mk();$('th-q').textContent=q.t;e.target.value='';}};
+  thTimer(60,()=>thEnd(score,'math','תרגילים נכונים'));}
+function thSeries(){let k=0,score=0;const gen=()=>{const t=Math.floor(Math.random()*5),a=1+Math.floor(Math.random()*9),d=2+Math.floor(Math.random()*7);let s=[];
+    if(t===0)for(let i=0;i<5;i++)s.push(a+d*i);
+    if(t===1)for(let i=0;i<5;i++)s.push(a*2**i);
+    if(t===2){const d2=1+Math.floor(Math.random()*5);let x=a;for(let i=0;i<5;i++){s.push(x);x+=i%2?d2:d;}}
+    if(t===3)for(let i=0;i<5;i++)s.push((a+i)**2);
+    if(t===4){let x=a,y=a+1;s=[x,y];for(let i=0;i<3;i++){const z=x+y;s.push(z);x=y;y=z;}}
+    return s;};
+  const ask=()=>{if(k>=6)return thEnd(score,'series','סדרות נכונות');const s=gen(),ans=s[4],opts=[...new Set([ans,ans+1,ans-2,ans+s[3]-s[2]+1,ans*2-s[3]])].filter(x=>x!==undefined).slice(0,4).sort(()=>Math.random()-.5);
+    $('th-body').innerHTML=`<div class="small">${k+1} / 6 · מה המספר הבא?</div><div class="big" style="font-size:28px;letter-spacing:2px">${s.slice(0,4).join(' , ')} , ?</div>
+      <div class="opts">${opts.map(o=>`<button data-sa="${o}" style="font-size:20px">${o}</button>`).join('')}</div>`;
+    $('th-body').onclick=e=>{const b=e.target.closest('[data-sa]');if(!b)return;$('th-body').onclick=null;if(+b.dataset.sa===ans){score++;toast('✓');}else toast('✗ התשובה: '+ans);k++;setTimeout(ask,400);};};
+  ask();}
+function thOdd(){let k=0,score=0;const cats=Object.keys(ODD_CATS);
+  const ask=()=>{if(k>=8)return thEnd(score,'odd','יוצאי דופן');const [A,B]=cats.sort(()=>Math.random()-.5).slice(0,2);
+    const main=[...ODD_CATS[A]].sort(()=>Math.random()-.5).slice(0,3),odd=ODD_CATS[B][Math.floor(Math.random()*8)],opts=[...main,odd].sort(()=>Math.random()-.5);
+    $('th-body').innerHTML=`<div class="small">${k+1} / 8 · איזו מילה לא שייכת?</div><div class="opts" style="grid-template-columns:1fr 1fr;margin-top:10px">${opts.map(o=>`<button data-oa="${o}" style="font-size:19px">${o}</button>`).join('')}</div>`;
+    $('th-body').onclick=e=>{const b=e.target.closest('[data-oa]');if(!b)return;$('th-body').onclick=null;if(b.dataset.oa===odd){score++;toast('✓ ('+A+')');}else toast('✗ '+odd+' — השאר '+A);k++;setTimeout(ask,600);};};
+  ask();}
+function thFlu(){const cat=FLU_CATS[Math.floor(Math.random()*FLU_CATS.length)];
+  $('th-body').innerHTML=`<div class="row small"><span>קטגוריה:</span><span class="shrink">⏱ <b id="th-t"></b></span></div><div class="flash">${cat}</div>
+    <textarea id="th-w" placeholder="כתבו כמה שיותר מילים, מופרדות ברווח…"></textarea>`;$('th-w').focus();
+  thTimer(60,()=>{const w=new Set(norm($('th-w').value).split(/\s+/).filter(x=>x.length>1));thEnd(w.size,'flu','מילים שונות');});}
+
+/* ---------- 🎯 new skill ---------- */
+function renderSkills(){
+  const wk=[...Array(7)].map((_,i)=>addDays(i-6));
+  $('skill-list').innerHTML=S.skills.map(s=>{const sum=wk.reduce((a,k)=>a+((s.log||{})[k]||0),0);let st=0,d=new Date();if(!(s.log||{})[dkey(d)])d.setDate(d.getDate()-1);while((s.log||{})[dkey(d)]){st++;d.setDate(d.getDate()-1);}
+    return `<div class="task"><div class="txt">${esc(s.name)}<div class="meta">השבוע: ${sum} דק׳ · רצף ${st} ימים 🔥 · היום: ${(s.log||{})[TODAY()]||0} דק׳</div></div>
+      <button class="shrink" data-sk="${s.id}" data-m="15">+15</button><button class="shrink" data-sk="${s.id}" data-m="30">+30</button><button class="ghost" data-skdel="${s.id}">✕</button></div>`;}).join('')||'<div class="empty" style="padding:6px">עוד אין — מה תמיד רצית ללמוד?</div>';
+}
+$('skill-list').onclick=e=>{const b=e.target.closest('[data-sk]'),d=e.target.closest('[data-skdel]');
+  if(b){const s=S.skills.find(x=>x.id===b.dataset.sk);s.log=s.log||{};s.log[TODAY()]=(s.log[TODAY()]||0)+ +b.dataset.m;logAct('g_skill');save();renderSkills();toast('💪 נרשם');}
+  if(d){S.skills=S.skills.filter(x=>x.id!==d.dataset.skdel);save();renderSkills();}};
+$('skill-add').onclick=()=>{const v=$('skill-in').value.trim();if(!v)return;S.skills.push({id:uid(),name:v,log:{}});$('skill-in').value='';save();renderSkills();};
+$('skill-sug').onclick=e=>{const b=e.target.closest('[data-s]');if(b){$('skill-in').value=b.dataset.s;$('skill-in').focus();}};
+
+/* ---------- 🧠 memorize today's tasks with a method ---------- */
+const PALACE=['דלת הכניסה','המסדרון','הסלון','המטבח','חדר האמבטיה','חדר השינה','המרפסת','החלון','הארון','השולחן'];
+let dmMethod='peg';
+function todaysTasks(){const t=TODAY();return S.tasks.filter(x=>!x.done&&x.kind!=='thought'&&(x.due&&x.due<=t)).slice(0,10);}
+function renderDayMem(){
+  const L=todaysTasks();$('daymem-card').classList.toggle('hide',L.length<3);if(L.length<3)return;
+  const word=t=>t.text.replace(/^(ל|ה)/,'').split(/\s+/).slice(0,3).join(' ');
+  let body='';
+  if(dmMethod==='peg')body=L.map((t,i)=>`<div class="task"><span style="font-size:20px">${['🕯️','🦢','❤️','⛵','🪝','🍒','🪃','⛄','🎈','🏏'][i]}</span><div class="txt"><b>${i+1} · ${PEGS[i]}</b> — ${esc(t.text)}<div class="meta">דמיינו: ${PEGS[i]} ו"${esc(word(t))}" ביחד, בתמונה מוגזמת ומצחיקה.</div></div></div>`).join('');
+  if(dmMethod==='palace')body=L.map((t,i)=>`<div class="task"><span>🚪</span><div class="txt"><b>${PALACE[i]}</b> — ${esc(t.text)}<div class="meta">"הניחו" את "${esc(word(t))}" ב${PALACE[i]}. מה הוא עושה שם?</div></div></div>`).join('');
+  if(dmMethod==='acro'){const letters=L.map(t=>t.text.replace(/^[^֐-׿a-zA-Z0-9]+/,'')[0]||'?');
+    body=`<div class="big" style="font-size:30px;letter-spacing:4px;direction:rtl">${letters.join('')}</div><div class="small" style="text-align:center">${L.length} משימות. בנו מהאותיות מילה או משפט מצחיק:</div>${L.map(t=>`<div class="small">• <b>${esc(t.text[0])}</b>${esc(t.text.slice(1))}</div>`).join('')}`;}
+  if(dmMethod==='story')body=`<div class="small">חברו את כל המשימות לסיפור אחד משוגע (כל אחת "עושה משהו" לבאה). כתבו אותו — הכתיבה עצמה מקבעת:</div>${L.map(t=>`<div class="small">• ${esc(t.text)}</div>`).join('')}<textarea id="dm-story" style="margin-top:6px" placeholder="פעם אחת…">${esc(S.dmStory&&S.dmStory.d===TODAY()?S.dmStory.t:'')}</textarea>`;
+  $('daymem-body').innerHTML=body;
+  document.querySelectorAll('#dm-methods .chip').forEach(x=>x.classList.toggle('on',x.dataset.dm===dmMethod));
+  const st=$('dm-story');if(st)st.oninput=()=>{S.dmStory={d:TODAY(),t:st.value};save();};
+}
+document.querySelectorAll('#dm-methods .chip').forEach(c=>c.onclick=()=>{dmMethod=c.dataset.dm;renderDayMem();});
+$('dm-test').onclick=()=>{logAct('g_daymem');$('recall-start').click();$('recall-card').scrollIntoView({behavior:'smooth',block:'start'});};
+
+/* ---------- 💡 contextual method hint while capturing ---------- */
+const HINTS=[
+ [/מתכון|לבשל|לאפות/,'recipe','🍳 מתכון? קראו הכול פעם אחת והוציאו את כל המצרכים מראש.'],
+ [/תור|רופא|בדיקה|מרפאה/,'appt','📋 פגישה אצל רופא? הכינו 3 שאלות מראש, ורשמו סיכום באותו יום.'],
+ [/מבחן|בחינה|מבדק/,'tool:exam','📖 מבחן? צרו אותו ב"חומר למבחן" והחזרות יתוזמנו עד התאריך.'],
+ [/לשנן|נאום|ברכה|דרשה|הרצאה|שיר/,'tool:text','🎤 לשנן בעל פה? יש כלי "שינון טקסט" עם אותיות ראשונות והעלמה הדרגתית.'],
+ [/חני|חנייה|חניה/,'tool:park','🚗 שמרו איפה חניתם — עם תמונה.'],
+ [/קוד|סיסמ|מספר טלפון|ת״ז/,'chunk','🧩 מספר? חלקו לקבוצות של 3–4.'],
+ [/קניות|לקנות|סופר|רשימה/,'palace','🏛️ רשימה? "הניחו" כל פריט בחדר אחר בבית.'],
+ [/יוגה|שחי|תרגיל|אימון|פיזיו/,'tool:routine','🏋️ רצף תרגילים? אפשר לשמור אותו ולתרגל לזכור.'],
+];
+function capHint(){const v=$('task-input').value;let h=null;
+  if(kind==='ask')h=['say','🙋 חזרו במילים שלכם על הבקשה — "אז צריך ממני X עד Y, נכון?"'];
+  else if(kind==='thought')h=['drive','💭 בדרך? תנו למחשבה מילה אחת וספרו כמה יש לכם.'];
+  for(const [re,go,t] of HINTS)if(re.test(v)){h=[go,t];break;}
+  $('cap-hint').classList.toggle('hide',!h);if(h){$('cap-hint').innerHTML=`${h[1]} <button class="ghost" style="padding:0 4px;font-size:13px" data-hgo="${h[0]}">פתח ←</button>`;}}
+$('task-input').addEventListener('input',capHint);
+document.querySelectorAll('#kind-chips .chip').forEach(c=>c.addEventListener('click',capHint));
+$('cap-hint').onclick=e=>{const b=e.target.closest('[data-hgo]');if(!b)return;const g=b.dataset.hgo;
+  if(g.startsWith('tool:'))openTool(g.slice(5));else{goTab('methods');const card=$('m-'+g);if(card){if(card.querySelector('.mb').classList.contains('hide'))card.querySelector('[data-open]').click();setTimeout(()=>card.scrollIntoView({behavior:'smooth',block:'start'}),50);}}};
+
 /* ---------- progress & backup ---------- */
 function renderProgress(){
   $('p-streak').textContent=streak();
@@ -1907,7 +2309,7 @@ function render(){
   $('p-missing').textContent=S.best.missing;$('p-pairs').textContent=S.best.pairs[8]||'—';$('p-sudoku').textContent=S.best.sudoku;
   const tp=TIPS[Math.floor(dayRand(5)*TIPS.length)];$('tip-title').textContent=tp[0];$('tip-body').textContent=tp[1];$('tip-more-body').textContent=tp[3]||'';$('tip-x').classList.toggle('hide',!tp[3]);
   $('best-sch').textContent=S.best.sch5?S.best.sch5+' שנ׳':'—';$('p-sch').textContent=S.best.sch5||'—';
-  renderContacts();renderTasks();renderBoard();renderNotes();renderCards();renderProgress();renderFocus();renderParked();renderDaily();renderWarmList();
+  renderParkBanner();renderDayMem();renderSkills();renderContacts();renderTasks();renderBoard();renderNotes();renderCards();renderProgress();renderFocus();renderParked();renderDaily();renderWarmList();
 }
 save();render();
 /* PWA: offline + install when hosted on its own site (e.g. GitHub Pages) */
