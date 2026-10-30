@@ -196,6 +196,11 @@ nav button .ic{font-size:19px}
     <div id="parked-list"></div>
   </div>
 
+  <div class="card hide" id="contact-card">
+    <h2>💛 כדאי ליצור קשר</h2>
+    <div id="contact-list"></div>
+  </div>
+
   <div class="card" id="daily-card">
     <div class="row"><h2>🏋️ אימון של היום</h2><span class="small shrink" id="daily-sum"></span></div>
     <div id="daily-list"></div>
@@ -1526,7 +1531,7 @@ const ST_ORDER=['todo','doing','waiting','done'];
 function stOf(t){return t.done?'done':(t.status&&t.status!=='done'?t.status:'todo');}
 function setStatus(t,st){
   const was=t.done;t.status=st;t.done=st==='done';t.doneAt=t.done?(t.doneAt||TODAY()):null;
-  if(t.done&&!was){logAct('tasks');toast('כל הכבוד! ✓');}
+  if(t.done&&!was){logAct('tasks');toast('כל הכבוד! ✓');touchContact(t);}
 }
 /* ---- bottom sheet ---- */
 function openSheet(html){$('sheet-body').innerHTML=html;$('sheet').classList.remove('hide');}
@@ -1680,7 +1685,7 @@ function renderOb(){
     <input id="ob-name" style="margin-top:12px" placeholder="איך לקרוא לך?" value="${esc(ob.name)}">
     <div class="small" style="margin-top:10px">איך לפנות אליך?</div>
     <div class="chips" id="ob-g">${chipsHTML([['m','בלשון זכר'],['f','בלשון נקבה'],['','לא משנה']],[ob.g],'g')}</div>`;
-  if(obStep===1)h=`<h2>💛 האנשים שחשובים לך</h2><div class="small">אנשים שחשוב לך לא לשכוח: להתקשר, לשאול מה שלומם, לעשות משהו בשבילם, או לחזור אליהם עם תשובה. "מם או…" ישאל עליהם מדי פעם.<br>כתבו שמות בכל קבוצה (אפשר כמה, מופרדים בפסיק) ודלגו על מה שלא רלוונטי. ♂/♀ קובע איך לנסח ("ביקש" / "ביקשה").</div>
+  if(obStep===1)h=`<h2>💛 האנשים שחשובים לך</h2><div class="small">אנשים שחשוב לך לא לשכוח: להתקשר, לשאול מה שלומם, לעשות משהו בשבילם, או לחזור אליהם עם תשובה. "מם או…" ישאל עליהם מדי פעם.<br>כתבו שמות בכל קבוצה (אפשר כמה, מופרדים בפסיק) ודלגו על מה שלא רלוונטי.<br>📞 — כל כמה זמן להזכיר לך ליצור קשר · ♂/♀ — איך לנסח ("ביקש" / "ביקשה").</div>
     <div id="ob-people" style="margin-top:8px"></div>`;
   if(obStep===2)h=`<h2>📌 תחומים ונושאים</h2><div class="small">במה ${you()} ${gf(ob.g,'עסוק','עסוקה','עסוק/ה')} ועל מה כדאי לשאול "מה שכחתי?". סמנו תחומים רלוונטיים, והוסיפו בכל אחד נושאים ספציפיים (פרויקט, תחביב, קורס…). דלגו על מה שלא רלוונטי.</div>
     <div id="ob-topics" style="margin-top:8px"></div>`;
@@ -1706,6 +1711,7 @@ const RELS=[
  ['partner','💑','בן/בת זוג','שם'],['kids','🧒','ילדים','שמות הילדים'],['parents','👴','הורים','למשל: אבא, אמא, או שמות'],
  ['family','👪','משפחה','אחים, סבים, דודים, גיסים…'],['friends','🤝','חברים','שמות של חברים קרובים'],['work','💼','עבודה','חברים לעבודה, מנהל, לקוחות'],
  ['daily','🏘️','בקשר יומיומי','שכנים, מאמן, ועד בית, רופא המשפחה…'],['other','👤','אחרים','כל מי שעוד חשוב לזכור']];
+const EVERY=[0,3,7,14,30],EVERY_L={0:'—',3:'כל 3 ימים',7:'שבוע',14:'שבועיים',30:'חודש'};
 const REL_GUESS={'אבא':'m','אמא':'f','סבא':'m','סבתא':'f'};
 function renderObPeople(){
   obFlushPeople();
@@ -1713,13 +1719,15 @@ function renderObPeople(){
   $('ob-people').innerHTML=RELS.map(([r,ic,l,ph])=>{const L=ob.people.map((p,i)=>[p,i]).filter(([p])=>p.rel===r);
     return `<div class="relbox"><div class="relh">${ic} <b>${l}</b></div>
       ${L.map(([p,i])=>`<div class="task" style="padding:4px 2px"><div class="txt">${esc(p.name)}</div>
+        <button class="chip ${p.every?'on':''}" data-pe="${i}" title="כל כמה זמן להזכיר ליצור קשר">📞 ${EVERY_L[p.every||0]}</button>
         <button class="chip ${p.g==='m'?'on':''}" data-pg="${i}" data-v="m">♂</button><button class="chip ${p.g==='f'?'on':''}" data-pg="${i}" data-v="f">♀</button>
         <button class="ghost" data-pdel2="${i}">✕</button></div>`).join('')}
       ${r==='partner'&&L.length?'':`<div class="row" style="margin-top:4px"><input data-rin="${r}" placeholder="${ph}"><button class="shrink" data-radd="${r}">+</button></div>`}</div>`;}).join('');
   const add=r=>{const inp=$('ob-people').querySelector(`[data-rin="${r}"]`);
     inp.value.split(/[,،]/).map(x=>x.trim()).filter(Boolean).forEach(n=>{if(!ob.people.some(p=>p.name===n&&p.rel===r))ob.people.push({name:n,g:REL_GUESS[n]||'',rel:r});});renderObPeople();
     const ni=$('ob-people').querySelector(`[data-rin="${r}"]`);if(ni)ni.focus();};
-  $('ob-people').onclick=e=>{const g=e.target.closest('[data-pg]'),d=e.target.closest('[data-pdel2]'),a=e.target.closest('[data-radd]');
+  $('ob-people').onclick=e=>{const g=e.target.closest('[data-pg]'),d=e.target.closest('[data-pdel2]'),a=e.target.closest('[data-radd]'),ev=e.target.closest('[data-pe]');
+    if(ev){const p=ob.people[+ev.dataset.pe],k=EVERY.indexOf(p.every||0);p.every=EVERY[(k+1)%EVERY.length];renderObPeople();return;}
     if(g){const p=ob.people[+g.dataset.pg];p.g=p.g===g.dataset.v?'':g.dataset.v;renderObPeople();}
     if(d){ob.people.splice(+d.dataset.pdel2,1);renderObPeople();}
     if(a)add(a.dataset.radd);};
@@ -1751,7 +1759,7 @@ function renderObTopics(){
 function obSave(){if($('ob-name'))ob.name=$('ob-name').value.trim();obFlushPeople();obFlushTopics();}
 function obFinish(){
   S.profile={name:ob.name,g:ob.g,issues:ob.issues,strengths:ob.strengths,drive:ob.drive,when:ob.when,mins:+ob.mins,at:Date.now()};
-  S.people=ob.people;S.qPeople=ob.people.map(p=>p.name);S.topics=ob.topics.filter(t=>ob.tcats.includes(t.cat));S.topicCats=ob.tcats;S.qTopics=S.topics.map(t=>t.name);
+  ob.people.forEach(p=>{if(p.every&&!p.last)p.last=TODAY();});S.people=ob.people;S.qPeople=ob.people.map(p=>p.name);S.topics=ob.topics.filter(t=>ob.tcats.includes(t.cat));S.topicCats=ob.tcats;S.qTopics=S.topics.map(t=>t.name);
   if(ob.issues.includes('drive')&&!S.plans.some(p=>p.includes('מנוע')))S.plans.push('כשאני מכבה את המנוע ← כותב ב"מם או…" מה חשבתי בדרך');
   if(ob.issues.includes('switch')&&!S.plans.some(p=>p.includes('עוצר באמצע')))S.plans.push('כשאני עוזב משימה באמצע ← לוחץ "עוצר באמצע" וכותב את הצעד הבא');
   if(ob.issues.includes('habit')){const a={morning:'אחרי הקפה של הבוקר',noon:'אחרי ארוחת הצהריים',evening:'אחרי ארוחת הערב'}[ob.when];if(!S.plans.some(p=>p.startsWith(a)))S.plans.push(a+' ← אימון של היום');}
@@ -1772,6 +1780,22 @@ function pickWeighted(list,key,map,seed){
 }
 
 $('q-edit-btn').onclick=()=>{startOnboarding();obStep=1;renderOb();};
+
+/* ---- keep in touch ---- */
+function daysSince(k){return k?diffD(k,TODAY()):999;}
+function contactsDue(){return (S.people||[]).filter(p=>p.every&&daysSince(p.last)>=p.every&&!(p.snooze&&p.snooze>TODAY()));}
+function renderContacts(){
+  const L=contactsDue();$('contact-card').classList.toggle('hide',!L.length);
+  $('contact-list').innerHTML=L.map(p=>{const d=daysSince(p.last);
+    return `<div class="task"><div class="txt">${esc(p.name)}<div class="meta">${d<999?`לא היה קשר ${d} ימים`:'עוד לא סימנת קשר'} · כל ${EVERY_L[p.every]}</div></div>
+      <button class="shrink" data-ct="${esc(p.name)}" data-a="done">✓ דיברנו</button><button class="ghost" data-ct="${esc(p.name)}" data-a="later" title="מחר">⏰</button><button class="ghost" data-ct="${esc(p.name)}" data-a="task" title="הוסף משימה">➕</button></div>`;}).join('');
+}
+$('contact-list').onclick=e=>{const b=e.target.closest('[data-ct]');if(!b)return;const p=S.people.find(x=>x.name===b.dataset.ct);if(!p)return;
+  if(b.dataset.a==='done'){p.last=TODAY();p.snooze=null;toast('💛 מעולה');}
+  if(b.dataset.a==='later'){p.snooze=addDays(1);}
+  if(b.dataset.a==='task'){S.tasks.push({id:uid(),text:'להתקשר ל'+p.name,due:TODAY(),done:false,created:Date.now(),kind:'call'});p.snooze=addDays(1);toast('נוסף: 📞 להתקשר ל'+p.name);}
+  save();render();};
+function touchContact(t){(S.people||[]).forEach(p=>{if(t.text.includes(p.name)&&(t.kind==='call'||t.kind==='ask')){p.last=TODAY();p.snooze=null;}});}
 /* ---------- progress & backup ---------- */
 function renderProgress(){
   $('p-streak').textContent=streak();
@@ -1809,7 +1833,7 @@ function render(){
   $('p-missing').textContent=S.best.missing;$('p-pairs').textContent=S.best.pairs[8]||'—';$('p-sudoku').textContent=S.best.sudoku;
   const tp=TIPS[Math.floor(dayRand(5)*TIPS.length)];$('tip-title').textContent=tp[0];$('tip-body').textContent=tp[1];
   $('best-sch').textContent=S.best.sch5?S.best.sch5+' שנ׳':'—';$('p-sch').textContent=S.best.sch5||'—';
-  renderTasks();renderBoard();renderNotes();renderCards();renderProgress();renderFocus();renderParked();renderDaily();renderWarmList();
+  renderContacts();renderTasks();renderBoard();renderNotes();renderCards();renderProgress();renderFocus();renderParked();renderDaily();renderWarmList();
 }
 save();render();
 </script>
