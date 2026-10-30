@@ -92,6 +92,14 @@ nav button.on{color:var(--accent)}
 .sd div.same{background:#f3e3b5;color:#5a4300}
 .sd div.sel{background:var(--accent);color:#fff}
 .sd div.bad{color:var(--warn);background:var(--warn-soft)}
+.sd .nt{display:grid;width:100%;height:100%;padding:1px;direction:ltr}
+.sd .nt i{font-style:normal;display:grid;place-items:center;font-size:clamp(7px,2.3vw,11px);line-height:1;color:var(--muted);font-weight:500}
+.sd .nt i.hn{color:#5a4300;background:#f3e3b5;border-radius:3px}
+.sd div.sel .nt i{color:#fff}
+.pad button{position:relative}
+.pad button small{position:absolute;bottom:2px;left:4px;font-size:10px;opacity:.6;font-weight:400}
+.pad button.full{opacity:.35}
+.pad.notes button{font-size:16px;background:var(--bg);border:1px dashed var(--accent)}
 .pad{display:grid;gap:6px;direction:ltr;margin-top:8px}
 .pad button{font-size:22px;padding:12px 0}
 .pairs{display:grid;gap:8px;direction:ltr;margin:8px 0}
@@ -332,6 +340,8 @@ nav button .ic{font-size:19px}
     <h2>💡 טיפ היום</h2>
     <b id="tip-title"></b>
     <div class="small" id="tip-body" style="margin-top:4px"></div>
+    <div class="small hide" id="tip-more-body" style="margin-top:6px;background:var(--bg);border-radius:10px;padding:8px"></div>
+    <button class="ghost" style="padding:6px 0 0" id="tip-x">קרא עוד ▾</button>
     <button class="ghost" style="padding:8px 0 0" id="tip-more">עוד טיפים — תזונה, שינה, תנועה ←</button>
   </div>
 </section>
@@ -478,7 +488,10 @@ nav button .ic{font-size:19px}
       <div class="row small"><span id="sd-time">0:00</span><span class="shrink" id="sd-info"></span></div>
       <div class="sd" id="sd-grid"></div>
       <div class="pad" id="sd-pad"></div>
-      <div class="row" style="margin-top:6px"><button id="sd-hint">💡 רמז</button><button id="sd-erase">⌫ מחק</button></div>
+      <div class="row" style="margin-top:6px"><button id="sd-notes">✏️ טיוטה</button><button id="sd-erase">⌫ מחק</button><button id="sd-undo">↶ בטל</button></div>
+      <div class="row" style="margin-top:6px"><button id="sd-hint">💡 רמז</button><button id="sd-auto" title="ממלא בכל משבצת ריקה את כל המספרים האפשריים">✨ מלא טיוטות</button></div>
+      <button class="ghost" style="width:100%;margin-top:4px;font-size:13px" id="sd-check"></button>
+      <div class="small" style="margin-top:4px">✏️ טיוטה: מסמנים מספרים אפשריים בקטן בתוך משבצת. כשמציבים מספר, הוא נמחק אוטומטית מהטיוטות בשורה, בעמודה ובריבוע. במקלדת: 1–9, N לטיוטה, Ctrl+Z לביטול, חיצים לתזוזה.</div>
     </div>
     <div id="sd-result" class="hide"></div>
     <button class="ghost" style="width:100%;margin-top:8px" data-back>חזרה לתפריט</button>
@@ -568,11 +581,14 @@ nav button .ic{font-size:19px}
     <div id="methods"></div>
   </div>
   <div id="kb-tips" class="hide">
+    <div class="row" style="margin:6px 0"><span class="small" id="tc-count"></span><button class="chip on shrink" id="tc-shuf">🔀 אקראי</button></div>
     <div class="chips" id="tip-cats"></div>
     <div class="card" id="tipcard">
       <span><span class="cat" id="tc-cat"></span></span>
       <div id="tc-title" style="font-weight:700"></div>
       <div id="tc-body"></div>
+      <button class="ghost" id="tc-x" style="padding:8px 0 0;text-align:start">קרא עוד ▾</button>
+      <div id="tc-more" class="hide" style="margin-top:6px;font-size:15px;background:var(--card);border-radius:10px;padding:10px"></div>
       <div class="row" style="margin-top:12px"><button id="tc-prev">→ הקודם</button><button class="shrink" id="tc-rand" title="טיפ אקראי">🎲</button><span class="small shrink" id="tc-num"></span><button id="tc-next">הבא ←</button></div>
     </div>
     <div class="small" style="text-align:center">אפשר גם להחליק ימינה ושמאלה</div>
@@ -922,39 +938,60 @@ $('gw-check').onclick=()=>{
 
 /* ---------- tips ---------- */
 const TIPS=[
- ['דגים שומניים פעמיים בשבוע','סלמון, סרדינים, מקרל — מקור לאומגה 3, שהמוח בנוי ממנה בחלקו. מי שלא אוכל דגים יכול לשלב אגוזי מלך וזרעי פשתן טחונים.','🥗 תזונה'],
- ['עלים ירוקים כל יום','תרד, מנגולד, חסה, ברוקולי — מנה ביום. בתזונות שנחקרו לבריאות המוח (ים־תיכונית ו־MIND) זה אחד הרכיבים הבולטים.','🥗 תזונה'],
- ['פירות יער ורימונים','אוכמניות, תותים, רימון — עשירים בנוגדי חמצון. גם קפואים טובים: חופן ליוגורט או לדייסה.','🥗 תזונה'],
- ['חופן אגוזים','חופן קטן (כ־30 גרם) של אגוזי מלך, שקדים או פיסטוקים כחטיף, במקום עוגייה. משביע ומיטיב עם כלי הדם.','🥗 תזונה'],
- ['שמן זית במקום מטוגן','שמן זית כשומן העיקרי, וקטניות (עדשים, חומוס, שעועית) כמה פעמים בשבוע — הבסיס של המטבח הים־תיכוני.','🥗 תזונה'],
- ['מים — הזיכרון צמא','אפילו התייבשות קלה פוגעת בריכוז ובזיכרון הקצר. עם הגיל תחושת הצמא נחלשת — בקבוק על השולחן ושתייה לפני שצמאים.','🥗 תזונה'],
- ['פחות סוכר ומעובד','קפיצות סוכר בדם גורמות ל"ערפל" ועייפות אחרי האוכל. עדיף פחמימות מלאות + חלבון באותה ארוחה.','🥗 תזונה'],
- ['ארוחת בוקר עם חלבון','ביצה, יוגורט, גבינה או טחינה בבוקר — אנרגיה יציבה וריכוז עד הצהריים, במקום מאפה ומתוק.','🥗 תזונה'],
- ['קפה — כן, אבל עד הצהריים','קפה משפר ערנות וקשב. אחרי 14:00 הוא עלול לפגוע בשינה — ושינה חשובה לזיכרון יותר מהקפה.','🥗 תזונה'],
- ['אלכוהול במידה','כוס מדי פעם — בסדר. שתייה קבועה ומרובה פוגעת בשינה ובזיכרון. ערב בלי אלכוהול = שינה עמוקה יותר.','🥗 תזונה'],
- ['B12 וויטמין D','אחרי גיל 50 הספיגה של B12 יורדת, וחוסר בו יכול להשפיע על זיכרון ועייפות. כדאי לבקש מרופא המשפחה לבדוק בבדיקת הדם השגרתית (גם ויטמין D).','🩺 בריאות'],
- ['ללב ולמוח אותם כללים','לחץ דם, סוכר וכולסטרול מאוזנים שומרים גם על כלי הדם במוח. בדיקה שגרתית אצל רופא המשפחה היא חלק מאימון הזיכרון.','🩺 בריאות'],
- ['לשמוע ולראות טוב','כשקשה לשמוע, המוח מתאמץ להבין ולא נשאר לו כוח לזכור. בדיקת שמיעה וראייה אחרי גיל 50 היא גם השקעה בזיכרון.','🩺 בריאות'],
- ['מה נורמלי','לשכוח איפה שמתם משהו או שם של שחקן — נורמלי לגמרי בגיל 50. אם שינויים בזיכרון מתחילים להפריע לתפקוד היומיומי, כדאי להתייעץ עם רופא.','🩺 בריאות'],
- ['שינה היא "כפתור השמירה"','בזמן שינה עמוקה המוח מעביר את מה שלמדתם במהלך היום לזיכרון לטווח ארוך. 7–8 שעות בשעות קבועות עוזרות יותר מכל משחק.','😴 שינה ומנוחה'],
- ['מסכים לפני השינה','האור והגירוי מהטלפון דוחים את ההירדמות. חצי שעה לפני השינה — ספר, מוזיקה, או "סגירת יום" ב־5 דקות.','😴 שינה ומנוחה'],
- ['תנומה קצרה','20 דקות אחרי הצהריים יכולות לרענן קשב וזיכרון. יותר מזה — עלול לפגוע בשינת הלילה.','😴 שינה ומנוחה'],
- ['לחץ ודאגה','לחץ מתמשך פוגע בזיכרון. כמה נשימות איטיות לפני משימה, הפסקות קצרות, וכתיבת הדאגות על דף — מפנים מקום בראש.','😴 שינה ומנוחה'],
- ['הליכה מהירה — לא רק ללב','פעילות אירובית (30 דקות, רוב ימות השבוע) מגבירה זרימת דם למוח וקשורה לזיכרון טוב יותר. הליכה עם חבר שווה כפול.','🏃 גוף ותנועה'],
- ['כוח ושיווי משקל','פעמיים בשבוע תרגילי כוח (גומיות, משקולות קלות) ושיווי משקל. שומר על השרירים ועל המוח — ומונע נפילות.','🏃 גוף ותנועה'],
- ['לקום כל שעה','ישיבה ממושכת מעייפת גם את הראש. כל שעה — לקום, להתמתח, למלא מים. גם "הפסקה" בין משימות.','🏃 גוף ותנועה'],
- ['ריקוד ותנועה עם צעדים','ריקוד, טאי צ׳י, יוגה — משלבים תנועה עם זיכרון של רצפים. אימון כפול.','🏃 גוף ותנועה'],
- ['ללמוד משהו באמת חדש','שפה, כלי נגינה, תוכנה חדשה. מה שכבר קל לכם לא מאמן — האתגר הוא מה שבונה חיבורים חדשים.','🧠 הרגלי מוח'],
- ['בית קבוע לכל חפץ','מפתחות, ארנק ומשקפיים — תמיד באותה קערה ליד הדלת. ככה לא צריך לזכור; ההרגל זוכר בשבילכם.','🧠 הרגלי מוח'],
- ['להגיד בקול','כשמניחים משהו במקום לא רגיל, אמרו בקול: "הדרכון במגירה העליונה". הקול יוצר עוד "עקבה" בזיכרון.','🧠 הרגלי מוח'],
- ['לכתוב מיד','זיכרון לטווח קצר מחזיק רעיון בערך חצי דקה. עלה משהו? 💭 מיד לאפליקציה, לא "אחר כך".','🧠 הרגלי מוח'],
- ['דבר אחד בכל פעם','רוב ה"שכחה" היא מידע שלא נקלט, כי עשינו שני דברים במקביל. כשמישהו מדבר אליכם — הניחו את הטלפון.','🧠 הרגלי מוח'],
- ['שמות של אנשים','חזרו על השם מיד ("נעים מאוד, רונית"), וחברו אותו לתמונה או לאדם אחר שאתם מכירים באותו שם.','🧠 הרגלי מוח'],
- ['5 דקות של ערב','לפני השינה: עברו על המשימות של מחר ושאלו "מה שכחתי?". הבוקר מתחיל רגוע יותר.','🧠 הרגלי מוח'],
- ['קריאה וסיפור','לקרוא ואז לספר למישהו מה קראתם — הסיכום בקול מחזק את הזיכרון הרבה יותר מקריאה בלבד.','🧠 הרגלי מוח'],
- ['קשרים חברתיים','שיחה, ויכוח טוב, משחק קלפים עם חברים — מפעילים זיכרון, קשב ושפה יחד. בדידות מתמשכת קשורה לירידה בזיכרון.','👥 חברה ורגש'],
- ['התנדבות ומשמעות','פעילות קבועה עם אנשים ומטרה — התנדבות, חוג, קבוצת הליכה — שומרת על המוח פעיל ועל מצב הרוח.','👥 חברה ורגש'],
- ['צחוק ומצב רוח','מצב רוח ירוד מוריד קשב וזיכרון. אם הוא נמשך שבועות — שווה לדבר על זה עם מישהו קרוב או עם רופא.','👥 חברה ורגש'],
+ ['דגים שומניים פעמיים בשבוע','סלמון, סרדינים, מקרל — מקור לאומגה 3, שהמוח בנוי ממנה בחלקו.','🥗 תזונה','איך: סרדינים מקופסה על לחם מלא, סלמון בתנור עם לימון, או מקרל מעושן בסלט. מי שלא אוכל דגים יכול לשלב אגוזי מלך, זרעי פשתן טחונים וצ׳יה. לפני תוסף אומגה 3 — כדאי לשאול רופא, במיוחד אם לוקחים מדללי דם.'],
+ ['עלים ירוקים כל יום','תרד, מנגולד, חסה, ברוקולי — מנה ביום.','🥗 תזונה','בתזונות שנחקרו לבריאות המוח (ים־תיכונית ו־MIND) עלים ירוקים הם אחד הרכיבים הבולטים. טריק: חופן תרד לחביתה, לשקשוקה או לשייק — כמעט לא מרגישים.'],
+ ['פירות יער ורימונים','אוכמניות, תותים, רימון — עשירים בנוגדי חמצון.','🥗 תזונה','גם קפואים טובים ולרוב זולים יותר. חופן ליוגורט או לדייסה בבוקר, או כקינוח במקום עוגה.'],
+ ['חופן אגוזים','חופן קטן (כ־30 גרם) של אגוזי מלך, שקדים או פיסטוקים כחטיף.','🥗 תזונה','שימו מנה בקופסה קטנה ליד העבודה — כך קל לא להגזים. עדיף לא קלויים במלח.'],
+ ['שמן זית וקטניות','שמן זית כשומן העיקרי, וקטניות כמה פעמים בשבוע.','🥗 תזונה','עדשים, חומוס, שעועית — סיבים וחלבון שמייצבים את הסוכר בדם. מרק עדשים, סלט חומוס או קציצות שעועית — כולם נחשבים.'],
+ ['מים — הזיכרון צמא','אפילו התייבשות קלה פוגעת בריכוז ובזיכרון הקצר.','🥗 תזונה','עם הגיל תחושת הצמא נחלשת. בקבוק על השולחן, כוס מים עם כל קפה, ולשתות לפני שצמאים. שתן בצבע בהיר הוא סימן טוב.'],
+ ['פחות סוכר ומעובד','קפיצות סוכר בדם גורמות ל"ערפל" ועייפות אחרי האוכל.','🥗 תזונה','עדיף פחמימות מלאות + חלבון באותה ארוחה. מתוק? אחרי ארוחה ולא על בטן ריקה.'],
+ ['ארוחת בוקר עם חלבון','ביצה, יוגורט, גבינה או טחינה בבוקר.','🥗 תזונה','אנרגיה יציבה וריכוז עד הצהריים, במקום מאפה ומתוק שגורמים לנפילה באמצע הבוקר.'],
+ ['קפה — כן, אבל עד הצהריים','קפה משפר ערנות וקשב. אחרי 14:00 הוא עלול לפגוע בשינה.','🥗 תזונה','הקפאין נשאר בגוף שעות ארוכות. אם השינה לא טובה — נסו להעביר את הכוס האחרונה לשעה מוקדמת יותר.'],
+ ['אלכוהול במידה','שתייה קבועה ומרובה פוגעת בשינה ובזיכרון.','🥗 תזונה','גם כוס בערב יכולה לפגוע באיכות השינה העמוקה. נסו כמה ערבים בשבוע בלי, ושימו לב איך מרגישים בבוקר.'],
+ ['צבעים בצלחת','כמה שיותר צבעים בארוחה — יותר סוגים של רכיבים טובים.','🥗 תזונה','כלל אצבע: לפחות שלושה צבעים בכל ארוחה עיקרית — ירוק, אדום/כתום, ועוד אחד. פשוט לזכור, פשוט לבצע.'],
+ ['ארוחות מסודרות','דילוג על ארוחות ואכילה מאוחרת בלילה פוגעים בריכוז ובשינה.','🥗 תזונה','שלוש ארוחות בשעות קבועות יחסית, וארוחת ערב קלה כשעתיים–שלוש לפני השינה.'],
+ ['קטניות ודגנים מלאים','לחם מלא, בורגול, כוסמת, שיבולת שועל — אנרגיה איטית ויציבה.','🥗 תזונה','החלפה אחת ביום מספיקה כדי להתחיל: לחם מלא במקום לבן, או דייסת שיבולת שועל במקום דגני בוקר מתוקים.'],
+ ['B12 וויטמין D','אחרי גיל 50 הספיגה של B12 יורדת, וחוסר בו יכול להשפיע על זיכרון ועייפות.','🩺 בריאות','כדאי לבקש מרופא המשפחה לבדוק בבדיקת הדם השגרתית — גם ויטמין D. אל תיקחו תוספים במינונים גבוהים בלי בדיקה.'],
+ ['ללב ולמוח אותם כללים','לחץ דם, סוכר וכולסטרול מאוזנים שומרים גם על כלי הדם במוח.','🩺 בריאות','בדיקה שגרתית אצל רופא המשפחה היא חלק מאימון הזיכרון. לחץ דם אפשר למדוד גם בבית או בבית מרקחת.'],
+ ['לשמוע ולראות טוב','כשקשה לשמוע, המוח מתאמץ להבין ולא נשאר לו כוח לזכור.','🩺 בריאות','בדיקת שמיעה וראייה אחרי גיל 50 היא גם השקעה בזיכרון. מכשיר שמיעה, כשצריך, משפר גם את החיים החברתיים.'],
+ ['תרופות וזיכרון','חלק מהתרופות (למשל לשינה או לאלרגיה) עלולות לגרום לטשטוש ושכחה.','🩺 בריאות','אם הזיכרון השתנה אחרי שהתחלתם תרופה חדשה — ספרו לרופא או לרוקח. אל תפסיקו תרופה על דעת עצמכם.'],
+ ['מה נורמלי','לשכוח איפה שמתם משהו או שם של שחקן — נורמלי לגמרי בגיל 50.','🩺 בריאות','אם שינויים בזיכרון מתחילים להפריע לתפקוד היומיומי, או שהסביבה מעירה על כך — כדאי להתייעץ עם רופא. הרבה גורמים הפיכים, כמו חוסרים, תרופות או מצב רוח.'],
+ ['לשמור על הראש','חבטות בראש פוגעות במוח, גם כשנראה שהכול בסדר.','🩺 בריאות','קסדה באופניים ובקורקינט, חגורה ברכב, ושטיח מונע החלקה במקלחת. נפילות הן סיבה שכיחה לפגיעות ראש בגיל המבוגר.'],
+ ['שינה היא "כפתור השמירה"','בזמן שינה עמוקה המוח מעביר את מה שלמדתם לזיכרון לטווח ארוך.','😴 שינה ומנוחה','7–8 שעות בשעות קבועות עוזרות יותר מכל משחק. גם בסוף שבוע — לא להזיז את שעת הקימה ביותר משעה.'],
+ ['מסכים לפני השינה','האור והגירוי מהטלפון דוחים את ההירדמות.','😴 שינה ומנוחה','חצי שעה לפני השינה — ספר, מוזיקה, או "סגירת יום" ב־5 דקות. מטען הטלפון מחוץ לחדר השינה עושה פלאים.'],
+ ['תנומה קצרה','20 דקות אחרי הצהריים יכולות לרענן קשב וזיכרון.','😴 שינה ומנוחה','יותר מ־30 דקות, או מאוחר אחרי 16:00 — עלול לפגוע בשינת הלילה.'],
+ ['לחץ ודאגה','לחץ מתמשך פוגע בזיכרון.','😴 שינה ומנוחה','כמה נשימות איטיות לפני משימה, הפסקות קצרות, וכתיבת הדאגות על דף — מפנים מקום בראש. מה שכתוב לא צריך "להחזיק".'],
+ ['נחירות ועייפות','נחירות חזקות ועייפות קבועה ביום יכולות להעיד על דום נשימה בשינה.','😴 שינה ומנוחה','דום נשימה פוגע בשינה העמוקה ובזיכרון, ויש לו טיפול. אם בן/בת הזוג מספרים על הפסקות נשימה — שווה לבדוק.'],
+ ['חדר שינה למנוחה','חדר חשוך, שקט וקריר עוזר לשינה עמוקה.','😴 שינה ומנוחה','וילון האפלה, אטמי אוזניים, וטמפרטורה נעימה. המיטה — לשינה, לא לעבודה מול מחשב.'],
+ ['הליכה מהירה','פעילות אירובית מגבירה זרימת דם למוח וקשורה לזיכרון טוב יותר.','🏃 גוף ותנועה','30 דקות, רוב ימות השבוע. אפשר לחלק ל־3 הליכות של 10 דקות. הליכה עם חבר שווה כפול — גם תנועה וגם שיחה.'],
+ ['כוח ושיווי משקל','פעמיים בשבוע תרגילי כוח ושיווי משקל.','🏃 גוף ותנועה','גומיות, משקולות קלות, קימה מכיסא בלי ידיים, עמידה על רגל אחת בזמן צחצוח שיניים. שומר על השרירים ומונע נפילות.'],
+ ['לקום כל שעה','ישיבה ממושכת מעייפת גם את הראש.','🏃 גוף ותנועה','כל שעה — לקום, להתמתח, למלא מים. טיימר בטלפון יכול להזכיר. גם "הפסקה" טבעית בין משימות.'],
+ ['ריקוד ותנועה עם צעדים','ריקוד, טאי צ׳י, יוגה — תנועה + זיכרון של רצפים.','🏃 גוף ותנועה','ללמוד צעדים חדשים זה אימון כפול: לגוף ולזיכרון. הרבה מתנ״סים מציעים חוגים בערבים.'],
+ ['לצאת לטבע','הליכה בפארק או ליד מים מורידה מתח ומרעננת את הקשב.','🏃 גוף ותנועה','גם 20 דקות בגינה ציבורית נחשבות. בלי אוזניות מדי פעם — להקשיב לציפורים ולסביבה.'],
+ ['ללמוד משהו באמת חדש','שפה, כלי נגינה, תוכנה חדשה — האתגר בונה חיבורים חדשים.','🧠 הרגלי מוח','מה שכבר קל לא מאמן. בחרו משהו שמרגיש קצת קשה, והקדישו לו 15 דקות ביום.'],
+ ['בית קבוע לכל חפץ','מפתחות, ארנק ומשקפיים — תמיד באותה קערה ליד הדלת.','🧠 הרגלי מוח','ככה לא צריך לזכור; ההרגל זוכר בשבילכם. מה שאין לו מקום קבוע — ילך לאיבוד שוב.'],
+ ['להגיד בקול','כשמניחים משהו במקום לא רגיל, אמרו בקול איפה.','🧠 הרגלי מוח','"הדרכון במגירה העליונה". הקול יוצר עוד "עקבה" בזיכרון. עובד גם על "נעלתי את הדלת" — אומרים את זה בזמן הנעילה.'],
+ ['לכתוב מיד','זיכרון לטווח קצר מחזיק רעיון בערך חצי דקה.','🧠 הרגלי מוח','עלה משהו? 💭 מיד לאפליקציה, לא "אחר כך". כל מה שנכתב משחרר מקום בראש.'],
+ ['דבר אחד בכל פעם','רוב ה"שכחה" היא מידע שלא נקלט, כי עשינו שני דברים במקביל.','🧠 הרגלי מוח','כשמישהו מדבר אליכם — הניחו את הטלפון והסתכלו עליו. 10 שניות של קשב מלא שוות יותר מדקה של חצי קשב.'],
+ ['שמות של אנשים','חזרו על השם מיד, וחברו אותו לתמונה.','🧠 הרגלי מוח','"נעים מאוד, רונית" — ואז השתמשו בשם עוד פעם אחת בשיחה. אחרי המפגש: רשמו מי פגשתם ופרט אחד עליו.'],
+ ['5 דקות של ערב','לפני השינה: עברו על המשימות של מחר ושאלו "מה שכחתי?".','🧠 הרגלי מוח','הבוקר מתחיל רגוע יותר, והמוח "מתכונן" בלילה. "מה שכחתי?" במסך היום מתאים בדיוק לזה.'],
+ ['קריאה וסיפור','לקרוא ואז לספר למישהו מה קראתם.','🧠 הרגלי מוח','הסיכום בקול מחזק את הזיכרון הרבה יותר מקריאה בלבד. אין למי לספר? כתבו 3 שורות סיכום.'],
+ ['הפסקה לפני מעבר','לפני שעוברים משימה — 10 שניות לכתוב איפה עצרתם.','🧠 הרגלי מוח','"עצרתי באמצע המייל — חסר לצרף קובץ". כשחוזרים, מתחילים בדיוק משם. כפתור "עוצר באמצע" עושה את זה.'],
+ ['לחלק משימה גדולה','משימה גדולה ומעורפלת נדחית ונשכחת.','🧠 הרגלי מוח','מפרקים לצעד הראשון הכי קטן ומוחשי: לא "לסדר את הביטוחים" אלא "למצוא את הפוליסה של הרכב".'],
+ ['משחקים עם אחרים','שחמט, ברידג׳, שבץ־נא, משחקי קופסה — אימון מוח עם חברה.','👥 חברה ורגש','השילוב של אתגר + אנשים + הנאה הוא בדיוק מה שהמוח אוהב. ערב משחקים קבוע פעם בשבוע — הרגל מצוין.'],
+ ['קשרים חברתיים','שיחה ומפגשים מפעילים זיכרון, קשב ושפה יחד.','👥 חברה ורגש','בדידות מתמשכת קשורה לירידה בזיכרון. גם שיחת טלפון קצרה נחשבת — "💛 כדאי ליצור קשר" עוזר לזכור למי.'],
+ ['התנדבות ומשמעות','פעילות קבועה עם אנשים ומטרה שומרת על המוח פעיל.','👥 חברה ורגש','התנדבות, חוג, קבוצת הליכה — העיקר שזה קבוע, ושיש אנשים שמחכים לכם.'],
+ ['צחוק ומצב רוח','מצב רוח ירוד מוריד קשב וזיכרון.','👥 חברה ורגש','אם מצב הרוח ירוד במשך שבועות — שווה לדבר על זה עם מישהו קרוב או עם רופא. זה נפוץ, וזה מטופל.'],
+ ['ללמד מישהו אחר','הדרך הטובה ביותר לזכור משהו — להסביר אותו.','👥 חברה ורגש','ללמד נכד משחק, להסביר לחבר טריק בטלפון — מחזק את הזיכרון שלכם ואת הקשר.'],
+ ['להתראות פחות','כל התראה בטלפון "חוטפת" את הקשב ולוקח זמן לחזור.','📱 טכנולוגיה וסביבה','כבו התראות שלא חייבים (קבוצות, משחקים, חדשות). השאירו רק אנשים ותזכורות.'],
+ ['יומן אחד','כל התורים והפגישות במקום אחד — לא פתקים מפוזרים.','📱 טכנולוגיה וסביבה','יומן בטלפון עם תזכורת יום לפני ושעה לפני. מקום אחד = לא צריך לזכור איפה כתבתם.'],
+ ['פתק על הדלת','מה שחייבים לקחת מחר — ליד הדלת או על הידית כבר בערב.','📱 טכנולוגיה וסביבה','הסביבה זוכרת בשבילכם: התיק ליד הדלת, המכתב על המפתחות, התרופה ליד הקפה.'],
+ ['תזכורת לפי מקום','חלק מהטלפונים יודעים להזכיר כשמגיעים למקום מסוים.','📱 טכנולוגיה וסביבה','"כשאגיע הביתה — להוציא את הבגדים מהמכונה". שווה לבדוק באפליקציית התזכורות של הטלפון.'],
+ ['פחות בלגן, יותר שקט','סביבה עמוסה מפזרת את הקשב.','📱 טכנולוגיה וסביבה','שולחן עבודה פנוי יחסית, ולשונית אחת פתוחה בכל פעם — עוזרים להתמקד במשימה אחת.'],
+ ['דקה של נשימה','נשימות איטיות מרגיעות את הגוף ומחזירות את הקשב.','🧘 ריכוז ומיינדפולנס','שאיפה ב־4, החזקה קצרה, נשיפה ב־6. חמש פעמים. מתאים לפני שיחה חשובה או לפני משימה.'],
+ ['לשים לב לרגע','"טייס אוטומטי" הוא הסיבה שלא זוכרים אם נעלנו.','🧘 ריכוז ומיינדפולנס','בפעולות שגרתיות — לעצור לשנייה ולשים לב: "אני נועל עכשיו". זה מספיק כדי שייכנס לזיכרון.'],
+ ['עבודה במקטעים','25 דקות פוקוס, 5 דקות הפסקה.','🧘 ריכוז ומיינדפולנס','בתוך מקטע — רק משימה אחת. "חימום + התחלת משימה" במסך היום בנוי בדיוק לזה.'],
+ ['מתי הראש הכי צלול?','לכל אחד יש שעות שבהן הריכוז הכי טוב.','🧘 ריכוז ומיינדפולנס','שמרו את השעות האלה למשימות שדורשות חשיבה, ואת השאר — לסידורים ולמיילים.'],
 ];
 (function(){const el=$('tiplist');if(el)el.innerHTML=TIPS.map(t=>`<div class="t"><b>${esc(t[0])}</b><span class="small">${esc(t[1])}</span></div>`).join('');})();
 
@@ -1093,44 +1130,66 @@ function sdFull(n,br,bc){
     for(const v of vs){if(ok(i,v)){g[i]=v;if(fill(i+1))return true;g[i]=0;}}return false;};
   fill(0);return g;
 }
+let sdNotesMode=false;
 $('sd-go').onclick=()=>{
   const c=SD_CFG[sdLvl],sol=sdFull(c.n,c.br,c.bc);
   const cur=[...sol];const idx=[...sol.keys()].sort(()=>Math.random()-.5).slice(0,c.rm);idx.forEach(i=>cur[i]=0);
-  sd={...c,sol,cur,given:cur.map(v=>v>0),sel:-1,start:Date.now(),hints:0};
+  sd={...c,sol,cur,given:cur.map(v=>v>0),notes:cur.map(()=>Array(c.n+1).fill(false)),undo:[],sel:-1,start:Date.now(),hints:0,check:true};
+  sdNotesMode=false;
   $('sd-setup').classList.add('hide');$('sd-play').classList.remove('hide');$('sd-result').classList.add('hide');
   $('sd-grid').style.gridTemplateColumns=`repeat(${c.n},1fr)`;
   $('sd-pad').style.gridTemplateColumns=`repeat(${c.n},1fr)`;
-  $('sd-pad').innerHTML=[...Array(c.n)].map((_,k)=>`<button data-v="${k+1}">${k+1}</button>`).join('');
   clearInterval(sdT);sdT=setInterval(sdTick,1000);sdTick();sdDraw();
 };
 function sdTick(){const s=Math.floor((Date.now()-sd.start)/1000);$('sd-time').textContent=`⏱ ${Math.floor(s/60)}:${String(s%60).padStart(2,'0')}`;$('sd-info').textContent=sd.hints?`רמזים: ${sd.hints}`:'';}
-function sdBad(i){
-  const {n,br,bc,cur}=sd,v=cur[i];if(!v)return false;const r=i/n|0,c=i%n;
-  for(let k=0;k<n;k++){if(k!==c&&cur[r*n+k]===v)return true;if(k!==r&&cur[k*n+c]===v)return true;}
-  const r0=r-r%br,c0=c-c%bc;for(let a=0;a<br;a++)for(let b=0;b<bc;b++){const j=(r0+a)*n+c0+b;if(j!==i&&cur[j]===v)return true;}
-  return false;
-}
+function sdPeers(i){const {n,br,bc}=sd,r=i/n|0,c=i%n,out=new Set();
+  for(let k=0;k<n;k++){out.add(r*n+k);out.add(k*n+c);}
+  const r0=r-r%br,c0=c-c%bc;for(let a=0;a<br;a++)for(let b=0;b<bc;b++)out.add((r0+a)*n+c0+b);out.delete(i);return out;}
+function sdBad(i){const v=sd.cur[i];if(!v)return false;for(const j of sdPeers(i))if(sd.cur[j]===v)return true;return false;}
 function sdDraw(){
-  const {n,br,bc,cur,given,sel}=sd;const sr=sel>=0?sel/n|0:-1,sc=sel>=0?sel%n:-1,sv=sel>=0?cur[sel]:0;
+  const {n,br,bc,cur,given,sel,notes}=sd;const sr=sel>=0?sel/n|0:-1,sc=sel>=0?sel%n:-1,sv=sel>=0?cur[sel]:0;
   const inBox=(i)=>{if(sel<0)return false;const r=i/n|0,c=i%n;return (r-r%br)===(sr-sr%br)&&(c-c%bc)===(sc-sc%bc);};
   $('sd-grid').innerHTML=cur.map((v,i)=>{const r=i/n|0,c=i%n;const cl=[];
     if(given[i])cl.push('g');if(c%bc===0&&c>0)cl.push('bl');if(r%br===0&&r>0)cl.push('bt');
     if(i===sel)cl.push('sel');else if(sv&&v===sv)cl.push('same');else if(r===sr||c===sc||inBox(i))cl.push('hl');
-    if(!given[i]&&sdBad(i))cl.push('bad');
-    return `<div class="${cl.join(' ')}" data-i="${i}">${v||''}</div>`;}).join('');
+    if(sd.check&&!given[i]&&sdBad(i))cl.push('bad');
+    const inner=v?v:(notes[i].some(x=>x)?`<span class="nt" style="grid-template-columns:repeat(${bc},1fr)">${[...Array(n)].map((_,k)=>`<i class="${sv===k+1&&notes[i][k+1]?'hn':''}">${notes[i][k+1]?k+1:''}</i>`).join('')}</span>`:'');
+    return `<div class="${cl.join(' ')}" data-i="${i}">${inner}</div>`;}).join('');
+  const cnt=k=>cur.filter(x=>x===k).length;
+  $('sd-pad').innerHTML=[...Array(n)].map((_,k)=>`<button data-v="${k+1}" class="${cnt(k+1)>=n?'full':''}">${k+1}${sdNotesMode?'':`<small>${n-cnt(k+1)}</small>`}</button>`).join('');
+  $('sd-notes').classList.toggle('primary',sdNotesMode);$('sd-notes').textContent=sdNotesMode?'✏️ טיוטה: פעיל':'✏️ טיוטה';
+  $('sd-pad').classList.toggle('notes',sdNotesMode);
+  $('sd-check').textContent=sd.check?'🔎 בדיקת טעויות: פעיל':'🔎 בדיקת טעויות: כבוי';
 }
 $('sd-grid').onclick=e=>{const d=e.target.closest('[data-i]');if(!d)return;sd.sel=+d.dataset.i;sdDraw();};
+function sdSnap(i){sd.undo.push({i,v:sd.cur[i],nt:sd.notes.map(a=>a.slice())});if(sd.undo.length>200)sd.undo.shift();}
 function sdSet(v){
-  if(!sd||sd.sel<0||sd.given[sd.sel])return;
-  sd.cur[sd.sel]=v;sdDraw();
-  if(sd.cur.every(x=>x)&&!sd.cur.some((_,i)=>sdBad(i)))sdWin();
+  if(!sd||sd.sel<0||sd.given[sd.sel])return;const i=sd.sel;
+  if(sdNotesMode&&v){if(sd.cur[i])return;sdSnap(i);sd.notes[i][v]=!sd.notes[i][v];sdDraw();return;}
+  sdSnap(i);sd.cur[i]=v;
+  if(v){sd.notes[i].fill(false);for(const j of sdPeers(i))sd.notes[j][v]=false;}
+  sdDraw();
+  if(sd.cur.every(x=>x)&&!sd.cur.some((_,k)=>sdBad(k)))sdWin();
 }
 $('sd-pad').onclick=e=>{const b=e.target.closest('[data-v]');if(b)sdSet(+b.dataset.v);};
-$('sd-erase').onclick=()=>sdSet(0);
+$('sd-erase').onclick=()=>{if(!sd||sd.sel<0||sd.given[sd.sel])return;sdSnap(sd.sel);sd.cur[sd.sel]=0;sd.notes[sd.sel].fill(false);sdDraw();};
+$('sd-notes').onclick=()=>{sdNotesMode=!sdNotesMode;sdDraw();};
+$('sd-undo').onclick=()=>{const u=sd&&sd.undo.pop();if(!u)return;sd.cur[u.i]=u.v;sd.notes=u.nt;sd.sel=u.i;sdDraw();};
+$('sd-auto').onclick=()=>{if(!sd)return;sdSnap(sd.sel<0?0:sd.sel);
+  sd.cur.forEach((v,i)=>{if(v)return;const used=new Set([...sdPeers(i)].map(j=>sd.cur[j]));for(let k=1;k<=sd.n;k++)sd.notes[i][k]=!used.has(k);});sdDraw();toast('מולאו כל האפשרויות בטיוטה');};
+$('sd-check').onclick=()=>{sd.check=!sd.check;sdDraw();};
+document.addEventListener('keydown',e=>{if(!sd||$('g-sudoku').classList.contains('hide')||$('sd-play').classList.contains('hide'))return;
+  if(e.target.tagName==='INPUT'||e.target.tagName==='TEXTAREA')return;
+  const k=+e.key;if(k>=1&&k<=sd.n){sdSet(k);e.preventDefault();}
+  else if(e.key==='Backspace'||e.key==='Delete'||e.key==='0'){$('sd-erase').click();}
+  else if(e.key==='n'||e.key==='N'){sdNotesMode=!sdNotesMode;sdDraw();}
+  else if((e.ctrlKey||e.metaKey)&&e.key==='z'){$('sd-undo').click();}
+  else if(e.key.startsWith('Arrow')&&sd.sel>=0){const n=sd.n,d={ArrowUp:-n,ArrowDown:n,ArrowLeft:-1,ArrowRight:1}[e.key];const j=sd.sel+d;if(j>=0&&j<n*n){sd.sel=j;sdDraw();e.preventDefault();}}});
 $('sd-hint').onclick=()=>{
   if(!sd)return;let i=sd.sel;
   if(i<0||sd.given[i]||sd.cur[i]===sd.sol[i]){const empty=sd.cur.map((v,k)=>(!sd.given[k]&&v!==sd.sol[k])?k:-1).filter(k=>k>=0);if(!empty.length)return;i=empty[Math.floor(Math.random()*empty.length)];}
-  sd.cur[i]=sd.sol[i];sd.given[i]=true;sd.sel=i;sd.hints++;sdDraw();sdTick();
+  sdSnap(i);sd.cur[i]=sd.sol[i];sd.given[i]=true;sd.notes[i].fill(false);for(const j of sdPeers(i))sd.notes[j][sd.sol[i]]=false;
+  sd.sel=i;sd.hints++;sdDraw();sdTick();
   if(sd.cur.every(x=>x)&&!sd.cur.some((_,k)=>sdBad(k)))sdWin();
 };
 function sdWin(){
@@ -1454,15 +1513,20 @@ let tipCat='הכל',tipI=0;
 $('tip-cats').innerHTML=TIP_CATS.map(c=>`<button class="chip ${c==='הכל'?'on':''}" data-tc="${c}">${c}</button>`).join('');
 $('tip-cats').onclick=e=>{const b=e.target.closest('[data-tc]');if(!b)return;tipCat=b.dataset.tc;tipI=0;
   document.querySelectorAll('#tip-cats .chip').forEach(x=>x.classList.toggle('on',x===b));showTip();};
-const tipList=()=>tipCat==='הכל'?TIPS:TIPS.filter(t=>t[2]===tipCat);
-function showTip(){const L=tipList();tipI=(tipI+L.length)%L.length;const t=L[tipI];
+let tipShuffle=true,tipOrder=[...TIPS.keys()].sort(()=>Math.random()-.5);
+const tipList=()=>{const base=tipShuffle?tipOrder.map(i=>TIPS[i]):TIPS;return tipCat==='הכל'?base:base.filter(t=>t[2]===tipCat);};
+function showTip(){const L=tipList();tipI=(tipI+L.length)%L.length;const t=L[tipI];$('tc-more').classList.add('hide');$('tc-more').textContent=t[3]||'';$('tc-x').classList.toggle('hide',!t[3]);$('tc-x').textContent='קרא עוד ▾';
   $('tc-cat').textContent=t[2];$('tc-title').textContent=t[0];$('tc-body').textContent=t[1];$('tc-num').textContent=`${tipI+1} / ${L.length}`;}
 $('tc-next').onclick=()=>{tipI++;showTip();};
 $('tc-prev').onclick=()=>{tipI--;showTip();};
 (function(){let x0=null;const el=$('tipcard');
   el.addEventListener('touchstart',e=>{x0=e.touches[0].clientX;},{passive:true});
   el.addEventListener('touchend',e=>{if(x0===null)return;const dx=e.changedTouches[0].clientX-x0;if(Math.abs(dx)>40){tipI+=dx>0?1:-1;showTip();}x0=null;});})();
-tipI=Math.floor(Math.random()*TIPS.length);showTip();
+$('tc-count').textContent=TIPS.length+' טיפים';
+tipI=0;showTip();
+$('tc-x').onclick=()=>{const h=$('tc-more').classList.toggle('hide');$('tc-x').textContent=h?'קרא עוד ▾':'פחות ▴';};
+$('tc-shuf').onclick=()=>{tipShuffle=!tipShuffle;if(tipShuffle)tipOrder=[...TIPS.keys()].sort(()=>Math.random()-.5);tipI=0;$('tc-shuf').classList.toggle('on',tipShuffle);$('tc-shuf').textContent=tipShuffle?'🔀 אקראי':'📑 לפי הסדר';showTip();};
+$('tip-x').onclick=()=>{const h=$('tip-more-body').classList.toggle('hide');$('tip-x').textContent=h?'קרא עוד ▾':'פחות ▴';};
 $('tc-rand').onclick=()=>{const L=tipList();let n;do{n=Math.floor(Math.random()*L.length);}while(L.length>1&&n===tipI);tipI=n;showTip();};
 let lastG='';
 document.querySelectorAll('.surprise').forEach(b=>b.onclick=()=>{
@@ -1841,7 +1905,7 @@ function render(){
   $('best-digit').textContent=S.best.digit;$('best-words').textContent=S.best.words+'%';$('best-rev').textContent=S.best.rev||0;
   $('best-missing').textContent=S.best.missing;$('best-pairs').textContent=S.best.pairs[8]?S.best.pairs[8]+' ניסיונות':'—';
   $('p-missing').textContent=S.best.missing;$('p-pairs').textContent=S.best.pairs[8]||'—';$('p-sudoku').textContent=S.best.sudoku;
-  const tp=TIPS[Math.floor(dayRand(5)*TIPS.length)];$('tip-title').textContent=tp[0];$('tip-body').textContent=tp[1];
+  const tp=TIPS[Math.floor(dayRand(5)*TIPS.length)];$('tip-title').textContent=tp[0];$('tip-body').textContent=tp[1];$('tip-more-body').textContent=tp[3]||'';$('tip-x').classList.toggle('hide',!tp[3]);
   $('best-sch').textContent=S.best.sch5?S.best.sch5+' שנ׳':'—';$('p-sch').textContent=S.best.sch5||'—';
   renderContacts();renderTasks();renderBoard();renderNotes();renderCards();renderProgress();renderFocus();renderParked();renderDaily();renderWarmList();
 }
