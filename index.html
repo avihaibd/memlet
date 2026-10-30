@@ -1,0 +1,1817 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<style>header{padding-top:calc(18px + env(safe-area-inset-top))!important}</style>
+<meta name="theme-color" content="#2f6f5e">
+<title>מם או… — Memo! נזכרתי.</title>
+<style>
+:root{
+  --bg:#f6f4ef; --card:#fff; --ink:#1f2328; --muted:#6b7280; --line:#e6e2d8;
+  --accent:#2f6f5e; --accent-soft:#e3efe9; --warn:#b4532a; --warn-soft:#f8e7dd; --gold:#c69214;
+}
+@media (prefers-color-scheme: dark){
+  :root{--bg:#15181b; --card:#1e2226; --ink:#eceae4; --muted:#9aa1a9; --line:#2d3237;
+  --accent:#5fb39b; --accent-soft:#1f3530; --warn:#e08a5f; --warn-soft:#3a2720; --gold:#e0b546;}
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{margin:0;font-family:system-ui,-apple-system,"Segoe UI",Arial,sans-serif;background:var(--bg);color:var(--ink);font-size:16px;line-height:1.45}
+header{padding:18px 18px 6px}
+header h1{margin:0;font-size:22px;letter-spacing:-.3px}
+header .sub{color:var(--muted);font-size:14px}
+main{padding:8px 14px 100px;max-width:640px;margin:0 auto}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px;margin:10px 0}
+h2{font-size:17px;margin:4px 0 10px}
+h3{font-size:13px;color:var(--muted);font-weight:600;margin:14px 0 6px;text-transform:uppercase;letter-spacing:.5px}
+input,textarea,select{font:inherit;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:10px 12px;width:100%}
+textarea{min-height:110px;resize:vertical}
+button{font:inherit;border:0;border-radius:10px;padding:10px 14px;cursor:pointer;background:var(--accent-soft);color:var(--accent);font-weight:600}
+button.primary{background:var(--accent);color:#fff}
+button.ghost{background:transparent;color:var(--muted);padding:6px 8px}
+button:disabled{opacity:.45}
+.row{display:flex;gap:8px;align-items:center}
+.row > *{flex:1}
+.row > .shrink{flex:0 0 auto}
+.chips{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
+.chip{padding:6px 12px;border-radius:999px;background:var(--bg);border:1px solid var(--line);color:var(--muted);font-weight:500;font-size:14px}
+.chip.on{background:var(--accent);border-color:var(--accent);color:#fff}
+.task{display:flex;align-items:center;gap:10px;padding:10px 2px;border-bottom:1px solid var(--line)}
+.task:last-child{border-bottom:0}
+.task .txt{flex:1}
+.task.done .txt{text-decoration:line-through;color:var(--muted)}
+.task .meta{font-size:12px;color:var(--muted)}
+.chk{width:24px;height:24px;border-radius:7px;border:2px solid var(--accent);flex:0 0 auto;display:grid;place-items:center;background:transparent;padding:0;color:#fff;font-size:14px}
+.task.done .chk{background:var(--accent)}
+.overdue .meta{color:var(--warn)}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.stat{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:10px;text-align:center}
+.stat b{display:block;font-size:24px}
+.stat span{font-size:12px;color:var(--muted)}
+.empty{color:var(--muted);text-align:center;padding:14px 0;font-size:14px}
+nav{position:fixed;bottom:0;left:0;right:0;background:var(--card);border-top:1px solid var(--line);display:flex;padding:6px 6px calc(6px + env(safe-area-inset-bottom))}
+nav button{flex:1;background:transparent;color:var(--muted);display:flex;flex-direction:column;align-items:center;gap:2px;font-size:12px;padding:6px 0;position:relative}
+nav button .ic{font-size:20px}
+nav button.on{color:var(--accent)}
+.badge{position:absolute;top:2px;right:calc(50% - 22px);background:var(--warn);color:#fff;border-radius:999px;font-size:10px;min-width:16px;padding:0 4px;line-height:16px}
+.big{font-size:42px;font-weight:700;text-align:center;letter-spacing:6px;min-height:64px;display:grid;place-items:center;direction:ltr}
+.flash{font-size:20px;text-align:center;padding:24px 8px;font-weight:600}
+.answer{background:var(--accent-soft);border-radius:10px;padding:12px;margin:10px 0;white-space:pre-wrap}
+.rate{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
+.rate button{padding:10px 4px;font-size:14px}
+.rate .r0{background:var(--warn-soft);color:var(--warn)}
+.words{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;padding:10px 0}
+.words span{background:var(--accent-soft);color:var(--accent);padding:8px 12px;border-radius:10px;font-weight:600;font-size:18px}
+.words span.miss{background:var(--warn-soft);color:var(--warn)}
+.bar{height:8px;background:var(--line);border-radius:999px;overflow:hidden;margin:8px 0}
+.bar i{display:block;height:100%;background:var(--accent);transition:width .2s linear}
+.spark{display:flex;gap:4px;align-items:flex-end;height:70px;padding-top:6px}
+.spark div{flex:1;background:var(--accent);border-radius:4px 4px 0 0;min-height:3px;opacity:.85}
+.spark div.zero{background:var(--line)}
+.sparkl{display:flex;justify-content:space-between;font-size:11px;color:var(--muted)}
+.cardrow{padding:10px 0;border-bottom:1px solid var(--line);display:flex;gap:8px;align-items:center}
+.cardrow:last-child{border-bottom:0}
+.cardrow .txt{flex:1}
+.small{font-size:13px;color:var(--muted)}
+.tip{font-size:14px;color:var(--muted);background:var(--bg);border-radius:10px;padding:10px;margin-top:8px}
+.hide{display:none!important}
+.game{display:flex;align-items:center;gap:12px}
+.game .ic{font-size:28px}
+.game .txt{flex:1}
+.sd{display:grid;direction:ltr;margin:8px auto;border:2px solid var(--ink);border-radius:6px;overflow:hidden;width:100%;max-width:420px;aspect-ratio:1}
+.sd div{display:grid;place-items:center;font-size:clamp(16px,5.4vw,24px);border-right:1px solid var(--line);border-bottom:1px solid var(--line);cursor:pointer;color:var(--accent);background:var(--card);user-select:none}
+.sd div.g{color:var(--ink);font-weight:700}
+.sd div.bl{border-left:2px solid var(--ink)}
+.sd div.bt{border-top:2px solid var(--ink)}
+.sd div.hl{background:var(--accent-soft)}
+.sd div.same{background:#f3e3b5;color:#5a4300}
+.sd div.sel{background:var(--accent);color:#fff}
+.sd div.bad{color:var(--warn);background:var(--warn-soft)}
+.pad{display:grid;gap:6px;direction:ltr;margin-top:8px}
+.pad button{font-size:22px;padding:12px 0}
+.pairs{display:grid;gap:8px;direction:ltr;margin:8px 0}
+.pairs button{aspect-ratio:1;font-size:clamp(24px,8vw,38px);padding:0;background:var(--accent);color:#fff;border-radius:12px}
+.pairs button.up{background:var(--card);border:2px solid var(--accent)}
+.pairs button.ok{background:var(--accent-soft);border:2px solid var(--accent-soft);opacity:.7}
+.emo{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;font-size:40px;padding:10px 0}
+.opts{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.opts button{font-size:34px;padding:10px 0}
+.tiplist .t{padding:10px 0;border-bottom:1px solid var(--line)}
+.tiplist .t:last-child{border-bottom:0}
+.tiplist b{display:block;margin-bottom:2px}
+.q{font-size:19px;font-weight:600;margin:6px 0 10px}
+.cat{display:inline-block;font-size:12px;background:var(--accent-soft);color:var(--accent);padding:3px 10px;border-radius:999px}
+#focus-bar{position:sticky;top:0;z-index:6;background:var(--accent);color:#fff;padding:10px 14px calc(10px);box-shadow:0 2px 8px rgba(0,0,0,.15)}
+#focus-bar.over{background:var(--gold)}
+#focus-bar .fb{max-width:640px;margin:0 auto}
+#focus-bar b{font-size:16px}
+#focus-bar .small{color:rgba(255,255,255,.85)}
+#focus-bar button{background:rgba(255,255,255,.2);color:#fff;padding:8px 10px;font-size:14px}
+#focus-bar input{background:#fff;color:#1f2328;border:0}
+.sch{display:grid;gap:5px;direction:ltr;margin:8px 0}
+.sch button{aspect-ratio:1;font-size:clamp(18px,6vw,26px);padding:0;background:var(--card);color:var(--ink);border:1px solid var(--line)}
+.sch button.ok{background:var(--accent-soft);color:var(--accent);opacity:.55}
+.sch button.no{background:var(--warn-soft);color:var(--warn)}
+.mth{padding:0}
+.mh{display:flex;gap:12px;align-items:center;padding:14px;cursor:pointer}
+.me{font-size:28px}
+.arr{color:var(--muted);font-size:22px;transition:transform .2s}
+.mth.open .arr{transform:rotate(-90deg)}
+.mb{padding:0 14px 14px}
+.mb ol{margin:0;padding-inline-start:20px}
+.mb li{margin:4px 0}
+#tipcard{min-height:230px;display:flex;flex-direction:column;background:linear-gradient(160deg,var(--accent-soft),var(--card))}
+#tc-title{font-size:20px;margin:10px 0 8px}
+#tc-body{flex:1;font-size:16px}
+nav button{font-size:11px}
+.fgrid,#fc-people{display:grid;grid-template-columns:repeat(auto-fill,minmax(96px,1fr));gap:10px;margin:8px 0}
+.person{text-align:center;display:flex;flex-direction:column;align-items:center}
+.fimg{width:84px;height:84px;background:var(--accent-soft);border-radius:50%;overflow:hidden}
+#fc-face{width:150px;height:150px;margin:6px auto 12px;background:var(--accent-soft);border-radius:50%;overflow:hidden}
+.kanban{display:flex;gap:10px;overflow-x:auto;scroll-snap-type:x mandatory;padding-bottom:6px;margin:0 -4px}
+.kcol{flex:0 0 78%;max-width:260px;scroll-snap-align:start;background:var(--bg);border-radius:12px;padding:8px;min-height:120px;border:2px dashed transparent}
+.kcol.over{border-color:var(--accent)}
+.kh{font-weight:700;font-size:14px;margin:2px 4px 8px}
+.kcard{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:8px 10px;margin-bottom:8px;cursor:pointer;font-size:15px}
+.kcard.drag{opacity:.4}
+.kcard .meta{font-size:12px;color:var(--muted)}
+.kcard.overdue .meta{color:var(--warn)}
+.kmove{display:flex;justify-content:space-between;margin-top:4px}
+.kmove button{font-size:13px;padding:2px 4px;color:var(--accent)}
+.kcol[data-col=done] .kcard{opacity:.6}
+.grow{display:flex;align-items:center;border-bottom:1px solid var(--line);min-height:34px;cursor:pointer}
+.ghead{cursor:default;min-height:38px}
+.glabel{flex:0 0 96px;font-size:13px;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;padding-inline-end:6px}
+.gtrack{flex:1;position:relative;height:34px}
+.ghead .gtrack{height:38px}
+.gday{position:absolute;top:0;text-align:center;font-size:10px;color:var(--muted);line-height:1.2;padding-top:3px}
+.gday.now{color:#fff;background:var(--accent);border-radius:6px;font-weight:700}
+.gday.sat{background:var(--bg)}
+.gbar{position:absolute;top:7px;height:20px;border-radius:6px;background:var(--accent);color:#fff;font-size:11px;line-height:20px;padding:0 4px;overflow:hidden;white-space:nowrap;min-width:6px}
+.gbar.st-todo{background:#7aa89a}.gbar.st-waiting{background:var(--gold)}.gbar.st-done{background:var(--line);color:var(--muted)}
+.gbar.late{background:var(--warn)}
+.gtoday{position:absolute;top:0;bottom:0;width:2px;background:var(--warn);opacity:.5}
+#notes{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px;margin-top:12px}
+.note{color:#1f2328;border-radius:4px 4px 14px 4px;padding:12px;min-height:120px;box-shadow:0 3px 8px rgba(0,0,0,.12);cursor:pointer;position:relative;display:flex;flex-direction:column}
+.note .ntext{white-space:pre-wrap;flex:1;font-size:15px;max-height:220px;overflow:hidden}
+.note .nmeta{font-size:11px;opacity:.6;margin-top:6px}
+.note .pin{position:absolute;top:-8px;left:8px}
+.dots{display:flex;gap:8px;align-items:center}
+.dot{width:28px;height:28px;border-radius:50%;padding:0;border:2px solid transparent}
+.dot.on{border-color:var(--ink)}
+#sheet{position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:20;display:flex;align-items:flex-end;justify-content:center}
+#sheet-body{background:var(--card);width:100%;max-width:640px;border-radius:18px 18px 0 0;padding:18px 16px calc(18px + env(safe-area-inset-bottom));max-height:88vh;overflow:auto}
+#sheet-body label{flex:1}
+.task .txt[data-edit]{cursor:pointer}
+nav button .ic{font-size:19px}
+.relbox{border:1px solid var(--line);border-radius:12px;padding:8px 10px;margin-bottom:8px}
+.relh{font-size:15px;margin-bottom:2px}
+.toast{position:fixed;bottom:84px;left:50%;transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:10px;font-size:14px;opacity:0;transition:opacity .25s;pointer-events:none;z-index:9}
+.toast.show{opacity:1}
+</style>
+</head>
+<body>
+<header>
+  <h1>מם או… 🤔 <span style="font-weight:400;font-size:14px;color:var(--muted)"><span style="display:inline-block;direction:ltr">…Memo!</span> נזכרתי.</span></h1>
+  <div class="sub" id="today-label"></div>
+</header>
+<div id="focus-bar" class="hide"><div class="fb">
+  <div class="row"><div><div class="small">🎯 עכשיו עובדים על</div><b id="fb-text"></b><div class="small" id="fb-step"></div></div><b class="shrink" id="fb-time" style="direction:ltr"></b></div>
+  <div class="small hide" id="fb-over" style="margin-top:4px">⏰ הזמן שתכננתם עבר. סיימתם? או עוד 10 דקות?</div>
+  <div class="row" style="margin-top:8px"><button id="fb-done">✓ סיימתי</button><button id="fb-pause">⏸ עוצר באמצע</button><button class="shrink" id="fb-more">+10</button></div>
+  <div class="hide" id="fb-park" style="margin-top:8px"><div class="row"><input id="fb-note" placeholder="איפה עצרתי / מה הצעד הבא?"><button class="shrink" id="fb-park-save">🅿️ חנה</button></div></div>
+</div></div>
+
+<main>
+<!-- ========== היום ========== -->
+<section id="tab-today">
+  <div class="stats">
+    <div class="stat"><b id="s-open">0</b><span>משימות פתוחות</span></div>
+    <div class="stat"><b id="s-due">0</b><span>חזרות היום</span></div>
+    <div class="stat"><b id="s-streak">0</b><span>ימי רצף 🔥</span></div>
+  </div>
+
+  <div class="card hide" id="parked-card">
+    <h2>🅿️ עזבתם באמצע — לא לשכוח לחזור</h2>
+    <div id="parked-list"></div>
+  </div>
+
+  <div class="card" id="daily-card">
+    <div class="row"><h2>🏋️ אימון של היום</h2><span class="small shrink" id="daily-sum"></span></div>
+    <div id="daily-list"></div>
+    <button style="width:100%;margin-top:8px" class="surprise">🎲 הפתע אותי — משחק אקראי</button>
+    <div class="tip" id="daily-plan"></div>
+  </div>
+
+  <div class="card">
+    <h2>📥 תפסו את זה לפני שזה בורח</h2>
+    <div class="chips" id="kind-chips" style="margin:0 0 8px">
+      <button class="chip on" data-k="task">✅ משימה</button>
+      <button class="chip" data-k="call">📞 להחזיר שיחה</button>
+      <button class="chip" data-k="ask">🙋 ביקשו ממני</button>
+      <button class="chip" data-k="thought">💭 מחשבה מהדרך</button>
+    </div>
+    <div class="row">
+      <input id="task-input" placeholder="מה צריך לעשות?" enterkeyhint="done">
+      <button class="primary shrink" id="task-add">הוסף</button>
+    </div>
+    <div class="chips" id="when-chips">
+      <button class="chip on" data-when="today">היום</button>
+      <button class="chip" data-when="tomorrow">מחר</button>
+      <button class="chip" data-when="week">השבוע</button>
+      <button class="chip" data-when="date">תאריך…</button>
+      <button class="chip" data-when="none">בלי תאריך</button>
+    </div>
+    <input type="date" id="task-date" class="hide" style="margin-top:8px">
+    <div class="small" style="margin-top:8px">🎙️ ברכב (כשעומדים): לחצו על המיקרופון במקלדת והכתיבו במקום להקליד.</div>
+  </div>
+
+  <div class="card" id="task-board">
+    <div class="row"><h2>המשימות שלי</h2></div>
+    <div class="chips" id="view-chips" style="margin:0 0 6px"><button class="chip on" data-v="list">📋 רשימה</button><button class="chip" data-v="kanban">🗂️ קנבן</button><button class="chip" data-v="gantt">📊 גאנט</button></div>
+    <div id="task-list"></div>
+    <div id="kanban" class="kanban hide"></div>
+    <div id="gantt-wrap" class="hide">
+      <div class="chips" id="g-range" style="margin:0 0 6px"><button class="chip on" data-d="14">שבועיים</button><button class="chip" data-d="30">חודש</button></div>
+      <div id="gantt"></div>
+      <div class="small" style="margin-top:6px">לחצו על משימה כדי לקבוע "מתאריך" ו"עד תאריך". 🟥 באיחור · 🟨 ממתין לאחרים</div>
+    </div>
+  </div>
+
+  <div class="card" id="warm-card">
+    <h2>🔥 לפני שמתחילים משימה</h2>
+    <div id="warm-intro">
+      <div class="small">דקה של חימום קשב, ואז מגדירים מה עושים ומה הצעד הראשון. אם תעברו באמצע למשהו אחר — המשימה "תחנה" ותחכה לכם למעלה.</div>
+      <button class="primary" style="margin-top:10px;width:100%" id="warm-start">חימום + התחלת משימה</button>
+    </div>
+    <div id="warm" class="hide">
+      <div id="w1">
+        <div class="small" id="w-next"></div>
+        <div id="w-grid"></div>
+        <button class="ghost" style="width:100%" id="w-skip">דלג על החימום</button>
+      </div>
+      <div id="w2" class="hide">
+        <div class="small" id="w-msg" style="color:var(--accent);margin-bottom:6px"></div>
+        <input id="w-task" list="w-tasks" placeholder="מה המשימה?"><datalist id="w-tasks"></datalist>
+        <input id="w-step" style="margin-top:8px" placeholder="מה הצעד הראשון? (קטן ומוחשי)">
+        <input id="w-dist" style="margin-top:8px" placeholder="מה עלול להסיח את דעתי? (לא חובה)">
+        <div class="small" style="margin-top:8px">כמה זמן?</div>
+        <div class="chips" id="w-min"><button class="chip" data-m="15">15 דק׳</button><button class="chip on" data-m="25">25 דק׳</button><button class="chip" data-m="45">45 דק׳</button><button class="chip" data-m="60">שעה</button></div>
+        <div class="row" style="margin-top:10px"><button class="primary" id="w-go">▶ מתחילים</button><button class="ghost shrink" id="w-cancel">ביטול</button></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card" id="q-card">
+    <h2>🤔 מה שכחתי להוסיף?</h2>
+    <div id="q-intro">
+      <div class="small">5 שאלות קצרות בכל פעם — על האנשים והנושאים שלך, ובכל פעם אחרות. אם בטוח ששכחת עוד משהו, ממשיכים.</div>
+      <div class="row" style="margin-top:10px"><button class="primary" id="q-start">5 שאלות מהירות</button><button class="shrink" id="q-edit-btn">✏️ אנשים ונושאים</button></div>
+      <div id="q-edit" class="hide" style="margin-top:10px">
+        <div class="small">👤 אנשים שכדאי לשאול עליהם:</div>
+        <div class="chips" id="qp-list"></div>
+        <div class="row" style="margin-top:6px"><input id="qp-in" placeholder="שם (אפשר כמה, מופרדים בפסיק)"><button class="shrink" id="qp-add">הוסף</button></div>
+        <div class="small" style="margin-top:10px">📌 נושאים ותחומים:</div>
+        <div class="chips" id="qt-list"></div>
+        <div class="row" style="margin-top:6px"><input id="qt-in" placeholder="נושא"><button class="shrink" id="qt-add">הוסף</button></div>
+      </div>
+    </div>
+    <div id="q-more" class="hide">
+      <div class="small" id="q-more-txt"></div>
+      <div class="row" style="margin-top:10px"><button class="primary" id="q-finish">✓ זהו, סיימתי</button><button id="q-again">🤔 שכחתי עוד — עוד 5</button></div>
+    </div>
+    <div id="q-run" class="hide">
+      <div class="row"><span><span class="cat" id="q-cat"></span></span><span class="small shrink" id="q-num"></span></div>
+      <div class="q" id="q-text"></div>
+      <div class="row">
+        <input id="q-input" placeholder="כתבו משימה (או דלגו)" enterkeyhint="done">
+        <button class="primary shrink" id="q-add">הוסף</button>
+      </div>
+      <div class="chips" id="q-when">
+        <button class="chip" data-w="today">היום</button>
+        <button class="chip" data-w="tomorrow">מחר</button>
+        <button class="chip" data-w="week">השבוע</button>
+        <button class="chip on" data-w="none">בלי תאריך</button>
+      </div>
+      <div class="small" id="q-added" style="margin-top:6px;color:var(--accent)"></div>
+      <div class="row" style="margin-top:10px">
+        <button id="q-next">השאלה הבאה ←</button>
+        <button class="ghost shrink" id="q-stop">סיום</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="card" id="recall-card">
+    <h2>🎯 אתגר הזיכרון היומי</h2>
+    <div id="recall-intro">
+      <div class="small">בלי להסתכל ברשימה — כתבו את כל המשימות הפתוחות שאתם זוכרים. ככה מתאמנים על הזיכרון עם הדברים האמיתיים שלכם.</div>
+      <button class="primary" style="margin-top:10px;width:100%" id="recall-start">התחל אתגר</button>
+    </div>
+    <div id="recall-run" class="hide">
+      <textarea id="recall-text" placeholder="משימה אחת בכל שורה…"></textarea>
+      <div class="row" style="margin-top:8px">
+        <button class="primary" id="recall-check">בדוק</button>
+        <button class="shrink ghost" id="recall-cancel">ביטול</button>
+      </div>
+    </div>
+    <div id="recall-result" class="hide"></div>
+  </div>
+
+
+  <div class="card">
+    <h2>💡 טיפ היום</h2>
+    <b id="tip-title"></b>
+    <div class="small" id="tip-body" style="margin-top:4px"></div>
+    <button class="ghost" style="padding:8px 0 0" id="tip-more">עוד טיפים — תזונה, שינה, תנועה ←</button>
+  </div>
+</section>
+
+<!-- ========== ממו ========== -->
+<section id="tab-memo" class="hide">
+  <div class="card">
+    <h2>📝 פתק חדש</h2>
+    <textarea id="n-text" style="min-height:80px" placeholder="כל מה שצריך לזכור בפרטים: מתכון, קוד לשער, מה אמר הרופא, מידות…"></textarea>
+    <div class="row" style="margin-top:8px"><div class="dots" id="n-colors"></div><button class="primary shrink" id="n-add">הדבק פתק</button></div>
+  </div>
+  <div class="row"><input id="n-search" placeholder="🔍 חיפוש בפתקים"><span class="small shrink" id="n-count"></span></div>
+  <div id="notes"></div>
+</section>
+
+<!-- ========== חזרות ========== -->
+<section id="tab-cards" class="hide">
+  <div class="card" id="review-box">
+    <h2>חזרה מרווחת</h2>
+    <div class="small" id="review-summary"></div>
+    <button class="primary" style="width:100%;margin-top:10px" id="review-start">התחל חזרה</button>
+    <div class="tip">כל נושא חוזר אליכם בדיוק לפני שהוא עומד להישכח: אחרי יום, אחרי 3 ימים, אחרי שבוע ויותר — לפי כמה טוב זכרתם.</div>
+  </div>
+
+  <div class="card hide" id="review-run">
+    <div class="small" id="review-progress"></div>
+    <div class="flash" id="review-front"></div>
+    <div id="review-back-wrap" class="hide">
+      <div class="answer" id="review-back"></div>
+      <div class="small" style="text-align:center;margin-bottom:6px">כמה טוב זכרתם?</div>
+      <div class="rate">
+        <button class="r0" data-r="0">שכחתי</button>
+        <button data-r="1">קשה</button>
+        <button data-r="2">טוב</button>
+        <button data-r="3">קל</button>
+      </div>
+    </div>
+    <button class="primary" style="width:100%" id="review-show">הצג תשובה</button>
+  </div>
+
+  <div class="card">
+    <h2>נושא חדש לזכור</h2>
+    <input id="card-front" placeholder="שאלה / נושא (למשל: יום הולדת של דנה)">
+    <textarea id="card-back" style="margin-top:8px;min-height:70px" placeholder="התשובה / הפרטים (למשל: 14 במרץ)"></textarea>
+    <button class="primary" style="width:100%;margin-top:8px" id="card-add">שמור נושא</button>
+  </div>
+
+  <div class="card">
+    <h2>כל הנושאים</h2>
+    <div id="card-list"></div>
+  </div>
+</section>
+
+<!-- ========== אימון ========== -->
+<section id="tab-train" class="hide">
+  <div id="train-menu">
+    <button class="primary surprise" style="width:100%;margin:6px 0 2px">🎲 הפתע אותי — משחק אקראי</button>
+    <div class="card game">
+      <div class="ic">🎯</div>
+      <div class="txt"><b>טבלת שולטה — חימום קשב</b><div class="small">מקישים על המספרים לפי הסדר מהר ככל האפשר. מעולה רגע לפני משימה. שיא 5×5: <span id="best-sch">—</span></div></div>
+      <button class="primary shrink" data-game="schulte">שחק</button>
+    </div>
+    <div class="card game">
+      <div class="ic">🔢</div>
+      <div class="txt"><b>רצף מספרים</b><div class="small">ספרות מופיעות אחת־אחת. חזרו עליהן. הרצף מתארך. שיא: <span id="best-digit">0</span></div></div>
+      <button class="primary shrink" data-game="digit">שחק</button>
+    </div>
+    <div class="card game">
+      <div class="ic">📝</div>
+      <div class="txt"><b>רשימת מילים</b><div class="small">שננו רשימה בזמן מוגבל ונסו לשחזר. שיא: <span id="best-words">0</span></div></div>
+      <button class="primary shrink" data-game="words">שחק</button>
+    </div>
+    <div class="card game">
+      <div class="ic">↩️</div>
+      <div class="txt"><b>רצף הפוך</b><div class="small">כמו רצף מספרים — אבל מקלידים מהסוף להתחלה. מאמן זיכרון עבודה. שיא: <span id="best-rev">0</span></div></div>
+      <button class="primary shrink" data-game="rev">שחק</button>
+    </div>
+    <div class="card game">
+      <div class="ic">🙂</div>
+      <div class="txt"><b>שמות ופרצופים</b><div class="small">פוגשים כמה אנשים, ואז צריך לזכור מי זה מי. מאמן בדיוק את מה שקשה במפגשים אמיתיים.</div></div>
+      <button class="primary shrink" data-game="faces">שחק</button>
+    </div>
+    <div class="card game">
+      <div class="ic">🔲</div>
+      <div class="txt"><b>סודוקו</b><div class="small">ריכוז, היגיון וזיכרון עבודה. 6×6 למתחילים, 9×9 בשלוש רמות.</div></div>
+      <button class="primary shrink" data-game="sudoku">שחק</button>
+    </div>
+    <div class="card game">
+      <div class="ic">🃏</div>
+      <div class="txt"><b>מצא את הזוג</b><div class="small">זיכרון חזותי־מרחבי: איפה ראיתי את הקלף הזה? שיא: <span id="best-pairs">—</span></div></div>
+      <button class="primary shrink" data-game="pairs">שחק</button>
+    </div>
+    <div class="card game">
+      <div class="ic">🔍</div>
+      <div class="txt"><b>מה חסר?</b><div class="small">הסתכלו על הפריטים, אחד ייעלם — מה? בדיוק כמו "איפה שמתי את המשקפיים". שיא: <span id="best-missing">0</span></div></div>
+      <button class="primary shrink" data-game="missing">שחק</button>
+    </div>
+
+
+  </div>
+
+  <!-- schulte -->
+  <div class="card hide" id="g-schulte">
+    <h2>טבלת שולטה</h2>
+    <div id="sh-setup">
+      <div class="chips" id="sh-size"><button class="chip" data-n="4">4×4</button><button class="chip on" data-n="5">5×5</button><button class="chip" data-n="6">6×6</button></div>
+      <div class="tip">הסתכלו על מרכז הטבלה ונסו למצוא את המספרים בלי להזיז הרבה את העיניים. זה מאמן קשב רחב ומהירות — "חימום" למוח.</div>
+      <button class="primary" style="width:100%;margin-top:10px" id="sh-go">התחל</button>
+    </div>
+    <div id="sh-play" class="hide"><div class="small" id="sh-next"></div><div id="sh-grid"></div></div>
+    <div id="sh-result" class="hide"></div>
+    <button class="ghost" style="width:100%;margin-top:8px" data-back>חזרה לתפריט</button>
+  </div>
+
+  <!-- faces -->
+  <div class="card hide" id="g-faces">
+    <h2>שמות ופרצופים</h2>
+    <div id="fc-setup">
+      <div class="chips" id="fc-size"><button class="chip on" data-n="4">4 אנשים</button><button class="chip" data-n="6">6</button><button class="chip" data-n="8">8</button></div>
+      <div class="tip">לכל אדם: מצאו פרט בולט בפנים, והפכו את השם לתמונה שנתלית עליו. המקצוע עוזר לבנות סיפור.</div>
+      <button class="primary" style="width:100%;margin-top:10px" id="fc-go">התחל</button>
+    </div>
+    <div id="fc-study" class="hide"><div class="bar"><i id="fc-bar"></i></div><div id="fc-people"></div><button style="width:100%" id="fc-ready">זכרתי, המשך</button></div>
+    <div id="fc-quiz" class="hide"><div class="small" id="fc-num" style="text-align:center"></div><div id="fc-face"></div><div class="opts" id="fc-opts" style="grid-template-columns:repeat(2,1fr)"></div></div>
+    <div id="fc-result" class="hide"></div>
+    <button class="ghost" style="width:100%;margin-top:8px" data-back>חזרה לתפריט</button>
+  </div>
+
+  <!-- sudoku -->
+  <div class="card hide" id="g-sudoku">
+    <h2>סודוקו</h2>
+    <div id="sd-setup">
+      <div class="small">בחרו רמה:</div>
+      <div class="chips" id="sd-level">
+        <button class="chip on" data-l="6e">6×6 קל</button>
+        <button class="chip" data-l="9e">9×9 קל</button>
+        <button class="chip" data-l="9m">9×9 בינוני</button>
+        <button class="chip" data-l="9h">9×9 קשה</button>
+      </div>
+      <div class="tip">ממלאים כך שבכל שורה, עמודה וריבוע מודגש יופיע כל מספר פעם אחת. לוחצים על משבצת ואז על מספר.</div>
+      <button class="primary" style="width:100%;margin-top:10px" id="sd-go">התחל</button>
+    </div>
+    <div id="sd-play" class="hide">
+      <div class="row small"><span id="sd-time">0:00</span><span class="shrink" id="sd-info"></span></div>
+      <div class="sd" id="sd-grid"></div>
+      <div class="pad" id="sd-pad"></div>
+      <div class="row" style="margin-top:6px"><button id="sd-hint">💡 רמז</button><button id="sd-erase">⌫ מחק</button></div>
+    </div>
+    <div id="sd-result" class="hide"></div>
+    <button class="ghost" style="width:100%;margin-top:8px" data-back>חזרה לתפריט</button>
+  </div>
+
+  <!-- pairs -->
+  <div class="card hide" id="g-pairs">
+    <h2>מצא את הזוג</h2>
+    <div id="pr-setup">
+      <div class="chips" id="pr-size">
+        <button class="chip" data-n="6">6 זוגות</button>
+        <button class="chip on" data-n="8">8 זוגות</button>
+        <button class="chip" data-n="10">10 זוגות</button>
+        <button class="chip" data-n="12">12 זוגות</button>
+      </div>
+      <button class="primary" style="width:100%;margin-top:10px" id="pr-go">התחל</button>
+    </div>
+    <div id="pr-play" class="hide">
+      <div class="row small"><span id="pr-moves"></span><span class="shrink" id="pr-time"></span></div>
+      <div class="pairs" id="pr-grid"></div>
+    </div>
+    <div id="pr-result" class="hide"></div>
+    <button class="ghost" style="width:100%;margin-top:8px" data-back>חזרה לתפריט</button>
+  </div>
+
+  <!-- missing -->
+  <div class="card hide" id="g-missing">
+    <h2>מה חסר?</h2>
+    <div class="small" id="ms-level"></div>
+    <div class="bar"><i id="ms-bar"></i></div>
+    <div class="emo" id="ms-show"></div>
+    <div id="ms-ask" class="hide">
+      <div class="small" style="text-align:center;margin-bottom:8px">איזה פריט נעלם?</div>
+      <div class="opts" id="ms-opts"></div>
+    </div>
+    <div id="ms-result" class="hide" style="text-align:center"></div>
+    <button class="ghost" style="width:100%;margin-top:8px" data-back>חזרה לתפריט</button>
+  </div>
+
+  <!-- digit game -->
+  <div class="card hide" id="g-digit">
+    <h2 id="gd-title">רצף מספרים</h2>
+    <div class="small" id="gd-level"></div>
+    <div class="big" id="gd-show"></div>
+    <div id="gd-input-wrap" class="hide">
+      <input id="gd-input" inputmode="numeric" placeholder="הקלידו את הרצף" style="text-align:center;font-size:22px;direction:ltr">
+      <button class="primary" style="width:100%;margin-top:8px" id="gd-submit">אישור</button>
+    </div>
+    <div id="gd-result" class="hide" style="text-align:center"></div>
+    <button class="ghost" style="width:100%;margin-top:8px" data-back>חזרה לתפריט</button>
+  </div>
+
+  <!-- words game -->
+  <div class="card hide" id="g-words">
+    <h2>רשימת מילים</h2>
+    <div id="gw-setup">
+      <div class="small">כמה מילים?</div>
+      <div class="chips" id="gw-size">
+        <button class="chip" data-n="5">5</button>
+        <button class="chip on" data-n="8">8</button>
+        <button class="chip" data-n="12">12</button>
+        <button class="chip" data-n="16">16</button>
+      </div>
+      <button class="primary" style="width:100%;margin-top:12px" id="gw-go">התחל</button>
+    </div>
+    <div id="gw-study" class="hide">
+      <div class="bar"><i id="gw-bar"></i></div>
+      <div class="words" id="gw-words"></div>
+      <button style="width:100%" id="gw-ready">זכרתי, המשך</button>
+    </div>
+    <div id="gw-recall" class="hide">
+      <div class="small">כתבו את כל המילים שאתם זוכרים (מופרדות ברווח או שורה):</div>
+      <textarea id="gw-text" style="margin-top:8px"></textarea>
+      <button class="primary" style="width:100%;margin-top:8px" id="gw-check">בדוק</button>
+    </div>
+    <div id="gw-result" class="hide"></div>
+    <button class="ghost" style="width:100%;margin-top:8px" data-back>חזרה לתפריט</button>
+  </div>
+</section>
+
+<!-- ========== ידע ========== -->
+<section id="tab-methods" class="hide">
+  <div class="chips" id="kb-tabs" style="margin:6px 0 4px"><button class="chip on" data-kb="methods">🧠 שיטות זיכרון</button><button class="chip" data-kb="tips">💡 טיפים לחיים</button></div>
+  <div id="kb-methods">
+    <div class="small" style="margin:8px 2px">כל כרטיס — שיטה אחת: למה היא בשבילכם, איך עושים, ודוגמה. לחצו לפתיחה.</div>
+    <button style="width:100%" id="m-rand">🎲 שיטה אקראית</button>
+    <div id="methods"></div>
+  </div>
+  <div id="kb-tips" class="hide">
+    <div class="chips" id="tip-cats"></div>
+    <div class="card" id="tipcard">
+      <span><span class="cat" id="tc-cat"></span></span>
+      <div id="tc-title" style="font-weight:700"></div>
+      <div id="tc-body"></div>
+      <div class="row" style="margin-top:12px"><button id="tc-prev">→ הקודם</button><button class="shrink" id="tc-rand" title="טיפ אקראי">🎲</button><span class="small shrink" id="tc-num"></span><button id="tc-next">הבא ←</button></div>
+    </div>
+    <div class="small" style="text-align:center">אפשר גם להחליק ימינה ושמאלה</div>
+  </div>
+</section>
+
+<!-- ========== התקדמות ========== -->
+<section id="tab-progress" class="hide">
+  <div class="stats">
+    <div class="stat"><b id="p-streak">0</b><span>ימי רצף</span></div>
+    <div class="stat"><b id="p-cards">0</b><span>נושאים בזיכרון</span></div>
+    <div class="stat"><b id="p-done">0</b><span>משימות שהושלמו</span></div>
+  </div>
+  <div class="card">
+    <h2>פעילות ב־14 הימים האחרונים</h2>
+    <div class="spark" id="spark"></div>
+    <div class="sparkl"><span id="spark-from"></span><span>היום</span></div>
+  </div>
+  <div class="card">
+    <h2>שיאים</h2>
+    <div class="cardrow"><span class="txt">🔢 רצף מספרים</span><b id="p-digit">0</b></div>
+    <div class="cardrow"><span class="txt">↩️ רצף הפוך</span><b id="p-rev">0</b></div>
+    <div class="cardrow"><span class="txt">📝 רשימת מילים (אחוז הכי גבוה)</span><b id="p-words">0</b></div>
+    <div class="cardrow"><span class="txt">🎯 אתגר משימות (אחוז הכי גבוה)</span><b id="p-recall">0</b></div>
+    <div class="cardrow"><span class="txt">🎯 טבלת שולטה 5×5 (שניות)</span><b id="p-sch">—</b></div>
+    <div class="cardrow"><span class="txt">🔍 מה חסר? (שלב)</span><b id="p-missing">0</b></div>
+    <div class="cardrow"><span class="txt">🃏 מצא את הזוג (8 זוגות, הכי מעט ניסיונות)</span><b id="p-pairs">—</b></div>
+    <div class="cardrow"><span class="txt">🔲 סודוקו שנפתרו</span><b id="p-sudoku">0</b></div>
+  </div>
+  <div class="card">
+    <h2>👤 הפרופיל שלי</h2>
+    <div class="small">האנשים, התחומים, מה קשה לך ומה השגרה — מזה נבנים השאלות, האימון היומי והשיטות שמוצעות לך.</div>
+    <button class="primary" style="width:100%;margin-top:10px" id="profile-btn">עדכון שאלון ההיכרות</button>
+  </div>
+  <div class="card">
+    <h2>שמירה וגיבוי</h2>
+    <div class="small" id="sync-status">הנתונים נשמרים בדפדפן הזה.</div>
+    <div class="row" style="margin-top:10px">
+      <button id="export">העתק גיבוי</button>
+      <button id="import-btn">שחזר מגיבוי</button>
+    </div>
+    <div id="import-wrap" class="hide" style="margin-top:8px">
+      <textarea id="import-text" placeholder="הדביקו כאן את טקסט הגיבוי"></textarea>
+      <button class="primary" style="width:100%;margin-top:6px" id="import-go">שחזר</button>
+    </div>
+    <input type="file" id="import-file" accept=".json,application/json" class="hide">
+  </div>
+</section>
+</main>
+
+<nav>
+  <button class="on" data-tab="today"><span class="ic">📋</span>היום</button>
+  <button data-tab="memo"><span class="ic">📝</span>ממו</button>
+  <button data-tab="cards"><span class="ic">🔁</span>חזרות<span class="badge hide" id="nav-badge"></span></button>
+  <button data-tab="train"><span class="ic">🧩</span>אימון</button>
+  <button data-tab="methods"><span class="ic">📚</span>שיטות</button>
+  <button data-tab="progress"><span class="ic">📈</span>התקדמות</button>
+</nav>
+<div class="toast" id="toast"></div>
+<div id="sheet" class="hide"><div id="sheet-body"></div></div>
+
+<script>
+/* ---------- storage ---------- */
+const KEY='zocher-v1';
+let mem=null;
+function load(){
+  let s=null;
+  try{ s=JSON.parse(localStorage.getItem(KEY)); }catch(e){}
+  if(!s && mem) s=mem;
+  return Object.assign({tasks:[],cards:[],log:{},parked:[],plans:[],focus:null,notes:[],view:'list',qSeen:{},qPeople:[],qTopics:[],profile:null,best:{digit:0,rev:0,words:0,recall:0}},s||{},{best:Object.assign({digit:0,rev:0,words:0,recall:0,missing:0,pairs:{},sudoku:0},(s||{}).best||{})});
+}
+let S=load();
+function save(){
+  S.updated=Date.now(); mem=S;
+  try{ localStorage.setItem(KEY,JSON.stringify(S)); }catch(e){}
+  cloudSave();
+}
+/* cloud sync (same data on phone and computer) */
+let cloudRef=null,cloudT=null;
+function cloudSave(){
+  if(!cloudRef) return;
+  clearTimeout(cloudT);
+  cloudT=setTimeout(()=>{cloudRef.set({json:JSON.stringify(S),updated:S.updated}).catch(()=>{});},800);
+}
+async function cloudPull(){
+  if(!cloudRef) return;
+  try{
+    const snap=await cloudRef.get();
+    const d=snap&&typeof snap.data==='function'?snap.data():snap;
+    if(d&&d.json&&(d.updated||0)>(S.updated||0)){
+      S=Object.assign(load(),JSON.parse(d.json));
+      try{localStorage.setItem(KEY,JSON.stringify(S));}catch(e){}
+      render();
+    }else if(!d||!d.json||(d.updated||0)<(S.updated||0)){cloudSave();}
+  }catch(e){}
+}
+(async()=>{
+  try{
+    if(!window.claude||!claude.use) return;
+    const [db,user]=await Promise.all([claude.use('db'),claude.use('user')]);
+    if(!db||!user) return;
+    const id=await user.id(); if(!id) return;
+    cloudRef=db.doc('data/users/'+id+'/state');
+    await cloudPull();
+    const st=document.getElementById('sync-status');
+    if(st) st.textContent='☁️ הנתונים מסונכרנים לחשבון שלכם — אותו מידע בטלפון ובמחשב.';
+    document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')cloudPull();});
+  }catch(e){}
+})();
+
+/* ---------- utils ---------- */
+const $=id=>document.getElementById(id);
+const uid=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,6);
+function dkey(d=new Date()){const z=n=>String(n).padStart(2,'0');return d.getFullYear()+'-'+z(d.getMonth()+1)+'-'+z(d.getDate());}
+function addDays(n,base=new Date()){const d=new Date(base);d.setDate(d.getDate()+n);return dkey(d);}
+const TODAY=()=>dkey();
+function fmtDate(k){
+  if(!k) return '';
+  if(k===TODAY()) return 'היום';
+  if(k===addDays(1)) return 'מחר';
+  if(k===addDays(-1)) return 'אתמול';
+  const [y,m,d]=k.split('-').map(Number);
+  return new Date(y,m-1,d).toLocaleDateString('he-IL',{weekday:'short',day:'numeric',month:'short'});
+}
+function esc(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+function toast(msg){const t=$('toast');t.textContent=msg;t.classList.add('show');clearTimeout(t._h);t._h=setTimeout(()=>t.classList.remove('show'),1800);}
+function logAct(type,n=1){const k=TODAY();S.log[k]=S.log[k]||{};S.log[k][type]=(S.log[k][type]||0)+n;save();}
+function norm(s){return s.replace(/[֑-ׇ]/g,'').replace(/[^\p{L}\p{N}\s]/gu,' ').trim().toLowerCase();}
+function streak(){
+  let n=0,d=new Date();
+  if(!S.log[dkey(d)]) d.setDate(d.getDate()-1);
+  while(S.log[dkey(d)]){n++;d.setDate(d.getDate()-1);}
+  return n;
+}
+
+/* ---------- tabs ---------- */
+document.querySelectorAll('nav button').forEach(b=>b.onclick=()=>{
+  document.querySelectorAll('nav button').forEach(x=>x.classList.toggle('on',x===b));
+  ['today','memo','cards','train','methods','progress'].forEach(t=>$('tab-'+t).classList.toggle('hide',t!==b.dataset.tab));
+  if(b.dataset.tab==='train')backMenu();else render(); window.scrollTo(0,0);
+});
+
+/* ---------- tasks ---------- */
+let when='today';
+document.querySelectorAll('#when-chips .chip').forEach(c=>c.onclick=()=>{
+  when=c.dataset.when;
+  document.querySelectorAll('#when-chips .chip').forEach(x=>x.classList.toggle('on',x===c));
+  $('task-date').classList.toggle('hide',when!=='date');
+});
+function addTask(){
+  const text=$('task-input').value.trim(); if(!text) return;
+  let due=null;
+  if(when==='today') due=TODAY();
+  else if(when==='tomorrow') due=addDays(1);
+  else if(when==='week'){const d=new Date();due=addDays((5-d.getDay()+7)%7||7);} // until Friday
+  else if(when==='date') due=$('task-date').value||null;
+  S.tasks.push({id:uid(),text,due,done:false,created:Date.now(),kind});
+  $('task-input').value=''; save(); render(); toast(kind==='thought'?'💭 נשמר — תסדרו אחר כך':'נוסף ✓');
+}
+$('task-add').onclick=addTask;
+$('task-input').addEventListener('keydown',e=>{if(e.key==='Enter')addTask();});
+
+function taskRow(t){
+  const over=!t.done&&t.due&&t.due<TODAY();
+  return `<div class="task ${t.done?'done':''} ${over?'overdue':''}">
+    <button class="chk" data-toggle="${t.id}">${t.done?'✓':''}</button>
+    <div class="txt" data-edit="${t.id}">${(KINDS[t.kind]||KINDS.task).ic}${esc(t.text)}${t.note?' <span class="small">📝</span>':''}${stOf(t)==='doing'?' <span class="cat">בתהליך</span>':stOf(t)==='waiting'?' <span class="cat" style="background:#f3e3b5;color:#5a4300">ממתין</span>':''}${t.due?`<div class="meta">${over?'באיחור · ':''}${fmtDate(t.due)}</div>`:''}</div>
+    ${t.done?'':t.kind==='thought'?`<button class="shrink" style="padding:6px 8px;font-size:13px" data-to="today" data-id="${t.id}">להיום</button><button class="shrink" style="padding:6px 8px;font-size:13px" data-to="tomorrow" data-id="${t.id}">למחר</button>`:`<button class="ghost" data-focus="${t.id}" title="התחל עכשיו">▶</button>`}
+    <button class="ghost" data-del="${t.id}" aria-label="מחק">✕</button></div>`;
+}
+function renderTasks(){
+  const today=TODAY(), all=S.tasks.filter(t=>!t.done), open=all.filter(t=>t.kind!=='thought');
+  const groups=[
+    ['💭 מחשבות לסידור',all.filter(t=>t.kind==='thought')],
+    ['באיחור',open.filter(t=>t.due&&t.due<today)],
+    ['היום',open.filter(t=>t.due===today)],
+    ['בקרוב',open.filter(t=>t.due&&t.due>today).sort((a,b)=>a.due.localeCompare(b.due))],
+    ['ללא תאריך',open.filter(t=>!t.due)],
+    ['הושלמו היום',S.tasks.filter(t=>t.done&&t.doneAt===today)]
+  ];
+  let h='';
+  groups.forEach(([name,list])=>{ if(list.length) h+=`<h3>${name}</h3>`+list.map(taskRow).join(''); });
+  $('task-list').innerHTML=h||'<div class="empty">אין משימות. הוסיפו משהו למעלה ✍️</div>';
+}
+$('task-list').onclick=e=>{
+  const tg=e.target.closest('[data-toggle]'), dl=e.target.closest('[data-del]');
+  if(tg){const t=S.tasks.find(x=>x.id===tg.dataset.toggle);setStatus(t,t.done?'todo':'done');save();render();}
+  if(dl){S.tasks=S.tasks.filter(x=>x.id!==dl.dataset.del);save();render();}
+};
+// clean old completed tasks (>30 days)
+S.tasks=S.tasks.filter(t=>!(t.done&&t.doneAt&&t.doneAt<addDays(-30)));
+
+/* ---------- recall challenge ---------- */
+$('recall-start').onclick=()=>{
+  if(!S.tasks.some(t=>!t.done)){toast('צריך קודם כמה משימות פתוחות');return;}
+  $('recall-intro').classList.add('hide');$('recall-result').classList.add('hide');
+  $('recall-run').classList.remove('hide');$('task-board').classList.add('hide');
+  $('recall-text').value='';$('recall-text').focus();
+};
+$('recall-cancel').onclick=endRecall;
+function endRecall(){
+  $('recall-run').classList.add('hide');$('recall-intro').classList.remove('hide');$('task-board').classList.remove('hide');
+}
+$('recall-check').onclick=()=>{
+  const lines=$('recall-text').value.split('\n').map(norm).filter(Boolean);
+  const open=S.tasks.filter(t=>!t.done);
+  const res=open.map(t=>{
+    const words=norm(t.text).split(/\s+/).filter(w=>w.length>1);
+    const hit=lines.some(l=>{const lw=l.split(/\s+/);const c=words.filter(w=>lw.some(x=>x===w||(x.length>2&&(x.includes(w)||w.includes(x))))).length;return words.length&&c>=1&&c/words.length>=0.3;});
+    return {t,hit};
+  });
+  const got=res.filter(r=>r.hit).length, pct=Math.round(got/open.length*100);
+  if(pct>S.best.recall) S.best.recall=pct;
+  logAct('recall');logAct('g_recall'); save();
+  $('recall-run').classList.add('hide');$('task-board').classList.remove('hide');
+  $('recall-result').classList.remove('hide');
+  $('recall-result').innerHTML=`<div class="flash">${got} מתוך ${open.length} (${pct}%)</div>
+    ${res.map(r=>`<div class="task"><span>${r.hit?'✅':'❌'}</span><div class="txt">${esc(r.t.text)}</div></div>`).join('')}
+    <div class="tip">${pct===100?'מושלם! הראש שלכם מסודר 👏':'את המשימות ששכחתם — נסו לקשר לתמונה חזותית או למקום. מחר ננסה שוב.'}</div>
+    <button style="width:100%;margin-top:8px" id="recall-again">סגור</button>`;
+  $('recall-again').onclick=()=>{$('recall-result').classList.add('hide');$('recall-intro').classList.remove('hide');};
+  render();
+};
+
+/* ---------- spaced repetition cards ---------- */
+$('card-add').onclick=()=>{
+  const f=$('card-front').value.trim(), b=$('card-back').value.trim();
+  if(!f){toast('כתבו נושא');return;}
+  S.cards.push({id:uid(),front:f,back:b,interval:0,ease:2.5,reps:0,due:TODAY(),created:Date.now()});
+  $('card-front').value='';$('card-back').value='';save();render();toast('נשמר — החזרה הראשונה היום');
+};
+const dueCards=()=>S.cards.filter(c=>c.due<=TODAY());
+function renderCards(){
+  const d=dueCards().length;
+  $('review-summary').textContent=d?`${d} נושאים מחכים לחזרה היום`:(S.cards.length?'אין חזרות להיום 🎉 נתראה מחר':'עוד אין נושאים. הוסיפו למטה דברים שחשוב לכם לזכור לאורך זמן.');
+  $('review-start').disabled=!d;
+  const list=[...S.cards].sort((a,b)=>a.due.localeCompare(b.due));
+  $('card-list').innerHTML=list.length?list.map(c=>`<div class="cardrow"><div class="txt">${esc(c.front)}<div class="small">חזרה הבאה: ${fmtDate(c.due)}${c.reps?` · ${c.reps} חזרות`:''}</div></div><button class="ghost" data-cdel="${c.id}">✕</button></div>`).join(''):'<div class="empty">אין נושאים עדיין</div>';
+}
+$('card-list').onclick=e=>{const b=e.target.closest('[data-cdel]');if(b&&confirmDel()){S.cards=S.cards.filter(c=>c.id!==b.dataset.cdel);save();render();}};
+function confirmDel(){return true;}
+
+let queue=[],qi=0;
+$('review-start').onclick=()=>{
+  queue=dueCards().sort(()=>Math.random()-.5);qi=0;
+  $('review-box').classList.add('hide');$('review-run').classList.remove('hide');showCard();
+};
+function showCard(){
+  if(qi>=queue.length){
+    $('review-run').classList.add('hide');$('review-box').classList.remove('hide');
+    toast('סיימתם את החזרות להיום 💪');render();return;
+  }
+  const c=queue[qi];
+  $('review-progress').textContent=`${qi+1} / ${queue.length}`;
+  $('review-front').textContent=c.front;
+  $('review-back').textContent=c.back||'(בלי פרטים — רק לזכור את הנושא)';
+  $('review-back-wrap').classList.add('hide');$('review-show').classList.remove('hide');
+}
+$('review-show').onclick=()=>{$('review-back-wrap').classList.remove('hide');$('review-show').classList.add('hide');};
+document.querySelectorAll('.rate button').forEach(b=>b.onclick=()=>{
+  const r=+b.dataset.r, c=queue[qi];
+  if(r===0){c.reps=0;c.interval=0;c.ease=Math.max(1.3,c.ease-.2);queue.push(c);} // again today
+  else{
+    if(r===1){c.interval=Math.max(1,Math.round((c.interval||1)*1.2));c.ease=Math.max(1.3,c.ease-.15);}
+    if(r===2){c.interval=c.reps===0?1:c.reps===1?3:Math.round(c.interval*c.ease);}
+    if(r===3){c.interval=c.reps===0?3:Math.round(Math.max(c.interval,1)*c.ease*1.3);c.ease+=.15;}
+    c.reps++;c.due=addDays(c.interval);
+  }
+  logAct('reviews');save();qi++;showCard();
+});
+
+/* ---------- training games ---------- */
+const GAMES=['g-digit','g-words','g-sudoku','g-pairs','g-missing','g-schulte','g-faces'];
+function showGame(id){$('train-menu').classList.add('hide');GAMES.forEach(g=>$(g).classList.toggle('hide',g!==id));window.scrollTo(0,0);}
+function backMenu(){clearTimeout(gTimer);clearInterval(gInt);clearInterval(sdT);clearInterval(prT);$('train-menu').classList.remove('hide');GAMES.forEach(g=>$(g).classList.add('hide'));render();}
+document.querySelectorAll('[data-back]').forEach(b=>b.onclick=backMenu);
+document.querySelectorAll('[data-game]').forEach(b=>b.onclick=()=>{
+  const g=b.dataset.game;
+  if(g==='words'){showGame('g-words');wordsReset();}
+  else if(g==='sudoku'){showGame('g-sudoku');sdReset();}
+  else if(g==='pairs'){showGame('g-pairs');prReset();}
+  else if(g==='missing'){showGame('g-missing');msStart();}
+  else if(g==='schulte'){showGame('g-schulte');shReset();}
+  else if(g==='faces'){showGame('g-faces');fcReset();}
+  else{showGame('g-digit');digitStart(g==='rev');}
+});
+let gTimer,gInt;
+
+// digit span
+let dLen,dSeq,dRev;
+function digitStart(rev){dRev=rev;dLen=3;$('gd-title').textContent=rev?'רצף הפוך':'רצף מספרים';digitRound();}
+function digitRound(){
+  dSeq=Array.from({length:dLen},()=>Math.floor(Math.random()*10));
+  $('gd-level').textContent=`אורך רצף: ${dLen}`+(dRev?' · הקלידו מהסוף להתחלה':'');
+  $('gd-input-wrap').classList.add('hide');$('gd-result').classList.add('hide');
+  let i=0;$('gd-show').textContent='מוכנים…';
+  gTimer=setTimeout(function step(){
+    if(i<dSeq.length){$('gd-show').textContent=dSeq[i++];gTimer=setTimeout(()=>{$('gd-show').textContent='';gTimer=setTimeout(step,200);},800);}
+    else{$('gd-show').textContent='?';$('gd-input-wrap').classList.remove('hide');$('gd-input').value='';$('gd-input').focus();}
+  },900);
+}
+function digitSubmit(){
+  const ans=$('gd-input').value.replace(/\D/g,'');
+  const target=(dRev?[...dSeq].reverse():dSeq).join('');
+  $('gd-input-wrap').classList.add('hide');
+  if(ans===target){$('gd-show').textContent='✓';dLen++;gTimer=setTimeout(digitRound,700);}
+  else{
+    const score=dLen-1, k=dRev?'rev':'digit', rec=score>S.best[k];
+    if(rec) S.best[k]=score;
+    logAct('games');logAct('g_'+k);save();
+    $('gd-show').textContent=target;
+    $('gd-result').classList.remove('hide');
+    $('gd-result').innerHTML=`<div class="flash">${rec?'🏆 שיא חדש! ':''}זכרתם ${score} ספרות</div><div class="small">ממוצע אצל מבוגרים: 7±2 ברצף רגיל, 5±2 ברצף הפוך.</div><button class="primary" style="margin-top:10px" id="gd-again">שוב</button>`;
+    $('gd-again').onclick=()=>digitStart(dRev);
+  }
+}
+$('gd-submit').onclick=digitSubmit;
+$('gd-input').addEventListener('keydown',e=>{if(e.key==='Enter')digitSubmit();});
+
+// word list
+const WORDS='שולחן חלון כלב תפוח ספר מטריה שעון גיטרה ים הר עננים לחם מפתח נעל כובע פרח מכונית רכבת ירח שמש כיסא כוס מזלג ענבים פיל ציפור דג עץ אבן נר מראה תיק משקפיים כרית שמיכה מחברת עיפרון בקבוק מדרגות גשר מגדל סירה מטוס אופניים פסנתר תוף כדור בלון עוגה גבינה תות לימון חתול סוס ארנב דבורה פרפר כוכב שלג אש נהר מדבר יער חוף קונכייה עוגייה סל שרשרת טבעת מנורה'.split(' ');
+let wN=8,wList=[];
+document.querySelectorAll('#gw-size .chip').forEach(c=>c.onclick=()=>{wN=+c.dataset.n;document.querySelectorAll('#gw-size .chip').forEach(x=>x.classList.toggle('on',x===c));});
+function wordsReset(){['gw-study','gw-recall','gw-result'].forEach(i=>$(i).classList.add('hide'));$('gw-setup').classList.remove('hide');}
+$('gw-go').onclick=()=>{
+  wList=[...WORDS].sort(()=>Math.random()-.5).slice(0,wN);
+  $('gw-setup').classList.add('hide');$('gw-study').classList.remove('hide');
+  $('gw-words').innerHTML=wList.map(w=>`<span>${w}</span>`).join('');
+  const total=wN*2500;let left=total;$('gw-bar').style.width='100%';
+  gInt=setInterval(()=>{left-=100;$('gw-bar').style.width=Math.max(0,left/total*100)+'%';if(left<=0)toRecall();},100);
+};
+function toRecall(){clearInterval(gInt);$('gw-study').classList.add('hide');$('gw-recall').classList.remove('hide');$('gw-text').value='';$('gw-text').focus();}
+$('gw-ready').onclick=toRecall;
+$('gw-check').onclick=()=>{
+  const said=new Set(norm($('gw-text').value).split(/\s+/).filter(Boolean));
+  const hits=wList.filter(w=>said.has(w)||[...said].some(s=>s.replace(/^[הוב]/,'')===w));
+  const pct=Math.round(hits.length/wList.length*100), rec=pct>S.best.words;
+  if(rec) S.best.words=pct;
+  logAct('games');logAct('g_words');save();
+  $('gw-recall').classList.add('hide');$('gw-result').classList.remove('hide');
+  $('gw-result').innerHTML=`<div class="flash">${rec?'🏆 ':''}${hits.length} / ${wList.length} (${pct}%)</div>
+    <div class="words">${wList.map(w=>`<span class="${hits.includes(w)?'':'miss'}">${w}</span>`).join('')}</div>
+    <div class="tip">נסו בפעם הבאה לחבר את המילים לסיפור מצחיק אחד — סיפור עם תמונות חזקות נזכר הרבה יותר טוב.</div>
+    <button class="primary" style="width:100%;margin-top:8px" id="gw-again">שוב</button>`;
+  $('gw-again').onclick=wordsReset;
+};
+
+/* ---------- tips ---------- */
+const TIPS=[
+ ['דגים שומניים פעמיים בשבוע','סלמון, סרדינים, מקרל — מקור לאומגה 3, שהמוח בנוי ממנה בחלקו. מי שלא אוכל דגים יכול לשלב אגוזי מלך וזרעי פשתן טחונים.','🥗 תזונה'],
+ ['עלים ירוקים כל יום','תרד, מנגולד, חסה, ברוקולי — מנה ביום. בתזונות שנחקרו לבריאות המוח (ים־תיכונית ו־MIND) זה אחד הרכיבים הבולטים.','🥗 תזונה'],
+ ['פירות יער ורימונים','אוכמניות, תותים, רימון — עשירים בנוגדי חמצון. גם קפואים טובים: חופן ליוגורט או לדייסה.','🥗 תזונה'],
+ ['חופן אגוזים','חופן קטן (כ־30 גרם) של אגוזי מלך, שקדים או פיסטוקים כחטיף, במקום עוגייה. משביע ומיטיב עם כלי הדם.','🥗 תזונה'],
+ ['שמן זית במקום מטוגן','שמן זית כשומן העיקרי, וקטניות (עדשים, חומוס, שעועית) כמה פעמים בשבוע — הבסיס של המטבח הים־תיכוני.','🥗 תזונה'],
+ ['מים — הזיכרון צמא','אפילו התייבשות קלה פוגעת בריכוז ובזיכרון הקצר. עם הגיל תחושת הצמא נחלשת — בקבוק על השולחן ושתייה לפני שצמאים.','🥗 תזונה'],
+ ['פחות סוכר ומעובד','קפיצות סוכר בדם גורמות ל"ערפל" ועייפות אחרי האוכל. עדיף פחמימות מלאות + חלבון באותה ארוחה.','🥗 תזונה'],
+ ['ארוחת בוקר עם חלבון','ביצה, יוגורט, גבינה או טחינה בבוקר — אנרגיה יציבה וריכוז עד הצהריים, במקום מאפה ומתוק.','🥗 תזונה'],
+ ['קפה — כן, אבל עד הצהריים','קפה משפר ערנות וקשב. אחרי 14:00 הוא עלול לפגוע בשינה — ושינה חשובה לזיכרון יותר מהקפה.','🥗 תזונה'],
+ ['אלכוהול במידה','כוס מדי פעם — בסדר. שתייה קבועה ומרובה פוגעת בשינה ובזיכרון. ערב בלי אלכוהול = שינה עמוקה יותר.','🥗 תזונה'],
+ ['B12 וויטמין D','אחרי גיל 50 הספיגה של B12 יורדת, וחוסר בו יכול להשפיע על זיכרון ועייפות. כדאי לבקש מרופא המשפחה לבדוק בבדיקת הדם השגרתית (גם ויטמין D).','🩺 בריאות'],
+ ['ללב ולמוח אותם כללים','לחץ דם, סוכר וכולסטרול מאוזנים שומרים גם על כלי הדם במוח. בדיקה שגרתית אצל רופא המשפחה היא חלק מאימון הזיכרון.','🩺 בריאות'],
+ ['לשמוע ולראות טוב','כשקשה לשמוע, המוח מתאמץ להבין ולא נשאר לו כוח לזכור. בדיקת שמיעה וראייה אחרי גיל 50 היא גם השקעה בזיכרון.','🩺 בריאות'],
+ ['מה נורמלי','לשכוח איפה שמתם משהו או שם של שחקן — נורמלי לגמרי בגיל 50. אם שינויים בזיכרון מתחילים להפריע לתפקוד היומיומי, כדאי להתייעץ עם רופא.','🩺 בריאות'],
+ ['שינה היא "כפתור השמירה"','בזמן שינה עמוקה המוח מעביר את מה שלמדתם במהלך היום לזיכרון לטווח ארוך. 7–8 שעות בשעות קבועות עוזרות יותר מכל משחק.','😴 שינה ומנוחה'],
+ ['מסכים לפני השינה','האור והגירוי מהטלפון דוחים את ההירדמות. חצי שעה לפני השינה — ספר, מוזיקה, או "סגירת יום" ב־5 דקות.','😴 שינה ומנוחה'],
+ ['תנומה קצרה','20 דקות אחרי הצהריים יכולות לרענן קשב וזיכרון. יותר מזה — עלול לפגוע בשינת הלילה.','😴 שינה ומנוחה'],
+ ['לחץ ודאגה','לחץ מתמשך פוגע בזיכרון. כמה נשימות איטיות לפני משימה, הפסקות קצרות, וכתיבת הדאגות על דף — מפנים מקום בראש.','😴 שינה ומנוחה'],
+ ['הליכה מהירה — לא רק ללב','פעילות אירובית (30 דקות, רוב ימות השבוע) מגבירה זרימת דם למוח וקשורה לזיכרון טוב יותר. הליכה עם חבר שווה כפול.','🏃 גוף ותנועה'],
+ ['כוח ושיווי משקל','פעמיים בשבוע תרגילי כוח (גומיות, משקולות קלות) ושיווי משקל. שומר על השרירים ועל המוח — ומונע נפילות.','🏃 גוף ותנועה'],
+ ['לקום כל שעה','ישיבה ממושכת מעייפת גם את הראש. כל שעה — לקום, להתמתח, למלא מים. גם "הפסקה" בין משימות.','🏃 גוף ותנועה'],
+ ['ריקוד ותנועה עם צעדים','ריקוד, טאי צ׳י, יוגה — משלבים תנועה עם זיכרון של רצפים. אימון כפול.','🏃 גוף ותנועה'],
+ ['ללמוד משהו באמת חדש','שפה, כלי נגינה, תוכנה חדשה. מה שכבר קל לכם לא מאמן — האתגר הוא מה שבונה חיבורים חדשים.','🧠 הרגלי מוח'],
+ ['בית קבוע לכל חפץ','מפתחות, ארנק ומשקפיים — תמיד באותה קערה ליד הדלת. ככה לא צריך לזכור; ההרגל זוכר בשבילכם.','🧠 הרגלי מוח'],
+ ['להגיד בקול','כשמניחים משהו במקום לא רגיל, אמרו בקול: "הדרכון במגירה העליונה". הקול יוצר עוד "עקבה" בזיכרון.','🧠 הרגלי מוח'],
+ ['לכתוב מיד','זיכרון לטווח קצר מחזיק רעיון בערך חצי דקה. עלה משהו? 💭 מיד לאפליקציה, לא "אחר כך".','🧠 הרגלי מוח'],
+ ['דבר אחד בכל פעם','רוב ה"שכחה" היא מידע שלא נקלט, כי עשינו שני דברים במקביל. כשמישהו מדבר אליכם — הניחו את הטלפון.','🧠 הרגלי מוח'],
+ ['שמות של אנשים','חזרו על השם מיד ("נעים מאוד, רונית"), וחברו אותו לתמונה או לאדם אחר שאתם מכירים באותו שם.','🧠 הרגלי מוח'],
+ ['5 דקות של ערב','לפני השינה: עברו על המשימות של מחר ושאלו "מה שכחתי?". הבוקר מתחיל רגוע יותר.','🧠 הרגלי מוח'],
+ ['קריאה וסיפור','לקרוא ואז לספר למישהו מה קראתם — הסיכום בקול מחזק את הזיכרון הרבה יותר מקריאה בלבד.','🧠 הרגלי מוח'],
+ ['קשרים חברתיים','שיחה, ויכוח טוב, משחק קלפים עם חברים — מפעילים זיכרון, קשב ושפה יחד. בדידות מתמשכת קשורה לירידה בזיכרון.','👥 חברה ורגש'],
+ ['התנדבות ומשמעות','פעילות קבועה עם אנשים ומטרה — התנדבות, חוג, קבוצת הליכה — שומרת על המוח פעיל ועל מצב הרוח.','👥 חברה ורגש'],
+ ['צחוק ומצב רוח','מצב רוח ירוד מוריד קשב וזיכרון. אם הוא נמשך שבועות — שווה לדבר על זה עם מישהו קרוב או עם רופא.','👥 חברה ורגש'],
+];
+(function(){const el=$('tiplist');if(el)el.innerHTML=TIPS.map(t=>`<div class="t"><b>${esc(t[0])}</b><span class="small">${esc(t[1])}</span></div>`).join('');})();
+
+/* ---------- "what did I forget" questions ---------- */
+const QS=[
+ ['בית','משהו בבית שהתקלקל או צריך תיקון?'],
+ ['בית','משהו שנגמר במטבח, באמבטיה או בארון התרופות?'],
+ ['בית','חשבון לשלם — חשמל, מים, ארנונה, ועד בית?'],
+ ['בית','צמחים, חיות מחמד, ניקיון גדול שמחכה?'],
+ ['משפחה וחברים','יום הולדת, יום נישואין או אירוע ב־30 הימים הקרובים?'],
+ ['משפחה וחברים','למי הבטחתם להתקשר או לחזור אליו?'],
+ ['משפחה וחברים','מישהו שלא דיברתם איתו הרבה זמן ושווה לשלוח לו הודעה?'],
+ ['משפחה וחברים','משהו שהילדים, הנכדים או ההורים צריכים מכם?'],
+ ['עבודה','מייל או הודעה שמחכים לתשובה שלכם?'],
+ ['עבודה','פגישה או שיחה שצריך להתכונן אליה?'],
+ ['עבודה','משהו שהבטחתם לעמית או ללקוח?'],
+ ['בריאות','תור לרופא או בדיקה שצריך לקבוע?'],
+ ['בריאות','מרשם שצריך לחדש או תרופה שעומדת להיגמר?'],
+ ['בריאות','בדיקת שיניים, עיניים או שמיעה שהגיע זמנה?'],
+ ['כספים וניירת','מסמך לחתום, טופס להגיש או משהו לביטוח לאומי / מס הכנסה?'],
+ ['כספים וניירת','ביטוח, מנוי או חוזה שמתחדש בקרוב — ואולי צריך לבטל?'],
+ ['כספים וניירת','החזר כספי, קבלה או אחריות שצריך לטפל בהם?'],
+ ['רכב ונסיעות','טסט, ביטוח רכב, טיפול או החלפת צמיגים?'],
+ ['רכב ונסיעות','נסיעה או חופשה שצריך להזמין או להתארגן אליה?'],
+ ['קניות','מתנה שצריך לקנות?'],
+ ['קניות','משהו שצריך להחזיר לחנות או לאסוף?'],
+ ['אישי','ספר, קורס או תחביב שרציתם להתחיל?'],
+ ['אישי','משהו שמטריד אתכם בראש ועוד לא נכתב בשום מקום?'],
+ ['בדרך','מה חשבתם במהלך הנסיעה האחרונה?'],
+ ['בדרך','מישהו ביקש ממכם משהו היום — בעל פה, בטלפון, בוואטסאפ?'],
+ ['בדרך','שיחה שלא נענתה, שצריך להחזיר?'],
+ ['השבוע','מה הדבר החשוב ביותר לסיים השבוע?'],
+ ['השבוע','מה צריך לזכור מחר בבוקר לפני שיוצאים מהבית?'],
+ ['השבוע','למי צריך לענות או להחזיר משהו עד סוף השבוע?'],
+];
+/* personal "what did I forget" — people & topics, few questions at a time */
+const P_TPL=[g=>`משהו ש{n} ${gf(g,'ביקש','ביקשה','ביקש/ה')} ממך?`,g=>`{n} — ${gf(g,'צריך','צריכה','צריך/ה')} ממך משהו?`,g=>'הבטחת משהו ל{n}?',g=>`{n} ${gf(g,'ביקש','ביקשה','ביקש/ה')} עזרה במשהו?`,g=>'משהו שצריך לעדכן את {n} בו?',g=>`מתי ${gf(g,'דיברת איתו','דיברת איתה','דיברתם')} לאחרונה? אולי שווה הודעה ל{n}?`];
+const T_TPL=['{t} — יש משהו פתוח שלא נכתב?','{t} — מה הצעד הבא?','{t} — מישהו מחכה לך בנושא הזה?','{t} — יש דדליין שמתקרב?'];
+const Q_BATCH=5;
+let qList=[],qi2=0,qAdded=0,qWhen='none',qBatchEnd=0;
+document.querySelectorAll('#q-when .chip').forEach(c=>c.onclick=()=>{qWhen=c.dataset.w;document.querySelectorAll('#q-when .chip').forEach(x=>x.classList.toggle('on',x===c));});
+function allQs(){
+  const out=[];
+  const REL_TPL={
+    partner:[g=>'משהו שתכננתם יחד ועוד לא נקבע?',g=>`משהו ש{n} ${gf(g,'ביקש','ביקשה')} שתעשה בבית?`,g=>'תאריך או אירוע שלכם שמתקרב?'],
+    kids:[g=>`משהו ש{n} ${gf(g,'צריך','צריכה')} לבית הספר, לחוג או לעבודה?`,g=>`הבטחת ל{n} משהו — הסעה, קנייה, זמן ביחד?`,g=>`אסיפה, טופס או תשלום שקשור ל{n}?`],
+    parents:[g=>`{n} — תור, בדיקה או תרופה שצריך לטפל בהם?`,g=>`מתי ${gf(g,'דיברת איתו','דיברת איתה')} לאחרונה? אולי שווה להתקשר ל{n}?`,g=>`משהו ש{n} ${gf(g,'ביקש','ביקשה')} עזרה בו — סידורים, טכנולוגיה, קניות?`],
+    family:[g=>`יום הולדת או אירוע משפחתי של {n} שמתקרב?`],
+    friends:[g=>`מתי נפגשתם לאחרונה? אולי לקבוע משהו עם {n}?`],
+    work:[g=>`{n} מחכה לתשובה או לקובץ ממך?`,g=>`משהו שסיכמת עם {n} ועוד לא נעשה?`],
+    daily:[g=>`משהו שצריך לסגור עם {n}?`]};
+  const REL_NAME=Object.fromEntries(RELS.map(r=>[r[0],r[2]]));
+  (S.people||[]).forEach(({name:n,g,rel})=>{
+    const rn=rel==='partner'?gf(g,'בן זוג','בת זוג','בן/בת זוג'):REL_NAME[rel];const cat='👤 '+n+(rel&&rel!=='other'?' · '+rn:'');
+    P_TPL.forEach((t,i)=>out.push({id:'p:'+n+':'+i,cat,t:t(g).replaceAll('{n}',n),who:n,w:2}));
+    (REL_TPL[rel]||[]).forEach((t,i)=>out.push({id:'r:'+n+':'+i,cat,t:t(g).replaceAll('{n}',n),who:n,w:3}));
+  });
+  const CAT_TPL={work:['{t} — מישהו מחכה לך לתשובה או לקובץ?','{t} — יש פגישה שצריך להתכונן אליה?'],home:['{t} — צריך להזמין, לקנות או לתאם משהו?'],
+    health:['{t} — תור, בדיקה או חידוש שצריך?'],money:['{t} — תשלום, מסמך או חידוש שמתקרב?'],hobby:['{t} — משהו להכין, לקנות או לתרגל לקראת הפעם הבאה?'],
+    learn:['{t} — מה לתרגל או להגיש השבוע?'],community:['{t} — משהו שהתחייבת אליו?'],car:['{t} — טיפול, טסט או ביטוח שמתקרב?'],focus:['{t} — מה עשית השבוע לקראת זה? מה הצעד הבא?']};
+  const tlist=(S.topics||(S.qTopics||[]).map(n=>({name:n,cat:'focus'}))).slice();
+  (S.topicCats||[]).forEach(c=>{if(!tlist.some(t=>t.cat===c)){const C=TCATS.find(x=>x[0]===c);if(C)tlist.push({name:C[2],cat:c});}});
+  tlist.forEach(({name:n,cat:c})=>{const C=TCATS.find(x=>x[0]===c)||['','📌'];
+    T_TPL.forEach((t,i)=>out.push({id:'t:'+n+':'+i,cat:C[1]+' '+n,t:t.replaceAll('{t}',n),w:2}));
+    (CAT_TPL[c]||[]).forEach((t,i)=>out.push({id:'tc:'+n+':'+i,cat:C[1]+' '+n,t:t.replaceAll('{t}',n),w:3}));});
+  QS.forEach(([c,t])=>out.push({id:'g:'+t,cat:c,t,w:1}));
+  return out;
+}
+function pickQs(n,exclude){
+  const seen=S.qSeen||{},now=Date.now(),used=new Set(),subj=new Set();
+  const scored=allQs().filter(q=>!exclude.has(q.id)).map(q=>{
+    const age=seen[q.id]?(now-seen[q.id])/864e5:30;               // days since asked
+    return {q,score:q.w*Math.min(age,30)*(0.4+Math.random())};
+  }).sort((a,b)=>b.score-a.score);
+  const res=[];
+  for(const {q} of scored){const sj=q.cat;if(subj.has(sj))continue;subj.add(sj);res.push(q);if(res.length>=n)break;}
+  return res;
+}
+$('q-start').onclick=()=>{qList=pickQs(Q_BATCH,new Set());qi2=0;qAdded=0;qBatchEnd=qList.length;
+  $('q-intro').classList.add('hide');$('q-more').classList.add('hide');$('q-run').classList.remove('hide');showQ();};
+function showQ(){
+  if(qi2>=qList.length){$('q-run').classList.add('hide');$('q-more').classList.remove('hide');
+    {const sure='ש'+you()+' '+gf(S.profile&&S.profile.g,'בטוח','בטוחה','בטוח/ה')+' ששכחת עוד משהו?';$('q-more-txt').textContent=qAdded?`הוספת ${qAdded} עד עכשיו. זהו — או `+sure:'זהו לבינתיים — או '+sure;}return;}
+  const q=qList[qi2];S.qSeen=S.qSeen||{};S.qSeen[q.id]=Date.now();save();
+  $('q-cat').textContent=q.cat;$('q-text').textContent=q.t;$('q-num').textContent=`${qi2+1} / ${qList.length}`;
+  $('q-input').value='';$('q-added').textContent='';
+}
+$('q-again').onclick=()=>{const ex=new Set(qList.map(q=>q.id));qList=qList.concat(pickQs(Q_BATCH,ex));
+  $('q-more').classList.add('hide');$('q-run').classList.remove('hide');showQ();};
+$('q-finish').onclick=endQ;
+function qAddTask(){
+  let text=$('q-input').value.trim();if(!text)return;
+  const q=qList[qi2];if(q&&q.who&&!text.includes(q.who))text+=' — '+q.who;
+  let due=null;
+  if(qWhen==='today')due=TODAY();else if(qWhen==='tomorrow')due=addDays(1);
+  else if(qWhen==='week'){const d=new Date();due=addDays((5-d.getDay()+7)%7||7);}
+  S.tasks.push({id:uid(),text,due,done:false,created:Date.now(),kind:q&&q.who?'ask':'task'});qAdded++;save();render();
+  $('q-input').value='';$('q-added').textContent='✓ נוסף: '+text+' — אפשר להוסיף עוד, או לעבור לשאלה הבאה';$('q-input').focus();
+}
+$('q-add').onclick=qAddTask;
+$('q-input').addEventListener('keydown',e=>{if(e.key==='Enter')qAddTask();});
+$('q-next').onclick=()=>{if($('q-input').value.trim())qAddTask();qi2++;showQ();};
+$('q-stop').onclick=endQ;
+function endQ(){
+  $('q-run').classList.add('hide');$('q-more').classList.add('hide');$('q-intro').classList.remove('hide');
+  if(qAdded){logAct('scan');toast(qAdded===1?'נוספה משימה אחת 👍':`נוספו ${qAdded} משימות 👍`);}
+  $('q-start').textContent='עוד 5 שאלות';
+}
+/* editor for my people & topics */
+function renderQEdit(){
+  const chip=(n,k)=>`<span class="chip on" style="display:inline-flex;gap:6px;align-items:center">${esc(n)}<button class="ghost" style="padding:0 2px;color:#fff" data-qdel="${k}" data-n="${esc(n)}">✕</button></span>`;
+  $('qp-list').innerHTML=S.qPeople.map(n=>chip(n,'p')).join('')||'<span class="small">אין עדיין</span>';
+  $('qt-list').innerHTML=S.qTopics.map(n=>chip(n,'t')).join('')||'<span class="small">אין עדיין</span>';
+}
+$('q-edit-btn').onclick=()=>{$('q-edit').classList.toggle('hide');renderQEdit();};
+$('q-edit').addEventListener('click',e=>{
+  const d=e.target.closest('[data-qdel]');
+  if(d){const arr=d.dataset.qdel==='p'?S.qPeople:S.qTopics;const i=arr.indexOf(d.dataset.n);if(i>=0)arr.splice(i,1);save();renderQEdit();}
+});
+function qAddItem(inp,arr){const v=$(inp).value.trim();if(!v)return;v.split(/[,،]/).map(x=>x.trim()).filter(Boolean).forEach(x=>{if(!arr.includes(x))arr.push(x);});$(inp).value='';save();renderQEdit();}
+$('qp-add').onclick=()=>qAddItem('qp-in',S.qPeople);
+$('qt-add').onclick=()=>qAddItem('qt-in',S.qTopics);
+$('qp-in').addEventListener('keydown',e=>{if(e.key==='Enter')qAddItem('qp-in',S.qPeople);});
+$('qt-in').addEventListener('keydown',e=>{if(e.key==='Enter')qAddItem('qt-in',S.qTopics);});
+
+/* ---------- sudoku ---------- */
+let sd=null,sdT=null,sdLvl='6e';
+const SD_CFG={'6e':{n:6,br:2,bc:3,rm:16},'9e':{n:9,br:3,bc:3,rm:38},'9m':{n:9,br:3,bc:3,rm:47},'9h':{n:9,br:3,bc:3,rm:54}};
+document.querySelectorAll('#sd-level .chip').forEach(c=>c.onclick=()=>{sdLvl=c.dataset.l;document.querySelectorAll('#sd-level .chip').forEach(x=>x.classList.toggle('on',x===c));});
+function sdReset(){clearInterval(sdT);$('sd-setup').classList.remove('hide');$('sd-play').classList.add('hide');$('sd-result').classList.add('hide');}
+function sdFull(n,br,bc){
+  const g=Array(n*n).fill(0);
+  const ok=(i,v)=>{const r=i/n|0,c=i%n;for(let k=0;k<n;k++){if(g[r*n+k]===v||g[k*n+c]===v)return false;}
+    const r0=r-r%br,c0=c-c%bc;for(let a=0;a<br;a++)for(let b=0;b<bc;b++)if(g[(r0+a)*n+c0+b]===v)return false;return true;};
+  const fill=i=>{if(i===n*n)return true;const vs=[...Array(n)].map((_,k)=>k+1).sort(()=>Math.random()-.5);
+    for(const v of vs){if(ok(i,v)){g[i]=v;if(fill(i+1))return true;g[i]=0;}}return false;};
+  fill(0);return g;
+}
+$('sd-go').onclick=()=>{
+  const c=SD_CFG[sdLvl],sol=sdFull(c.n,c.br,c.bc);
+  const cur=[...sol];const idx=[...sol.keys()].sort(()=>Math.random()-.5).slice(0,c.rm);idx.forEach(i=>cur[i]=0);
+  sd={...c,sol,cur,given:cur.map(v=>v>0),sel:-1,start:Date.now(),hints:0};
+  $('sd-setup').classList.add('hide');$('sd-play').classList.remove('hide');$('sd-result').classList.add('hide');
+  $('sd-grid').style.gridTemplateColumns=`repeat(${c.n},1fr)`;
+  $('sd-pad').style.gridTemplateColumns=`repeat(${c.n},1fr)`;
+  $('sd-pad').innerHTML=[...Array(c.n)].map((_,k)=>`<button data-v="${k+1}">${k+1}</button>`).join('');
+  clearInterval(sdT);sdT=setInterval(sdTick,1000);sdTick();sdDraw();
+};
+function sdTick(){const s=Math.floor((Date.now()-sd.start)/1000);$('sd-time').textContent=`⏱ ${Math.floor(s/60)}:${String(s%60).padStart(2,'0')}`;$('sd-info').textContent=sd.hints?`רמזים: ${sd.hints}`:'';}
+function sdBad(i){
+  const {n,br,bc,cur}=sd,v=cur[i];if(!v)return false;const r=i/n|0,c=i%n;
+  for(let k=0;k<n;k++){if(k!==c&&cur[r*n+k]===v)return true;if(k!==r&&cur[k*n+c]===v)return true;}
+  const r0=r-r%br,c0=c-c%bc;for(let a=0;a<br;a++)for(let b=0;b<bc;b++){const j=(r0+a)*n+c0+b;if(j!==i&&cur[j]===v)return true;}
+  return false;
+}
+function sdDraw(){
+  const {n,br,bc,cur,given,sel}=sd;const sr=sel>=0?sel/n|0:-1,sc=sel>=0?sel%n:-1,sv=sel>=0?cur[sel]:0;
+  const inBox=(i)=>{if(sel<0)return false;const r=i/n|0,c=i%n;return (r-r%br)===(sr-sr%br)&&(c-c%bc)===(sc-sc%bc);};
+  $('sd-grid').innerHTML=cur.map((v,i)=>{const r=i/n|0,c=i%n;const cl=[];
+    if(given[i])cl.push('g');if(c%bc===0&&c>0)cl.push('bl');if(r%br===0&&r>0)cl.push('bt');
+    if(i===sel)cl.push('sel');else if(sv&&v===sv)cl.push('same');else if(r===sr||c===sc||inBox(i))cl.push('hl');
+    if(!given[i]&&sdBad(i))cl.push('bad');
+    return `<div class="${cl.join(' ')}" data-i="${i}">${v||''}</div>`;}).join('');
+}
+$('sd-grid').onclick=e=>{const d=e.target.closest('[data-i]');if(!d)return;sd.sel=+d.dataset.i;sdDraw();};
+function sdSet(v){
+  if(!sd||sd.sel<0||sd.given[sd.sel])return;
+  sd.cur[sd.sel]=v;sdDraw();
+  if(sd.cur.every(x=>x)&&!sd.cur.some((_,i)=>sdBad(i)))sdWin();
+}
+$('sd-pad').onclick=e=>{const b=e.target.closest('[data-v]');if(b)sdSet(+b.dataset.v);};
+$('sd-erase').onclick=()=>sdSet(0);
+$('sd-hint').onclick=()=>{
+  if(!sd)return;let i=sd.sel;
+  if(i<0||sd.given[i]||sd.cur[i]===sd.sol[i]){const empty=sd.cur.map((v,k)=>(!sd.given[k]&&v!==sd.sol[k])?k:-1).filter(k=>k>=0);if(!empty.length)return;i=empty[Math.floor(Math.random()*empty.length)];}
+  sd.cur[i]=sd.sol[i];sd.given[i]=true;sd.sel=i;sd.hints++;sdDraw();sdTick();
+  if(sd.cur.every(x=>x)&&!sd.cur.some((_,k)=>sdBad(k)))sdWin();
+};
+function sdWin(){
+  clearInterval(sdT);const s=Math.floor((Date.now()-sd.start)/1000);
+  S.best.sudoku=(S.best.sudoku||0)+1;logAct('games',2);logAct('g_sudoku');save();
+  $('sd-play').classList.add('hide');$('sd-result').classList.remove('hide');
+  $('sd-result').innerHTML=`<div class="flash">🎉 פתרתם! ${Math.floor(s/60)}:${String(s%60).padStart(2,'0')} דקות${sd.hints?` · ${sd.hints} רמזים`:''}</div>
+   <div class="tip">${sdLvl==='6e'?'כשזה נהיה קל — עברו ל־9×9 קל. האתגר הוא מה שמאמן.':'סודוקו ביום, כמה פעמים בשבוע — זה מספיק. עדיף מגוון: שלבו גם משחקי זיכרון.'}</div>
+   <button class="primary" style="width:100%;margin-top:8px" id="sd-again">עוד אחד</button>`;
+  $('sd-again').onclick=sdReset;
+}
+
+/* ---------- pairs ---------- */
+const EMO='🍎 🍌 🍇 🍓 🍒 🥕 🌽 🍞 🧀 🐶 🐱 🐰 🐻 🦊 🐸 🐢 🐟 🦋 🐝 🌻 🌳 🌙 ⭐ ☂️ 🔑 ⏰ 📚 ✏️ 🎈 🎸 ⚽ 🚗 🚲 ✈️ 🏠 🧦 👓 🎩 🕯️ 🍋 🥥 🍄 🐞 🐘 🦒 🚀 ⛵ 🎁'.split(' ');
+let pr=null,prT=null,prN=8;
+document.querySelectorAll('#pr-size .chip').forEach(c=>c.onclick=()=>{prN=+c.dataset.n;document.querySelectorAll('#pr-size .chip').forEach(x=>x.classList.toggle('on',x===c));});
+function prReset(){clearInterval(prT);$('pr-setup').classList.remove('hide');$('pr-play').classList.add('hide');$('pr-result').classList.add('hide');}
+$('pr-go').onclick=()=>{
+  const pick=[...EMO].sort(()=>Math.random()-.5).slice(0,prN);
+  pr={cards:[...pick,...pick].sort(()=>Math.random()-.5),up:[],ok:new Set(),moves:0,lock:false,start:Date.now()};
+  const cols=prN<=6?3:4;$('pr-grid').style.gridTemplateColumns=`repeat(${cols},1fr)`;
+  $('pr-setup').classList.add('hide');$('pr-play').classList.remove('hide');$('pr-result').classList.add('hide');
+  clearInterval(prT);prT=setInterval(prInfo,1000);prDraw();
+};
+function prInfo(){const s=Math.floor((Date.now()-pr.start)/1000);$('pr-moves').textContent=`ניסיונות: ${pr.moves}`;$('pr-time').textContent=`⏱ ${Math.floor(s/60)}:${String(s%60).padStart(2,'0')}`;}
+function prDraw(){
+  $('pr-grid').innerHTML=pr.cards.map((e,i)=>{const ok=pr.ok.has(i),up=pr.up.includes(i);
+    return `<button data-i="${i}" class="${ok?'ok':up?'up':''}">${ok||up?e:''}</button>`;}).join('');prInfo();
+}
+$('pr-grid').onclick=e=>{
+  const b=e.target.closest('[data-i]');if(!b||pr.lock)return;const i=+b.dataset.i;
+  if(pr.ok.has(i)||pr.up.includes(i))return;
+  pr.up.push(i);prDraw();
+  if(pr.up.length===2){
+    pr.moves++;const [a,c]=pr.up;
+    if(pr.cards[a]===pr.cards[c]){pr.ok.add(a);pr.ok.add(c);pr.up=[];prDraw();
+      if(pr.ok.size===pr.cards.length)prWin();}
+    else{pr.lock=true;setTimeout(()=>{pr.up=[];pr.lock=false;prDraw();},900);}
+  }
+};
+function prWin(){
+  clearInterval(prT);const best=S.best.pairs[prN],rec=!best||pr.moves<best;
+  if(rec)S.best.pairs[prN]=pr.moves;logAct('games',2);logAct('g_pairs');save();
+  $('pr-play').classList.add('hide');$('pr-result').classList.remove('hide');
+  $('pr-result').innerHTML=`<div class="flash">${rec?'🏆 שיא חדש! ':'🎉 '}${pr.moves} ניסיונות</div>
+   <div class="small" style="text-align:center">המינימום האפשרי: ${prN}. ${best&&!rec?`השיא שלכם: ${best}`:''}</div>
+   <div class="tip">טיפ: תנו לכל קלף "כתובת" — "התפוח בשורה 2 מימין". מילים עוזרות לזיכרון המרחבי.</div>
+   <button class="primary" style="width:100%;margin-top:8px" id="pr-again">שוב</button>`;
+  $('pr-again').onclick=prReset;
+}
+
+/* ---------- what's missing ---------- */
+let ms=null;
+function msStart(){ms={lvl:1};msRound();}
+function msRound(){
+  const n=Math.min(4+ms.lvl,16);
+  const pool=[...EMO].sort(()=>Math.random()-.5);
+  const items=pool.slice(0,n),gone=items[Math.floor(Math.random()*n)];
+  const decoys=pool.slice(n,n+3);ms.items=items;ms.gone=gone;ms.opts=[gone,...decoys].sort(()=>Math.random()-.5);
+  $('ms-level').textContent=`שלב ${ms.lvl} · ${n} פריטים — הסתכלו טוב`;
+  $('ms-ask').classList.add('hide');$('ms-result').classList.add('hide');
+  $('ms-show').innerHTML=items.map(e=>`<span>${e}</span>`).join('');
+  const total=Math.max(4000,n*900);let left=total;$('ms-bar').style.width='100%';$('ms-bar').parentElement.classList.remove('hide');
+  clearInterval(gInt);gInt=setInterval(()=>{left-=100;$('ms-bar').style.width=Math.max(0,left/total*100)+'%';
+    if(left<=0){clearInterval(gInt);$('ms-bar').parentElement.classList.add('hide');
+      const rest=items.filter(e=>e!==gone).sort(()=>Math.random()-.5);
+      $('ms-show').innerHTML='';gTimer=setTimeout(()=>{$('ms-show').innerHTML=rest.map(e=>`<span>${e}</span>`).join('');
+      $('ms-opts').innerHTML=ms.opts.map(e=>`<button data-e="${e}">${e}</button>`).join('');$('ms-ask').classList.remove('hide');},500);}},100);
+}
+$('ms-opts').onclick=e=>{
+  const b=e.target.closest('[data-e]');if(!b)return;$('ms-ask').classList.add('hide');
+  if(b.dataset.e===ms.gone){ms.lvl++;$('ms-show').innerHTML=`<span>✅</span>`;gTimer=setTimeout(msRound,800);}
+  else{
+    const score=ms.lvl-1,rec=score>S.best.missing;if(rec)S.best.missing=score;logAct('games');logAct('g_missing');save();
+    $('ms-show').innerHTML=`<span>${ms.gone}</span>`;
+    $('ms-result').classList.remove('hide');
+    $('ms-result').innerHTML=`<div class="flash">${rec?'🏆 שיא חדש! ':''}הגעתם לשלב ${ms.lvl}</div><div class="small">הפריט שחסר מוצג למעלה.</div>
+      <div class="tip">טיפ: במקום "לצלם" את כל התמונה, ספרו את הפריטים לפי קבוצות — פירות, חיות, חפצים.</div>
+      <button class="primary" style="margin-top:10px" id="ms-again">שוב</button>`;
+    $('ms-again').onclick=msStart;
+  }
+};
+
+/* ================= v3: capture kinds, focus & parking, warm-up, daily, methods ================= */
+const KINDS={task:{ic:'',ph:'מה צריך לעשות?'},call:{ic:'📞 ',ph:'למי להחזיר שיחה? (ולמה)'},ask:{ic:'🙋 ',ph:'מי ביקש ומה? (למשל: יוסי — לשלוח את הקבלה)'},thought:{ic:'💭 ',ph:'מה עלה לכם בראש?'}};
+let kind='task';
+function setWhen(w){when=w;document.querySelectorAll('#when-chips .chip').forEach(x=>x.classList.toggle('on',x.dataset.when===w));$('task-date').classList.toggle('hide',w!=='date');}
+document.querySelectorAll('#kind-chips .chip').forEach(c=>c.onclick=()=>{
+  kind=c.dataset.k;document.querySelectorAll('#kind-chips .chip').forEach(x=>x.classList.toggle('on',x===c));
+  $('task-input').placeholder=KINDS[kind].ph;
+  setWhen(kind==='thought'?'none':'today');$('task-input').focus();
+});
+$('task-list').addEventListener('click',e=>{
+  const to=e.target.closest('[data-to]'),fo=e.target.closest('[data-focus]');
+  if(to){const t=S.tasks.find(x=>x.id===to.dataset.id);t.kind='task';t.due=to.dataset.to==='today'?TODAY():addDays(1);save();render();toast('הועבר למשימות');}
+  if(fo){const t=S.tasks.find(x=>x.id===fo.dataset.focus);openWarm(t.text,t.id);}
+});
+
+/* ---- focus & parking ---- */
+function park(f,note){S.parked.unshift({id:uid(),text:f.text,note:note||'',taskId:f.taskId||null,at:Date.now()});}
+function startFocus(text,step,min,taskId){
+  if(S.focus) park(S.focus,'עברתם באמצע ל: '+text);
+  S.focus={text,step:step||'',min:min||25,start:Date.now(),taskId:taskId||null};
+  if(taskId){const t=S.tasks.find(x=>x.id===taskId);if(t&&!t.done)t.status='doing';}
+  save();render();window.scrollTo(0,0);
+}
+function renderFocus(){
+  const f=S.focus;$('focus-bar').classList.toggle('hide',!f);if(!f)return;
+  $('fb-text').textContent=f.text;
+  $('fb-step').textContent=f.step?'צעד ראשון: '+f.step:'';
+  tickFocus();
+}
+function tickFocus(){
+  const f=S.focus;if(!f)return;
+  const s=Math.floor((Date.now()-f.start)/1000),over=s>=f.min*60;
+  $('fb-time').textContent=`${Math.floor(s/60)}:${String(s%60).padStart(2,'0')} / ${f.min} דק׳`;
+  $('focus-bar').classList.toggle('over',over);
+  $('fb-over').classList.toggle('hide',!over);
+}
+setInterval(tickFocus,1000);
+$('fb-done').onclick=()=>{
+  const f=S.focus;if(f.taskId){const t=S.tasks.find(x=>x.id===f.taskId);if(t){t.done=true;t.doneAt=TODAY();logAct('tasks');}}
+  S.focus=null;logAct('focus');save();render();toast('סיימתם! 🎉');
+};
+$('fb-pause').onclick=()=>{$('fb-park').classList.toggle('hide');$('fb-note').value='';$('fb-note').focus();};
+$('fb-more').onclick=()=>{S.focus.min+=10;save();tickFocus();};
+function doPark(){park(S.focus,$('fb-note').value.trim());S.focus=null;$('fb-park').classList.add('hide');save();render();toast('🅿️ חנה — תמצאו אותו בראש מסך "היום"');}
+$('fb-park-save').onclick=doPark;
+$('fb-note').addEventListener('keydown',e=>{if(e.key==='Enter')doPark();});
+function ago(ts){const m=Math.round((Date.now()-ts)/60000);if(m<60)return `לפני ${m} דק׳`;const h=Math.round(m/60);if(h<24)return `לפני ${h} שע׳`;return `לפני ${Math.round(h/24)} ימים`;}
+function renderParked(){
+  $('parked-card').classList.toggle('hide',!S.parked.length);
+  $('parked-list').innerHTML=S.parked.map(p=>`<div class="task"><div class="txt">${esc(p.text)}<div class="meta">${p.note?'עצרתם ב: '+esc(p.note)+' · ':''}${ago(p.at)}</div></div>
+    <button class="shrink" data-resume="${p.id}">▶ להמשיך</button><button class="ghost" data-pdel="${p.id}">✕</button></div>`).join('');
+}
+$('parked-list').onclick=e=>{
+  const r=e.target.closest('[data-resume]'),d=e.target.closest('[data-pdel]');
+  if(r){const p=S.parked.find(x=>x.id===r.dataset.resume);S.parked=S.parked.filter(x=>x!==p);startFocus(p.text,p.note,25,p.taskId);}
+  if(d){S.parked=S.parked.filter(x=>x.id!==d.dataset.pdel);save();render();}
+};
+
+/* ---- schulte table ---- */
+function schulte(el,n,onDone,onTick){
+  const N=n*n,nums=[...Array(N)].map((_,i)=>i+1).sort(()=>Math.random()-.5);let next=1;const st=Date.now();
+  el.className='sch';el.style.gridTemplateColumns=`repeat(${n},1fr)`;
+  el.innerHTML=nums.map(v=>`<button data-v="${v}">${v}</button>`).join('');
+  onTick&&onTick(next);
+  el.onclick=e=>{const b=e.target.closest('[data-v]');if(!b)return;
+    if(+b.dataset.v===next){b.classList.add('ok');next++;onTick&&onTick(next);if(next>N){el.onclick=null;onDone((Date.now()-st)/1000);}}
+    else{b.classList.add('no');setTimeout(()=>b.classList.remove('no'),300);}};
+}
+let shN=5;
+document.querySelectorAll('#sh-size .chip').forEach(c=>c.onclick=()=>{shN=+c.dataset.n;document.querySelectorAll('#sh-size .chip').forEach(x=>x.classList.toggle('on',x===c));});
+function shReset(){$('sh-setup').classList.remove('hide');$('sh-play').classList.add('hide');$('sh-result').classList.add('hide');}
+$('sh-go').onclick=()=>{
+  $('sh-setup').classList.add('hide');$('sh-play').classList.remove('hide');$('sh-result').classList.add('hide');
+  schulte($('sh-grid'),shN,t=>{
+    const k='sch'+shN,best=S.best[k],rec=!best||t<best;if(rec)S.best[k]=Math.round(t*10)/10;
+    logAct('games');logAct('g_schulte');save();
+    $('sh-play').classList.add('hide');$('sh-result').classList.remove('hide');
+    $('sh-result').innerHTML=`<div class="flash">${rec?'🏆 שיא חדש! ':'✓ '}${t.toFixed(1)} שניות</div>
+      <div class="tip">המטרה: לראות את כל הטבלה בלי להזיז הרבה את העיניים. מתמקדים במרכז, ומחפשים את המספרים "בזווית העין". ממוצע ב־5×5: 30–40 שניות.</div>
+      <button class="primary" style="width:100%;margin-top:8px" id="sh-again">שוב</button>`;
+    $('sh-again').onclick=shReset;
+  },nx=>{$('sh-next').textContent=nx<=shN*shN?`חפשו: ${nx}`:'';});
+};
+
+/* ---- warm-up before a task ---- */
+let wMin=25,wTaskId=null;
+document.querySelectorAll('#w-min .chip').forEach(c=>c.onclick=()=>{wMin=+c.dataset.m;document.querySelectorAll('#w-min .chip').forEach(x=>x.classList.toggle('on',x===c));});
+function openWarm(text,taskId){
+  goTab('today');wTaskId=taskId||null;
+  $('warm-intro').classList.add('hide');$('warm').classList.remove('hide');
+  $('w1').classList.remove('hide');$('w2').classList.add('hide');
+  $('w-task').value=text||'';$('w-step').value='';$('w-dist').value='';
+  schulte($('w-grid'),4,t=>{logAct('g_schulte');save();toW2(`חימום הושלם ב־${t.toFixed(1)} שניות 👌`);},nx=>{$('w-next').textContent=nx<=16?`הקישו לפי הסדר · חפשו: ${nx}`:'';});
+  setTimeout(()=>$('warm-card').scrollIntoView({behavior:'smooth',block:'start'}),50);
+}
+function toW2(msg){$('w1').classList.add('hide');$('w2').classList.remove('hide');$('w-msg').textContent=msg||'';if(!$('w-task').value)$('w-task').focus();else $('w-step').focus();}
+$('warm-start').onclick=()=>openWarm('',null);
+$('w-skip').onclick=()=>toW2('');
+$('w-cancel').onclick=()=>{$('warm').classList.add('hide');$('warm-intro').classList.remove('hide');};
+$('w-go').onclick=()=>{
+  const text=$('w-task').value.trim();if(!text){toast('מה המשימה?');return;}
+  let tid=wTaskId;if(!tid){const t=S.tasks.find(x=>!x.done&&x.text===text);if(t)tid=t.id;}
+  const dist=$('w-dist').value.trim();
+  if(dist)toast('כשתרגישו "'+dist+'" מושך — כתבו אותו כ־💭 והמשיכו');
+  $('warm').classList.add('hide');$('warm-intro').classList.remove('hide');
+  startFocus(text,$('w-step').value.trim(),wMin,tid);
+};
+function renderWarmList(){$('w-tasks').innerHTML=S.tasks.filter(t=>!t.done&&t.kind!=='thought').map(t=>`<option value="${esc(t.text)}">`).join('');}
+
+/* ---- methods ---- */
+const PEGS=['נר','ברבור','לב','מפרש','וו','דובדבן','בומרנג','איש שלג','בלון','מחבט וכדור'];
+const METHODS=[
+ {id:'ifthen',e:'🚦',t:'תוכנית "אם–אז"',why:'הכי חזקה מול "חשבתי על זה בדרך ושכחתי כשהגעתי". מחברים פעולה לרגע קבוע.',
+  how:['בוחרים רגע שקורה תמיד (חונים, נכנסים הביתה, מסיימים שיחה).','מחליטים מראש מה עושים בו — פעולה אחת קטנה.','אומרים אותה בקול כמה פעמים: "כשאני מחנה — אני פותח את מם או…".'],
+  ex:'כשאני מכבה את המנוע ← אני כותב ב"מם או…" כל מה שחשבתי בדרך, לפני שאני יוצא מהרכב.',extra:'ifthen'},
+ {id:'drive',e:'🖐️',t:'ספירת מחשבות בנסיעה',why:'לא יכולים לכתוב בזמן נהיגה? הזיכרון מחזיק טוב יותר מספר מאשר רשימה.',
+  how:['לכל מחשבה שעולה — תנו מילה אחת בלבד ("חלב", "דואר", "מייל").','ספרו: "יש לי שלוש". חזרו על המילים ברמזור.','בחניה: "היו לי שלוש — מה הן?" ותכתבו כ־💭.','אפשר גם: הקלטה קולית דרך מיקרופון המקלדת, כשהרכב עומד.'],
+  ex:'"חלב–דואר–מייל, שלוש." שלוש מילים + מספר = קל לשחזר.',go:'q',goL:'שאלות "מה שכחתי?"'},
+ {id:'say',e:'🗣️',t:'לחזור במילים שלי',why:'נגד "ביקשו ממני ושכחתי". רוב השכחה כאן היא שהבקשה בכלל לא נקלטה.',
+  how:['כשמישהו מבקש — עוצרים ומסתכלים עליו.','חוזרים במילים שלכם: "אז אתה צריך ממני X, עד יום ג׳, נכון?"','מוסיפים מיד ב"מם או…" כ־🙋 "ביקשו ממני", עם השם.'],
+  ex:'"אז לשלוח לך את הקבלה של הביטוח עד מחר בבוקר — רשמתי."'},
+ {id:'park',e:'🅿️',t:'חנייה לפני מעבר',why:'לעבור מהר בין משימות זה בסדר — הבעיה היא לחזור. משפט אחד פותר את זה.',
+  how:['לפני שעוברים למשימה אחרת — עוצרים 10 שניות.','כותבים: "איפה עצרתי ומה הצעד הבא".','כשחוזרים — קוראים את המשפט ומתחילים בדיוק משם.'],
+  ex:'"עצרתי באמצע המייל לרואה החשבון — חסר לצרף טופס 106."',go:'warm',goL:'התחל משימה עם חימום'},
+ {id:'names',e:'🙂',t:'שמות ופרצופים',why:'הזיכרון החזותי חזק בהרבה מהזיכרון למילים — נשתמש בו: השם הופך לתמונה, והתמונה נתלית על הפנים.',
+  how:['בזמן ההיכרות: חזרו על השם בקול ("נעים מאוד, בועז").','בחרו פרט אחד בולט בפנים: גבות, משקפיים, אף, שיער.','הפכו את השם לתמונה ("בועז" ← בוץ, "ליאת" ← לביאה) ודמיינו אותה על הפרט הזה.','אחרי המפגש: רשמו בשורה מי פגשתם ופרט אחד עליו — ושימו כנושא בחזרות.'],
+  ex:'"תמר עם השיער המתולתל" ← תמרים תלויים לה בתלתלים.',go:'game:faces',goL:'תרגול בשמות ופרצופים'},
+ {id:'palace',e:'🏛️',t:'ארמון הזיכרון',why:'השיטה הוותיקה והחזקה ביותר לרשימות — כמו רשימת קניות או נקודות לשיחה.',
+  how:['בחרו מסלול שאתם מכירים היטב: דלת, מסדרון, סלון, מטבח…','"הניחו" כל פריט בתחנה אחרת, בתמונה מוגזמת ומצחיקה.','כדי לשחזר — עוברים בדמיון לאורך המסלול.'],
+  ex:'חלב נשפך מהדלת, לחם ענק חוסם את המסדרון, ביצים מתגלגלות על הספה.',go:'game:words',goL:'תרגול ברשימת מילים'},
+ {id:'story',e:'🔗',t:'שרשרת סיפור',why:'כשאין זמן לבנות מסלול: מחברים את הפריטים לסיפור אחד משוגע.',
+  how:['הפריט הראשון "עושה משהו" לשני, השני לשלישי, וכן הלאה.','ככל שהסיפור מוזר ותנועתי יותר — כך הוא נזכר טוב יותר.'],
+  ex:'הכלב גנב מטריה, פתח אותה על הירח, ומשם נפל לתוך עוגה.',go:'game:words',goL:'תרגול ברשימת מילים'},
+ {id:'peg',e:'🔢',t:'מספרים־תמונות',why:'למי שמספרים קלים לו — ולכל מי שרוצה לזכור רשימה לפי הסדר: לכל מספר יש תמונה קבועה, ותולים עליה את מה שצריך לזכור.',
+  how:['לומדים פעם אחת את 10 התמונות (מספר בצורת חפץ).','תולים כל פריט על תמונה: הפריט ה־3 "נמצא בתוך הלב".','יודעים בדיוק כמה פריטים היו, ואם משהו חסר.'],
+  ex:'1 נר · 2 ברבור · 3 לב · 4 מפרש · 5 וו · 6 דובדבן · 7 בומרנג · 8 איש שלג · 9 בלון · 10 מחבט וכדור',extra:'peg'},
+ {id:'chunk',e:'🧩',t:'חלוקה לקבוצות',why:'המוח מחזיק בערך 4 "חבילות". מי שמחלק — זוכר יותר.',
+  how:['מספרים: 3–3–4.','משימות: מקבצים לפי מקום ("בסופר", "בבנק", "בטלפון").','מתכון: 3–4 שלבים עם שם, לא 15 צעדים.'],
+  ex:'052־437־8190 במקום 0524378190.',go:'game:digit',goL:'תרגול ברצף מספרים'},
+ {id:'acro',e:'🔤',t:'ראשי תיבות ומילת קוד',why:'לצ׳ק־ליסטים שחוזרים: יציאה מהבית, לפני נסיעה, לפני רופא.',
+  how:['לוקחים את האות הראשונה של כל פריט.','בונים ממנה מילה או צירוף שקל לזכור.'],
+  ex:'"טאמ״מ" — טלפון, ארנק, מפתחות, משקפיים. אומרים את זה בכל יציאה.'},
+ {id:'recipe',e:'🍳',t:'מתכון בלי לשכוח',why:'במטבח שוכחים כי מחזיקים הכל בראש בבת אחת. השיטה: להוציא את הזיכרון החוצה.',
+  how:['קוראים את כל המתכון פעם אחת עד הסוף לפני שמתחילים.','מוציאים ומודדים את כל המצרכים מראש על השיש — מה שעל השיש זה מה שצריך.','מחלקים ל־3–4 שלבים עם שם ("בצל", "רוטב", "בישול", "הגשה").','כל מצרך שנכנס לסיר — חוזר למקום. השיש שנשאר אומר מה עוד חסר.'],
+  ex:'שלבים: 1. מכינים ירקות · 2. מטגנים · 3. מוסיפים רוטב · 4. מבשלים 20 דק׳ (טיימר!).'},
+ {id:'appt',e:'📋',t:'פגישה חשובה (למשל אצל רופא)',why:'כשנושא חשוב לכם ובכל זאת יש פספוסים — כי הכל קורה מהר ובלחץ.',
+  how:['לפני: רשימת 3 שאלות הכי חשובות + תרופות ובדיקות אחרונות.','במהלך: כותבים, או מבקשים לחזור על ההוראות ("אז פעמיים ביום, אחרי האוכל?").','אחרי, באותו יום: 3 שורות סיכום + כל "צריך לעשות" נכנס כמשימה.'],
+  ex:'"לקבוע בדיקת דם בעוד חודש", "לשאול את הרוקח על השילוב" — כמשימות עם תאריך.'},
+ {id:'spaced',e:'🔁',t:'חזרה מרווחת',why:'לזכור לטווח ארוך דברים שלא נמצאים מולכם כל יום: ימי הולדת, פרטים, מספרים.',
+  how:['חוזרים על המידע אחרי יום, 3 ימים, שבוע, חודש.','בכל פעם — מנסים להיזכר לפני שמסתכלים.'],
+  ex:'בלשונית "חזרות" זה קורה לבד.',go:'tab:cards',goL:'לחזרות'},
+ {id:'retrieve',e:'✍️',t:'לבחון את עצמי',why:'קריאה חוזרת מרגישה כמו לימוד, אבל להיזכר בכוח הוא מה שבאמת מחזק.',
+  how:['לפני שמסתכלים ברשימה — מנסים לשחזר אותה מהזיכרון.','רק אחר כך בודקים מה פספסתם.'],
+  ex:'האתגר היומי: לכתוב את המשימות הפתוחות בלי להסתכל.',go:'recall',goL:'לאתגר המשימות'},
+ {id:'anchor',e:'⚓',t:'הרגל מעוגן',why:'"שכחתי להתאמן" — מצמידים את האימון להרגל שכבר קיים.',
+  how:['בחרו הרגל יומי קבוע: קפה של בוקר, אחרי ארוחת ערב.','"אחרי הקפה ← אימון של היום (5 דקות)".','לא מוותרים על יום, גם אם זה רק משחק אחד.'],
+  ex:'קפה ← פותחים "מם או…" ← "אימון של היום".'},
+];
+function goTab(t){document.querySelector(`nav [data-tab="${t}"]`).click();}
+function openGame(g){goTab('train');document.querySelector(`[data-game="${g}"]`).click();}
+function runGo(go){
+  if(go.startsWith('game:'))openGame(go.slice(5));
+  else if(go.startsWith('tab:'))goTab(go.slice(4));
+  else if(go==='q'){goTab('today');$('q-start').click();$('q-card').scrollIntoView({block:'start'});}
+  else if(go==='recall'){goTab('today');$('recall-start').click();$('recall-card').scrollIntoView({block:'start'});}
+  else if(go==='warm')openWarm('',null);
+}
+const IFTHEN_SUG=['כשאני מכבה את המנוע ← כותב ב"מם או…" מה חשבתי בדרך','כשמבקשים ממני משהו ← חוזר במילים שלי ומוסיף 🙋','כשאני עוזב משימה באמצע ← לוחץ "עוצר באמצע" וכותב את הצעד הבא','אחרי הקפה של הבוקר ← אימון של היום','כשמסתיימת שיחה חשובה ← רושם מה צריך לעשות'];
+function renderMethods(){
+  $('methods').innerHTML=METHODS.map(m=>`<div class="card mth" id="m-${m.id}">
+    <div class="mh" data-open="${m.id}"><span class="me">${m.e}</span><div class="txt"><b>${m.t}</b><div class="small">${m.why}</div></div><span class="arr">‹</span></div>
+    <div class="mb hide">
+      <ol>${m.how.map(h=>`<li>${h}</li>`).join('')}</ol>
+      <div class="tip">💡 ${m.ex}</div>
+      ${m.extra==='ifthen'?`<div style="margin-top:10px"><div class="small">התוכניות שלכם:</div><div id="plans"></div>
+        <div class="row" style="margin-top:6px"><input id="plan-if" placeholder="כש..."><input id="plan-then" placeholder="אז..."></div>
+        <button class="primary" style="width:100%;margin-top:6px" id="plan-add">הוסף תוכנית</button>
+        <div class="small" style="margin-top:8px">רעיונות (לחצו להוספה):</div><div class="chips">${IFTHEN_SUG.map((s,i)=>`<button class="chip" data-sug="${i}">${s}</button>`).join('')}</div></div>`:''}
+      ${m.extra==='peg'?`<div style="margin-top:10px"><div class="flash" id="peg-q" style="padding:10px">מוכנים?</div><div class="opts" id="peg-opts" style="grid-template-columns:repeat(2,1fr)"></div>
+        <button style="width:100%;margin-top:6px" id="peg-go">בחנו את עצמכם על התמונות</button><div class="small" id="peg-score" style="text-align:center;margin-top:4px"></div></div>`:''}
+      ${m.go?`<button class="primary" style="width:100%;margin-top:10px" data-go="${m.go}">${m.goL} ←</button>`:''}
+    </div></div>`).join('');
+  renderPlans();
+}
+function renderPlans(){const el=$('plans');if(!el)return;
+  el.innerHTML=S.plans.length?S.plans.map((p,i)=>`<div class="task"><div class="txt">🚦 ${esc(p)}</div><button class="ghost" data-pldel="${i}">✕</button></div>`).join(''):'<div class="empty">עוד אין — הוסיפו אחת</div>';}
+let pegScore=[0,0];
+function pegQ(){
+  const n=Math.floor(Math.random()*10),opts=[n,...[...Array(10).keys()].filter(x=>x!==n).sort(()=>Math.random()-.5).slice(0,3)].sort(()=>Math.random()-.5);
+  $('peg-q').textContent=`מה התמונה של ${n+1}?`;
+  $('peg-opts').innerHTML=opts.map(o=>`<button data-peg="${o}" data-ans="${n}" style="font-size:17px">${PEGS[o]}</button>`).join('');
+}
+$('methods').addEventListener('click',e=>{
+  const o=e.target.closest('[data-open]');
+  if(o){const card=$('m-'+o.dataset.open),b=card.querySelector('.mb'),open=b.classList.toggle('hide')===false;card.classList.toggle('open',open);
+    if(open&&!(S.log[TODAY()]||{})['m_'+o.dataset.open]){logAct('m_'+o.dataset.open);}return;}
+  const g=e.target.closest('[data-go]');if(g){runGo(g.dataset.go);return;}
+  const sg=e.target.closest('[data-sug]');if(sg){const s=IFTHEN_SUG[+sg.dataset.sug];if(!S.plans.includes(s)){S.plans.push(s);save();renderPlans();toast('נוספה תוכנית 🚦');}return;}
+  if(e.target.id==='plan-add'){const a=$('plan-if').value.trim(),b=$('plan-then').value.trim();if(!a||!b){toast('מלאו "כש..." וגם "אז..."');return;}
+    S.plans.push(`${a.replace(/^כש/,'כש')} ← ${b}`);$('plan-if').value='';$('plan-then').value='';save();renderPlans();return;}
+  const pd=e.target.closest('[data-pldel]');if(pd){S.plans.splice(+pd.dataset.pldel,1);save();renderPlans();return;}
+  if(e.target.id==='peg-go'){pegScore=[0,0];$('peg-score').textContent='';pegQ();return;}
+  const pg=e.target.closest('[data-peg]');if(pg){const ok=pg.dataset.peg===pg.dataset.ans;pegScore[1]++;if(ok)pegScore[0]++;
+    $('peg-score').textContent=`${ok?'✓ נכון':'✗ התשובה: '+PEGS[+pg.dataset.ans]} · ${pegScore[0]}/${pegScore[1]}`;
+    if(pegScore[1]>=10){logAct('g_peg');$('peg-q').textContent=`סיימתם: ${pegScore[0]} מתוך 10`;$('peg-opts').innerHTML='';}else pegQ();}
+});
+renderMethods();
+
+/* ---- daily training ---- */
+const DAILY_GAMES=[['faces','🙂 שמות ופרצופים'],['digit','🔢 רצף מספרים'],['words','📝 רשימת מילים'],['pairs','🃏 מצא את הזוג'],['missing','🔍 מה חסר?'],['sudoku','🔲 סודוקו'],['rev','↩️ רצף הפוך']];
+function dayRand(k){let a=(dayNum()*7919+k*104729)>>>0;a=(a+0x6D2B79F5)>>>0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;}
+function dayNum(){const d=new Date();return Math.floor((d-new Date(d.getFullYear(),0,0))/864e5);}
+function renderDaily(){
+  const d=dayNum(),L=S.log[TODAY()]||{},g=pickWeighted(DAILY_GAMES,x=>x[0],ISSUE_GAMES,1),m=pickWeighted(METHODS,x=>x.id,ISSUE_METHODS,2);
+  const WU=[['schulte','🎯 חימום קשב — טבלת שולטה'],['missing','🔍 חימום — מה חסר?'],['digit','🔢 חימום — רצף מספרים']].filter(w=>w[0]!==g[0]);
+  const w=WU[Math.floor(dayRand(3)*WU.length)];
+  const items=[
+    {k:'g_'+w[0],l:w[1],go:'game:'+w[0]},
+    {k:'g_'+g[0],l:g[1],go:'game:'+g[0]},
+    {k:'m_'+m.id,l:'📚 שיטה של היום: '+m.t,go:'method:'+m.id},
+  ];
+  const done=items.filter(i=>L[i.k]).length;
+  $('daily-list').innerHTML=items.map(i=>`<div class="task ${L[i.k]?'done':''}"><span class="chk" style="display:grid">${L[i.k]?'✓':''}</span><div class="txt">${i.l}</div><button class="shrink" data-dgo="${i.go}">${L[i.k]?'שוב':'התחל'}</button></div>`).join('');
+  $('daily-sum').textContent=done===3?'🎉 האימון של היום הושלם!':`${done}/3 · בערך 5–7 דקות`;
+  $('daily-plan').textContent=S.plans.length?'🚦 '+S.plans[Math.floor(dayRand(4)*S.plans.length)]:'⚓ הצמידו את האימון להרגל קבוע — למשל אחרי הקפה של הבוקר.';
+}
+$('daily-list').onclick=e=>{const b=e.target.closest('[data-dgo]');if(!b)return;const go=b.dataset.dgo;
+  if(go.startsWith('method:')){const id=go.slice(7);goTab('methods');const card=$('m-'+id);if(card.querySelector('.mb').classList.contains('hide'))card.querySelector('[data-open]').click();setTimeout(()=>card.scrollIntoView({behavior:'smooth',block:'start'}),50);}
+  else runGo(go);};
+
+/* ---- knowledge tab: methods / tips cards ---- */
+document.querySelectorAll('#kb-tabs .chip').forEach(c=>c.onclick=()=>{
+  document.querySelectorAll('#kb-tabs .chip').forEach(x=>x.classList.toggle('on',x===c));
+  $('kb-methods').classList.toggle('hide',c.dataset.kb!=='methods');$('kb-tips').classList.toggle('hide',c.dataset.kb!=='tips');
+});
+const TIP_CATS=['הכל',...new Set(TIPS.map(t=>t[2]))];
+let tipCat='הכל',tipI=0;
+$('tip-cats').innerHTML=TIP_CATS.map(c=>`<button class="chip ${c==='הכל'?'on':''}" data-tc="${c}">${c}</button>`).join('');
+$('tip-cats').onclick=e=>{const b=e.target.closest('[data-tc]');if(!b)return;tipCat=b.dataset.tc;tipI=0;
+  document.querySelectorAll('#tip-cats .chip').forEach(x=>x.classList.toggle('on',x===b));showTip();};
+const tipList=()=>tipCat==='הכל'?TIPS:TIPS.filter(t=>t[2]===tipCat);
+function showTip(){const L=tipList();tipI=(tipI+L.length)%L.length;const t=L[tipI];
+  $('tc-cat').textContent=t[2];$('tc-title').textContent=t[0];$('tc-body').textContent=t[1];$('tc-num').textContent=`${tipI+1} / ${L.length}`;}
+$('tc-next').onclick=()=>{tipI++;showTip();};
+$('tc-prev').onclick=()=>{tipI--;showTip();};
+(function(){let x0=null;const el=$('tipcard');
+  el.addEventListener('touchstart',e=>{x0=e.touches[0].clientX;},{passive:true});
+  el.addEventListener('touchend',e=>{if(x0===null)return;const dx=e.changedTouches[0].clientX-x0;if(Math.abs(dx)>40){tipI+=dx>0?1:-1;showTip();}x0=null;});})();
+tipI=Math.floor(Math.random()*TIPS.length);showTip();
+$('tc-rand').onclick=()=>{const L=tipList();let n;do{n=Math.floor(Math.random()*L.length);}while(L.length>1&&n===tipI);tipI=n;showTip();};
+let lastG='';
+document.querySelectorAll('.surprise').forEach(b=>b.onclick=()=>{
+  const all=['schulte','faces','digit','rev','words','pairs','missing','sudoku'].filter(x=>x!==lastG);lastG=all[Math.floor(Math.random()*all.length)];openGame(lastG);});
+$('m-rand').onclick=()=>{
+  document.querySelectorAll('.mth.open [data-open]').forEach(x=>x.click());
+  const m=METHODS[Math.floor(Math.random()*METHODS.length)],card=$('m-'+m.id);card.querySelector('[data-open]').click();
+  setTimeout(()=>card.scrollIntoView({behavior:'smooth',block:'start'}),50);};
+$('tip-more').onclick=()=>{goTab('methods');document.querySelector('#kb-tabs [data-kb="tips"]').click();};
+
+
+/* ---- names & faces ---- */
+const FNAMES=['יוסי','רונית','משה','אורית','דני','מיכל','אבי','שרית','איתן','נועה','עמוס','ליאת','גדי','חני','רפי','דורית','שלמה','יעל','צביקה','אסנת','בועז','תמר','ניר','גלית'];
+const FJOBS=['רופא שיניים','מורה','נגר','רואה חשבון','טבח','צלמת','נהג אוטובוס','גננת','מהנדס','ספרנית','חשמלאי','אחות','שף','גנן','עורכת דין','דוור'];
+function rnd(a){return a[Math.floor(Math.random()*a.length)];}
+function mkFace(){return {skin:rnd(['#f5d0b0','#e8b48f','#c98d63','#8d5a3b','#f1c9a5']),hair:rnd(['#2b2118','#6b4423','#b8865b','#d9c8a6','#888','#a33c1c']),
+  style:rnd(['short','long','bald','curly','bun']),glasses:Math.random()<.35,beard:Math.random()<.3,hat:Math.random()<.18,eyes:rnd(['#3b2a1a','#2f5d8a','#3f7a4a']),smile:rnd([0,1,2])};}
+function faceSVG(f){
+  const h=f.hair;let hair='';
+  if(f.style==='short')hair=`<path d="M18 40 Q20 14 50 14 Q80 14 82 40 Q76 26 50 26 Q24 26 18 40Z" fill="${h}"/>`;
+  if(f.style==='long')hair=`<path d="M16 44 Q16 12 50 12 Q84 12 84 44 L86 82 L72 82 L74 34 Q50 24 26 34 L28 82 L14 82Z" fill="${h}"/>`;
+  if(f.style==='curly')hair=[20,32,44,56,68,80].map((x,i)=>`<circle cx="${x}" cy="${i%2?20:24}" r="11" fill="${h}"/>`).join('');
+  if(f.style==='bun')hair=`<circle cx="50" cy="8" r="10" fill="${h}"/><path d="M18 40 Q20 14 50 14 Q80 14 82 40 Q76 24 50 24 Q24 24 18 40Z" fill="${h}"/>`;
+  if(f.style==='bald')hair=`<path d="M18 46 Q18 34 24 30 L24 46Z M82 46 Q82 34 76 30 L76 46Z" fill="${h}"/>`;
+  const mouth=['M38 70 Q50 80 62 70','M40 72 L60 72','M38 70 Q50 84 62 70 Z'][f.smile];
+  return `<svg viewBox="0 0 100 100" width="100%" height="100%"><circle cx="50" cy="52" r="34" fill="${f.skin}"/>${hair}
+   ${f.beard?`<path d="M18 56 Q22 92 50 92 Q78 92 82 56 Q74 80 50 80 Q26 80 18 56Z" fill="${h}"/>`:''}
+   <circle cx="38" cy="50" r="4" fill="${f.eyes}"/><circle cx="62" cy="50" r="4" fill="${f.eyes}"/>
+   ${f.glasses?`<g fill="none" stroke="#222" stroke-width="2.5"><circle cx="38" cy="50" r="9"/><circle cx="62" cy="50" r="9"/><path d="M47 50 L53 50"/></g>`:''}
+   <path d="${mouth}" stroke="#7a3b2e" stroke-width="3" fill="${f.smile===2?'#fff':'none'}" stroke-linecap="round"/>
+   ${f.hat?`<path d="M14 30 L86 30 L80 24 Q50 2 20 24Z" fill="#2f6f5e"/>`:''}</svg>`;
+}
+let fc=null,fcN=4;
+document.querySelectorAll('#fc-size .chip').forEach(c=>c.onclick=()=>{fcN=+c.dataset.n;document.querySelectorAll('#fc-size .chip').forEach(x=>x.classList.toggle('on',x===c));});
+function fcReset(){['fc-study','fc-quiz','fc-result'].forEach(i=>$(i).classList.add('hide'));$('fc-setup').classList.remove('hide');}
+$('fc-go').onclick=()=>{
+  const names=[...FNAMES].sort(()=>Math.random()-.5),jobs=[...FJOBS].sort(()=>Math.random()-.5);
+  fc={people:[...Array(fcN)].map((_,i)=>({f:mkFace(),name:names[i],job:jobs[i]})),i:0,score:0,wrong:[]};
+  $('fc-setup').classList.add('hide');$('fc-study').classList.remove('hide');
+  $('fc-people').innerHTML=fc.people.map(p=>`<div class="person"><div class="fimg">${faceSVG(p.f)}</div><b>${p.name}</b><span class="small">${p.job}</span></div>`).join('');
+  const total=fcN*4000;let left=total;
+  clearInterval(gInt);gInt=setInterval(()=>{left-=100;$('fc-bar').style.width=Math.max(0,left/total*100)+'%';if(left<=0)fcQuiz();},100);
+};
+$('fc-ready').onclick=()=>fcQuiz();
+function fcQuiz(){clearInterval(gInt);$('fc-study').classList.add('hide');$('fc-quiz').classList.remove('hide');
+  fc.order=[...fc.people].sort(()=>Math.random()-.5);fc.i=0;fcAsk();}
+function fcAsk(){
+  if(fc.i>=fc.order.length){return fcEnd();}
+  const p=fc.order[fc.i];$('fc-face').innerHTML=faceSVG(p.f);$('fc-num').textContent=`${fc.i+1} / ${fc.order.length}`;
+  const others=fc.people.filter(x=>x!==p).map(x=>x.name).concat(FNAMES.filter(n=>!fc.people.some(x=>x.name===n)));
+  const opts=[p.name,...[...new Set(others)].slice(0,8).sort(()=>Math.random()-.5).slice(0,3)].sort(()=>Math.random()-.5);
+  $('fc-opts').innerHTML=opts.map(n=>`<button data-n="${n}" style="font-size:17px">${n}</button>`).join('');
+}
+$('fc-opts').onclick=e=>{const b=e.target.closest('[data-n]');if(!b)return;const p=fc.order[fc.i];
+  if(b.dataset.n===p.name){fc.score++;toast('✓ '+p.name);}else{fc.wrong.push(p);toast('✗ זה היה '+p.name);}
+  fc.i++;setTimeout(fcAsk,350);};
+function fcEnd(){
+  const pct=Math.round(fc.score/fc.people.length*100),k='faces'+fcN,rec=pct>(S.best[k]||0);if(rec)S.best[k]=pct;
+  logAct('games');logAct('g_faces');save();
+  $('fc-quiz').classList.add('hide');$('fc-result').classList.remove('hide');
+  $('fc-result').innerHTML=`<div class="flash">${rec?'🏆 ':''}${fc.score} / ${fc.people.length}</div>
+   ${fc.wrong.length?`<div class="small">כדאי לחזור על:</div><div class="fgrid">${fc.wrong.map(p=>`<div class="person"><div class="fimg">${faceSVG(p.f)}</div><b>${p.name}</b><span class="small">${p.job}</span></div>`).join('')}</div>`:''}
+   <div class="tip">השתמשו בזיכרון החזותי שלכם: בחרו פרט בולט בפנים (משקפיים, זקן, כובע) ו"תלו" עליו תמונה מהשם. "גדי עם משקפיים" ← גדי קטן מציץ מבעד למשקפיים.</div>
+   <button class="primary" style="width:100%;margin-top:8px" id="fc-again">שוב</button>`;
+  $('fc-again').onclick=fcReset;
+}
+
+/* ================= v4: sheet editor, kanban, gantt, memo notes ================= */
+const ST={todo:'לעשות',doing:'בתהליך',waiting:'ממתין לאחרים',done:'בוצע'};
+const ST_ORDER=['todo','doing','waiting','done'];
+function stOf(t){return t.done?'done':(t.status&&t.status!=='done'?t.status:'todo');}
+function setStatus(t,st){
+  const was=t.done;t.status=st;t.done=st==='done';t.doneAt=t.done?(t.doneAt||TODAY()):null;
+  if(t.done&&!was){logAct('tasks');toast('כל הכבוד! ✓');}
+}
+/* ---- bottom sheet ---- */
+function openSheet(html){$('sheet-body').innerHTML=html;$('sheet').classList.remove('hide');}
+function closeSheet(){$('sheet').classList.add('hide');$('sheet-body').innerHTML='';}
+$('sheet').addEventListener('click',e=>{if(e.target.id==='sheet')closeSheet();});
+
+function editTask(id){
+  const t=S.tasks.find(x=>x.id===id);if(!t)return;
+  openSheet(`<h2>עריכת משימה</h2>
+   <input id="et-text" value="${esc(t.text)}">
+   <div class="chips" id="et-kind">${Object.entries({task:'✅ משימה',call:'📞 שיחה',ask:'🙋 ביקשו ממני',thought:'💭 מחשבה'}).map(([k,l])=>`<button class="chip ${(t.kind||'task')===k?'on':''}" data-k="${k}">${l}</button>`).join('')}</div>
+   <div class="chips" id="et-st">${ST_ORDER.map(s=>`<button class="chip ${stOf(t)===s?'on':''}" data-s="${s}">${ST[s]}</button>`).join('')}</div>
+   <div class="row" style="margin-top:10px"><label class="small">מתאריך<input type="date" id="et-start" value="${t.start||''}"></label><label class="small">עד תאריך<input type="date" id="et-due" value="${t.due||''}"></label></div>
+   <div class="small" style="margin-top:4px">💡 עם "מתאריך" ו"עד תאריך" המשימה מופיעה כפס בגאנט.</div>
+   <textarea id="et-note" style="margin-top:8px;min-height:70px" placeholder="הערות / איפה עצרתי">${esc(t.note||'')}</textarea>
+   <div class="row" style="margin-top:10px"><button class="primary" id="et-save">שמור</button><button class="shrink" id="et-focus">▶ התחל</button><button class="ghost shrink" id="et-del" style="color:var(--warn)">מחק</button></div>`);
+  let k=t.kind||'task',st=stOf(t);
+  $('et-kind').onclick=e=>{const b=e.target.closest('[data-k]');if(!b)return;k=b.dataset.k;$('et-kind').querySelectorAll('.chip').forEach(x=>x.classList.toggle('on',x===b));};
+  $('et-st').onclick=e=>{const b=e.target.closest('[data-s]');if(!b)return;st=b.dataset.s;$('et-st').querySelectorAll('.chip').forEach(x=>x.classList.toggle('on',x===b));};
+  $('et-save').onclick=()=>{
+    t.text=$('et-text').value.trim()||t.text;t.kind=k;t.start=$('et-start').value||null;t.due=$('et-due').value||null;
+    if(t.start&&t.due&&t.start>t.due){const x=t.start;t.start=t.due;t.due=x;}
+    t.note=$('et-note').value.trim();setStatus(t,st);save();closeSheet();render();};
+  $('et-del').onclick=()=>{S.tasks=S.tasks.filter(x=>x!==t);save();closeSheet();render();};
+  $('et-focus').onclick=()=>{closeSheet();openWarm(t.text,t.id);};
+}
+$('task-board').addEventListener('click',e=>{
+  const ed=e.target.closest('[data-edit]');if(ed&&!e.target.closest('button')){editTask(ed.dataset.edit);}
+});
+
+/* ---- views ---- */
+document.querySelectorAll('#view-chips .chip').forEach(c=>c.onclick=()=>{S.view=c.dataset.v;save();renderBoard();});
+function renderBoard(){
+  const v=S.view||'list';
+  document.querySelectorAll('#view-chips .chip').forEach(x=>x.classList.toggle('on',x.dataset.v===v));
+  $('task-list').classList.toggle('hide',v!=='list');$('kanban').classList.toggle('hide',v!=='kanban');$('gantt-wrap').classList.toggle('hide',v!=='gantt');
+  if(v==='kanban')renderKanban();if(v==='gantt')renderGantt();
+}
+
+/* ---- kanban ---- */
+function kCard(t){
+  const st=stOf(t),i=ST_ORDER.indexOf(st),over=!t.done&&t.due&&t.due<TODAY();
+  return `<div class="kcard ${over?'overdue':''}" draggable="true" data-kid="${t.id}" data-edit="${t.id}">
+    <div>${(KINDS[t.kind]||KINDS.task).ic}${esc(t.text)}</div>
+    ${t.due||t.note?`<div class="meta">${t.due?(over?'באיחור · ':'')+fmtDate(t.due):''}${t.note?' · 📝':''}</div>`:''}
+    <div class="kmove">${i>0?`<button class="ghost" data-mv="${t.id}" data-to="${ST_ORDER[i-1]}" title="${ST[ST_ORDER[i-1]]}">→</button>`:'<span></span>'}
+    ${i<3?`<button class="ghost" data-mv="${t.id}" data-to="${ST_ORDER[i+1]}" title="${ST[ST_ORDER[i+1]]}">${ST[ST_ORDER[i+1]]} ←</button>`:''}</div></div>`;
+}
+function renderKanban(){
+  const wk=addDays(-7),list=S.tasks.filter(t=>t.kind!=='thought'&&(!t.done||(t.doneAt||'')>=wk));
+  $('kanban').innerHTML=ST_ORDER.map(s=>{const L=list.filter(t=>stOf(t)===s);
+    return `<div class="kcol" data-col="${s}"><div class="kh">${ST[s]} <span class="small">${L.length}</span></div>${L.map(kCard).join('')||'<div class="empty" style="padding:8px">—</div>'}</div>`;}).join('');
+}
+$('kanban').addEventListener('click',e=>{const b=e.target.closest('[data-mv]');if(!b)return;e.stopPropagation();
+  const t=S.tasks.find(x=>x.id===b.dataset.mv);setStatus(t,b.dataset.to);save();render();});
+$('kanban').addEventListener('dragstart',e=>{const c=e.target.closest('[data-kid]');if(c){e.dataTransfer.setData('text/plain',c.dataset.kid);c.classList.add('drag');}});
+$('kanban').addEventListener('dragover',e=>{const col=e.target.closest('[data-col]');if(col){e.preventDefault();col.classList.add('over');}});
+$('kanban').addEventListener('dragleave',e=>{const col=e.target.closest('[data-col]');if(col)col.classList.remove('over');});
+$('kanban').addEventListener('drop',e=>{const col=e.target.closest('[data-col]');if(!col)return;e.preventDefault();
+  const t=S.tasks.find(x=>x.id===e.dataTransfer.getData('text/plain'));if(t){setStatus(t,col.dataset.col);save();render();}});
+
+/* ---- gantt ---- */
+let gDays=14;
+document.querySelectorAll('#g-range .chip').forEach(c=>c.onclick=()=>{gDays=+c.dataset.d;document.querySelectorAll('#g-range .chip').forEach(x=>x.classList.toggle('on',x===c));renderGantt();});
+function dOf(k){const [y,m,d]=k.split('-').map(Number);return new Date(y,m-1,d);}
+function diffD(a,b){return Math.round((dOf(b)-dOf(a))/864e5);}
+function renderGantt(){
+  const from=addDays(-2),to=addDays(gDays-1),N=diffD(from,to)+1,today=TODAY();
+  const L=S.tasks.filter(t=>t.kind!=='thought'&&t.due&&(!t.done||(t.doneAt||'')>=from)&&(t.start||t.due)<=to&&t.due>=from)
+    .sort((a,b)=>(a.start||a.due).localeCompare(b.start||b.due));
+  const days=[...Array(N)].map((_,i)=>addDays(i-2));
+  const WD='אבגדהוש';
+  const head=`<div class="grow ghead"><div class="glabel"></div><div class="gtrack">${days.map((k,i)=>{const d=dOf(k);
+    return `<span class="gday ${k===today?'now':''} ${d.getDay()===6?'sat':''}" style="inset-inline-start:${i/N*100}%;width:${100/N}%">${(N<=14||d.getDate()%2===1||k===today)?`${WD[d.getDay()]}<br>${d.getDate()}`:''}</span>`;}).join('')}</div></div>`;
+  const tl=diffD(from,today);
+  const rows=L.map(t=>{
+    let s=t.start||t.due;if(s<from)s=from;let e=t.due>to?to:t.due;
+    const a=diffD(from,s),w=diffD(s,e)+1,st=stOf(t),over=!t.done&&t.due<today;
+    return `<div class="grow" data-edit="${t.id}"><div class="glabel">${(KINDS[t.kind]||KINDS.task).ic}${esc(t.text)}</div>
+      <div class="gtrack"><i class="gtoday" style="inset-inline-start:${(tl+.5)/N*100}%"></i>
+      <span class="gbar st-${st} ${over?'late':''}" style="inset-inline-start:${a/N*100}%;width:${w/N*100}%">${w>2?esc(ST[st]):''}</span></div></div>`;}).join('');
+  $('gantt').innerHTML=head+(rows||'<div class="empty">אין משימות עם תאריך בטווח הזה.<br>לחצו על משימה כדי להוסיף לה "מתאריך" ו"עד תאריך".</div>');
+}
+
+/* ---- memo notes ---- */
+const NCOL=['#fff3a8','#ffd6a5','#cdeac0','#bde0fe','#ffc8dd','#e2d1f9'];
+let nColor=0,nQuery='';
+$('n-colors').innerHTML=NCOL.map((c,i)=>`<button class="dot ${i===0?'on':''}" data-c="${i}" style="background:${c}"></button>`).join('');
+$('n-colors').onclick=e=>{const b=e.target.closest('[data-c]');if(!b)return;nColor=+b.dataset.c;$('n-colors').querySelectorAll('.dot').forEach(x=>x.classList.toggle('on',x===b));};
+$('n-add').onclick=()=>{const tx=$('n-text').value.trim();if(!tx){$('n-text').focus();return;}
+  S.notes.unshift({id:uid(),text:tx,color:nColor,pinned:false,created:Date.now()});$('n-text').value='';save();renderNotes();toast('📝 נשמר');};
+$('n-search').oninput=e=>{nQuery=norm(e.target.value);renderNotes();};
+function renderNotes(){
+  const L=S.notes.filter(n=>!nQuery||norm(n.text).includes(nQuery)).sort((a,b)=>(b.pinned-a.pinned)||(b.created-a.created));
+  $('n-count').textContent=S.notes.length?`${S.notes.length} פתקים`:'';
+  $('notes').innerHTML=L.map((n,i)=>`<div class="note" data-nid="${n.id}" style="background:${NCOL[n.color]||NCOL[0]};transform:rotate(${((i*37)%5-2)*.6}deg)">
+    ${n.pinned?'<span class="pin">📌</span>':''}<div class="ntext">${esc(n.text)}</div><div class="nmeta">${fmtDate(dkey(new Date(n.created)))}</div></div>`).join('')
+    ||`<div class="empty" style="grid-column:1/-1">${S.notes.length?'לא נמצא':'עוד אין פתקים. מתכון, קוד לשער, מידה של נעליים, מה אמר הרופא — הכול כאן.'}</div>`;
+}
+$('notes').onclick=e=>{const el=e.target.closest('[data-nid]');if(!el)return;const n=S.notes.find(x=>x.id===el.dataset.nid);
+  openSheet(`<h2>פתק</h2><textarea id="en-text" style="min-height:160px;background:${NCOL[n.color]};color:#1f2328">${esc(n.text)}</textarea>
+   <div class="row" style="margin-top:8px"><div class="dots" id="en-colors">${NCOL.map((c,i)=>`<button class="dot ${i===n.color?'on':''}" data-c="${i}" style="background:${c}"></button>`).join('')}</div>
+   <button class="shrink" id="en-pin">${n.pinned?'בטל נעיצה':'📌 נעץ'}</button></div>
+   <div class="row" style="margin-top:10px"><button class="primary" id="en-save">שמור</button><button class="shrink" id="en-task">➕ למשימה</button><button class="shrink" id="en-card">🔁 לחזרות</button><button class="ghost shrink" style="color:var(--warn)" id="en-del">מחק</button></div>`);
+  let c=n.color;
+  $('en-colors').onclick=ev=>{const b=ev.target.closest('[data-c]');if(!b)return;c=+b.dataset.c;$('en-text').style.background=NCOL[c];$('en-colors').querySelectorAll('.dot').forEach(x=>x.classList.toggle('on',x===b));};
+  $('en-pin').onclick=()=>{n.pinned=!n.pinned;$('en-pin').textContent=n.pinned?'בטל נעיצה':'📌 נעץ';};
+  $('en-save').onclick=()=>{n.text=$('en-text').value.trim()||n.text;n.color=c;save();closeSheet();renderNotes();};
+  $('en-del').onclick=()=>{S.notes=S.notes.filter(x=>x!==n);save();closeSheet();renderNotes();};
+  $('en-task').onclick=()=>{const first=$('en-text').value.trim().split('\n')[0];S.tasks.push({id:uid(),text:first,due:TODAY(),done:false,created:Date.now(),kind:'task',note:$('en-text').value.trim()});save();closeSheet();render();toast('נוסף למשימות של היום');};
+  $('en-card').onclick=()=>{const lines=$('en-text').value.trim().split('\n');S.cards.push({id:uid(),front:lines[0],back:lines.slice(1).join('\n'),interval:0,ease:2.5,reps:0,due:TODAY(),created:Date.now()});save();closeSheet();render();toast('נוסף לחזרות — השורה הראשונה היא השאלה');};
+};
+
+/* ================= v5: onboarding questionnaire & profile ================= */
+const AREAS=['עבודה','בית ומשק בית','בריאות','הורים','ילדים ונכדים','כספים וניירת','רכב','תחביבים','לימודים','התנדבות','חברים','זוגיות'];
+const ISSUES=[
+ ['drive','שוכח/ת מחשבות שעלו בנסיעה'],['asks','שוכח/ת דברים שביקשו ממני'],['calls','שוכח/ת להחזיר שיחות'],
+ ['switch','עובר/ת בין משימות ולא חוזר/ת לקודמת'],['names','שוכח/ת שמות ופרצופים'],['details','שוכח/ת פרטים (מתכון, הוראות)'],
+ ['appts','שוכח/ת תורים והתחייבויות'],['habit','קשה לי להתמיד באימון'],['places','"איפה שמתי?"'],
+];
+const STRENGTHS=[['numbers','מספרים'],['visual','זיכרון חזותי / צילומי'],['plans','פרטים של מה שעשיתי ותכננתי'],['focus','כשאני בפוקוס — זוכר/ת מצוין'],['stories','סיפורים ואנשים']];
+function gf(g,m,f,n){return g==='f'?f:g==='m'?m:(n||m+'/'+f.slice(-1));}
+function you(){return gf(S.profile&&S.profile.g,'אתה','את','את/ה');}
+function migratePeople(){
+  // early test builds shipped sample defaults; drop them if untouched (matched by hash, no data in code)
+  const H=l=>{let x=5381;for(const c of [...l].sort().join('|'))x=((x*33)^c.codePointAt(0))>>>0;return x;};
+  if(Array.isArray(S.qPeople)&&H(S.qPeople)===1979237339)S.qPeople=[];
+  if(Array.isArray(S.qTopics)&&H(S.qTopics)===1852448510)S.qTopics=[];
+  if(S.people&&S.people.length&&S.people.every(p=>!p.rel||p.rel==='other')&&H(S.people.map(p=>p.name))===1979237339)S.people=null;
+  if(S.topics&&S.topics.length&&S.topics.every(t=>t.cat==='focus')&&H(S.topics.map(t=>t.name))===1852448510)S.topics=null;
+  if(!S.people){S.people=(S.qPeople||[]).map(n=>({name:n,g:''}));}
+}
+migratePeople();
+
+let ob=null,obStep=0;
+function startOnboarding(){
+  const p=S.profile||{};
+  ob={name:p.name||'',g:p.g||'',people:JSON.parse(JSON.stringify(S.people||[])),areas:[],topics:JSON.parse(JSON.stringify(S.topics||(S.qTopics||[]).map(n=>({name:n,cat:'focus'})))),tcats:[...(S.topicCats||[])],
+      issues:[...(p.issues||[])],strengths:[...(p.strengths||[])],drive:p.drive||'',when:p.when||'morning',mins:p.mins||10};
+  if(!S.topicCats)ob.tcats=[...new Set(ob.topics.map(t=>t.cat))];
+  obStep=0;S._obOpen=true;renderOb();
+}
+const OB_STEPS=5;
+function obNav(){return `<div class="row" style="margin-top:14px">${obStep>0?'<button class="shrink" id="ob-back">→ חזרה</button>':''}
+  <button class="primary" id="ob-next">${obStep<OB_STEPS-1?'המשך ←':'סיום ✓'}</button></div>
+  <div class="small" style="text-align:center;margin-top:8px">שלב ${obStep+1} מתוך ${OB_STEPS}${S.profile?' · <button class="ghost" id="ob-close" style="padding:0 4px">סגור</button>':''}</div>`;}
+function chipsHTML(list,sel,attr){return list.map(([k,l])=>`<button class="chip ${sel.includes(k)?'on':''}" data-${attr}="${esc(k)}">${l}</button>`).join('');}
+function renderOb(){
+  let h='';
+  if(obStep===0)h=`<h2>👋 נעים להכיר</h2><div class="small">כמה שאלות קצרות, כדי שהשאלות, התזכורות והאימונים יותאמו לך. הכול נשמר רק בחשבון שלך, ואפשר לשנות מתי שרוצים.</div>
+    <input id="ob-name" style="margin-top:12px" placeholder="איך לקרוא לך?" value="${esc(ob.name)}">
+    <div class="small" style="margin-top:10px">איך לפנות אליך?</div>
+    <div class="chips" id="ob-g">${chipsHTML([['m','בלשון זכר'],['f','בלשון נקבה'],['','לא משנה']],[ob.g],'g')}</div>`;
+  if(obStep===1)h=`<h2>👥 האנשים בחיים שלך</h2><div class="small">על מי כדאי ש"מם או…" ישאל? כתבו שמות בכל קבוצה (אפשר כמה, מופרדים בפסיק), ודלגו על מה שלא רלוונטי. ♂/♀ קובע איך לנסח ("ביקש" / "ביקשה").</div>
+    <div id="ob-people" style="margin-top:8px"></div>`;
+  if(obStep===2)h=`<h2>📌 תחומים ונושאים</h2><div class="small">במה ${you()} ${gf(ob.g,'עסוק','עסוקה','עסוק/ה')} ועל מה כדאי לשאול "מה שכחתי?". סמנו תחומים רלוונטיים, והוסיפו בכל אחד נושאים ספציפיים (פרויקט, תחביב, קורס…). דלגו על מה שלא רלוונטי.</div>
+    <div id="ob-topics" style="margin-top:8px"></div>`;
+  if(obStep===3)h=`<h2>🧠 איך הזיכרון שלך עובד?</h2><div class="small">מה קורה לך? (אפשר כמה)</div>
+    <div class="chips" id="ob-issues">${chipsHTML(ISSUES,ob.issues,'i')}</div>
+    <div class="small" style="margin-top:12px">ובמה ${you()} ${gf(ob.g,'חזק','חזקה','חזק/ה')}?</div>
+    <div class="chips" id="ob-str">${chipsHTML(STRENGTHS,ob.strengths,'s')}</div>`;
+  if(obStep===4)h=`<h2>⏰ השגרה שלך</h2>
+    <div class="small">${gf(ob.g,'נוהג','נוהגת','נוהג/ת')} הרבה?</div><div class="chips" id="ob-drive">${chipsHTML([['yes','כן, כמעט כל יום'],['some','לפעמים'],['no','כמעט לא']],[ob.drive],'d')}</div>
+    <div class="small" style="margin-top:10px">מתי הכי נוח להתאמן?</div><div class="chips" id="ob-when">${chipsHTML([['morning','בבוקר, עם הקפה'],['noon','בצהריים'],['evening','בערב']],[ob.when],'w')}</div>
+    <div class="small" style="margin-top:10px">כמה זמן ביום?</div><div class="chips" id="ob-mins">${chipsHTML([['5','5 דק׳'],['10','10 דק׳'],['15','15 דק׳']],[String(ob.mins)],'m')}</div>`;
+  openSheet(h+obNav());
+  if(obStep===1)renderObPeople();
+  const one=(id,attr,key)=>{const el=$(id);if(el)el.onclick=e=>{const b=e.target.closest(`[data-${attr}]`);if(!b)return;ob[key]=b.dataset[attr];el.querySelectorAll('.chip').forEach(x=>x.classList.toggle('on',x===b));};};
+  const many=(id,attr,key)=>{const el=$(id);if(el)el.onclick=e=>{const b=e.target.closest(`[data-${attr}]`);if(!b)return;const v=b.dataset[attr],i=ob[key].indexOf(v);if(i>=0)ob[key].splice(i,1);else ob[key].push(v);b.classList.toggle('on',i<0);};};
+  one('ob-g','g','g');one('ob-drive','d','drive');one('ob-when','w','when');one('ob-mins','m','mins');
+  if(obStep===2)renderObTopics();many('ob-issues','i','issues');many('ob-str','s','strengths');
+  if($('ob-back'))$('ob-back').onclick=()=>{obSave();obStep--;renderOb();};
+  if($('ob-close'))$('ob-close').onclick=()=>{S._obOpen=false;closeSheet();};
+  $('ob-next').onclick=()=>{obSave();if(obStep<OB_STEPS-1){obStep++;renderOb();}else obFinish();};
+}
+const RELS=[
+ ['partner','💑','בן/בת זוג','שם'],['kids','🧒','ילדים','שמות הילדים'],['parents','👴','הורים','למשל: אבא, אמא, או שמות'],
+ ['family','👪','משפחה','אחים, סבים, דודים, גיסים…'],['friends','🤝','חברים','שמות של חברים קרובים'],['work','💼','עבודה','חברים לעבודה, מנהל, לקוחות'],
+ ['daily','🏘️','בקשר יומיומי','שכנים, מאמן, ועד בית, רופא המשפחה…'],['other','👤','אחרים','כל מי שעוד חשוב לזכור']];
+const REL_GUESS={'אבא':'m','אמא':'f','סבא':'m','סבתא':'f'};
+function renderObPeople(){
+  obFlushPeople();
+  ob.people.forEach(p=>{if(!p.rel)p.rel='other';});
+  $('ob-people').innerHTML=RELS.map(([r,ic,l,ph])=>{const L=ob.people.map((p,i)=>[p,i]).filter(([p])=>p.rel===r);
+    return `<div class="relbox"><div class="relh">${ic} <b>${l}</b></div>
+      ${L.map(([p,i])=>`<div class="task" style="padding:4px 2px"><div class="txt">${esc(p.name)}</div>
+        <button class="chip ${p.g==='m'?'on':''}" data-pg="${i}" data-v="m">♂</button><button class="chip ${p.g==='f'?'on':''}" data-pg="${i}" data-v="f">♀</button>
+        <button class="ghost" data-pdel2="${i}">✕</button></div>`).join('')}
+      ${r==='partner'&&L.length?'':`<div class="row" style="margin-top:4px"><input data-rin="${r}" placeholder="${ph}"><button class="shrink" data-radd="${r}">+</button></div>`}</div>`;}).join('');
+  const add=r=>{const inp=$('ob-people').querySelector(`[data-rin="${r}"]`);
+    inp.value.split(/[,،]/).map(x=>x.trim()).filter(Boolean).forEach(n=>{if(!ob.people.some(p=>p.name===n&&p.rel===r))ob.people.push({name:n,g:REL_GUESS[n]||'',rel:r});});renderObPeople();
+    const ni=$('ob-people').querySelector(`[data-rin="${r}"]`);if(ni)ni.focus();};
+  $('ob-people').onclick=e=>{const g=e.target.closest('[data-pg]'),d=e.target.closest('[data-pdel2]'),a=e.target.closest('[data-radd]');
+    if(g){const p=ob.people[+g.dataset.pg];p.g=p.g===g.dataset.v?'':g.dataset.v;renderObPeople();}
+    if(d){ob.people.splice(+d.dataset.pdel2,1);renderObPeople();}
+    if(a)add(a.dataset.radd);};
+  $('ob-people').onkeydown=e=>{const i=e.target.closest('[data-rin]');if(i&&e.key==='Enter')add(i.dataset.rin);};
+}
+function obFlushPeople(){if(!$('ob-people'))return;$('ob-people').querySelectorAll('[data-rin]').forEach(inp=>{const r=inp.dataset.rin;
+  inp.value.split(/[,،]/).map(x=>x.trim()).filter(Boolean).forEach(n=>{if(!ob.people.some(p=>p.name===n&&p.rel===r))ob.people.push({name:n,g:REL_GUESS[n]||'',rel:r});});});}
+const TCATS=[
+ ['work','💼','עבודה וקריירה','פרויקטים, לקוחות, צוות…'],['home','🏠','בית ומשק בית','שיפוץ, תיקונים, קניות גדולות…'],
+ ['health','🩺','בריאות וכושר','טיפול, כושר, תזונה…'],['money','💰','כספים וניירת','ביטוחים, מיסים, חשבונות…'],
+ ['hobby','🎨','תחביבים ותחומי עניין','למשל: גינון, צילום, נגרות…'],['learn','📚','לימודים והתפתחות','קורס, שפה, ספר…'],
+ ['community','🤲','קהילה והתנדבות','ארגון, ועד, קבוצה…'],['car','🚗','רכב ונסיעות','טסט, טיפול, טיול מתוכנן…'],
+ ['focus','🎯','נושאים שאני רוצה להתמקד בהם','יעד אישי, הרגל, משהו חשוב לי…']];
+function obFlushTopics(){if(!$('ob-topics'))return;$('ob-topics').querySelectorAll('[data-tin]').forEach(inp=>{const c=inp.dataset.tin;
+  inp.value.split(/[,،]/).map(x=>x.trim()).filter(Boolean).forEach(n=>{if(!ob.topics.some(t=>t.name===n&&t.cat===c))ob.topics.push({name:n,cat:c});if(!ob.tcats.includes(c))ob.tcats.push(c);});inp.value='';});}
+function renderObTopics(){
+  obFlushTopics();
+  $('ob-topics').innerHTML=TCATS.map(([c,ic,l,ph])=>{const on=ob.tcats.includes(c),L=ob.topics.map((t,i)=>[t,i]).filter(([t])=>t.cat===c);
+    return `<div class="relbox" style="${on?'':'opacity:.75'}"><div class="row"><div class="relh">${ic} <b>${l}</b></div>
+      <button class="chip shrink ${on?'on':''}" data-tc2="${c}">${on?'✓ רלוונטי':'רלוונטי לי'}</button></div>
+      ${on?`<div class="chips" style="margin-top:6px">${L.map(([t,i])=>`<span class="chip on" style="display:inline-flex;gap:6px;align-items:center">${esc(t.name)}<button class="ghost" style="padding:0 2px;color:#fff" data-tdel="${i}">✕</button></span>`).join('')}</div>
+      <div class="row" style="margin-top:4px"><input data-tin="${c}" placeholder="${ph}"><button class="shrink" data-tadd="${c}">+</button></div>`:''}</div>`;}).join('');
+  $('ob-topics').onclick=e=>{const t=e.target.closest('[data-tc2]'),d=e.target.closest('[data-tdel]'),a=e.target.closest('[data-tadd]');
+    if(t){const c=t.dataset.tc2,i=ob.tcats.indexOf(c);if(i>=0)ob.tcats.splice(i,1);else ob.tcats.push(c);renderObTopics();}
+    if(d){ob.topics.splice(+d.dataset.tdel,1);renderObTopics();}
+    if(a){renderObTopics();const ni=$('ob-topics').querySelector(`[data-tin="${a.dataset.tadd}"]`);if(ni)ni.focus();}};
+  $('ob-topics').onkeydown=e=>{const i=e.target.closest('[data-tin]');if(i&&e.key==='Enter'){const c=i.dataset.tin;renderObTopics();const ni=$('ob-topics').querySelector(`[data-tin="${c}"]`);if(ni)ni.focus();}};
+}
+function obSave(){if($('ob-name'))ob.name=$('ob-name').value.trim();obFlushPeople();obFlushTopics();}
+function obFinish(){
+  S.profile={name:ob.name,g:ob.g,issues:ob.issues,strengths:ob.strengths,drive:ob.drive,when:ob.when,mins:+ob.mins,at:Date.now()};
+  S.people=ob.people;S.qPeople=ob.people.map(p=>p.name);S.topics=ob.topics.filter(t=>ob.tcats.includes(t.cat));S.topicCats=ob.tcats;S.qTopics=S.topics.map(t=>t.name);
+  if(ob.issues.includes('drive')&&!S.plans.some(p=>p.includes('מנוע')))S.plans.push('כשאני מכבה את המנוע ← כותב ב"מם או…" מה חשבתי בדרך');
+  if(ob.issues.includes('switch')&&!S.plans.some(p=>p.includes('עוצר באמצע')))S.plans.push('כשאני עוזב משימה באמצע ← לוחץ "עוצר באמצע" וכותב את הצעד הבא');
+  if(ob.issues.includes('habit')){const a={morning:'אחרי הקפה של הבוקר',noon:'אחרי ארוחת הצהריים',evening:'אחרי ארוחת הערב'}[ob.when];if(!S.plans.some(p=>p.startsWith(a)))S.plans.push(a+' ← אימון של היום');}
+  S._obOpen=false;save();closeSheet();render();toast(`מעולה${ob.name?', '+ob.name:''}! הכול מותאם אלייך עכשיו ✓`.replace('אלייך',gf(ob.g,'אליך','אלייך','אליך')));
+}
+$('profile-btn').onclick=startOnboarding;
+/* sheet must not close by tapping outside while onboarding */
+$('sheet').addEventListener('click',e=>{if(e.target.id==='sheet'&&S._obOpen){e.stopImmediatePropagation();}},true);
+/* first run */
+setTimeout(()=>{if(!S.profile)startOnboarding();},400);
+
+/* personalized weights for daily training & method of the day */
+const ISSUE_GAMES={names:['faces'],switch:['schulte','missing'],details:['words','pairs'],places:['missing','pairs'],drive:['digit','words'],asks:['words','digit'],calls:['digit'],appts:['words']};
+const ISSUE_METHODS={drive:['drive','ifthen'],asks:['say','ifthen'],calls:['ifthen','say'],switch:['park','anchor'],names:['names'],details:['recipe','palace','peg','chunk'],appts:['appt','spaced'],habit:['anchor','ifthen'],places:['acro','say']};
+function pickWeighted(list,key,map,seed){
+  const iss=(S.profile&&S.profile.issues)||[];const fav=new Set(iss.flatMap(i=>map[i]||[]));
+  const pool=list.flatMap(x=>fav.has(key(x))?[x,x,x]:[x]);return pool[Math.floor(dayRand(seed)*pool.length)];
+}
+
+$('q-edit-btn').onclick=()=>{startOnboarding();obStep=1;renderOb();};
+/* ---------- progress & backup ---------- */
+function renderProgress(){
+  $('p-streak').textContent=streak();
+  $('p-cards').textContent=S.cards.length;
+  $('p-done').textContent=S.tasks.filter(t=>t.done).length;
+  $('p-digit').textContent=S.best.digit;$('p-rev').textContent=S.best.rev||0;
+  $('p-words').textContent=S.best.words+'%';$('p-recall').textContent=S.best.recall+'%';
+  const days=[...Array(14)].map((_,i)=>addDays(i-13));
+  const vals=days.map(k=>{const l=S.log[k]||{};return (l.tasks||0)+(l.reviews||0)+(l.games||0)*2+(l.recall||0)*2+(l.focus||0)*2+(l.scan||0);});
+  const mx=Math.max(1,...vals);
+  $('spark').innerHTML=vals.map((v,i)=>`<div class="${v?'':'zero'}" style="height:${Math.max(4,v/mx*100)}%" title="${fmtDate(days[i])}: ${v}"></div>`).join('');
+  $('spark-from').textContent=fmtDate(days[0]);
+}
+$('export').onclick=async()=>{
+  const txt=JSON.stringify(S);
+  try{await navigator.clipboard.writeText(txt);toast('הגיבוי הועתק — הדביקו אותו בהודעה לעצמכם או בפתק');}
+  catch(e){$('import-wrap').classList.remove('hide');$('import-text').value=txt;$('import-text').select();toast('העתיקו את הטקסט מהתיבה');}
+};
+$('import-btn').onclick=()=>{$('import-wrap').classList.toggle('hide');$('import-text').value='';};
+$('import-go').onclick=()=>{
+  try{const d=JSON.parse($('import-text').value);if(!d.tasks||!d.cards)throw 0;S=Object.assign(load(),d);save();render();$('import-wrap').classList.add('hide');toast('הגיבוי שוחזר ✓');}
+  catch(err){toast('הטקסט לא תקין');}
+};
+
+/* ---------- render ---------- */
+function render(){
+  const hr=new Date().getHours(),greet=hr<5?'לילה טוב':hr<12?'בוקר טוב':hr<17?'צהריים טובים':hr<21?'ערב טוב':'לילה טוב';
+  $('today-label').textContent=(S.profile&&S.profile.name?greet+', '+S.profile.name+' · ':'')+new Date().toLocaleDateString('he-IL',{weekday:'long',day:'numeric',month:'long'});
+  const d=dueCards().length;
+  $('s-open').textContent=S.tasks.filter(t=>!t.done).length;
+  $('s-due').textContent=d;$('s-streak').textContent=streak();
+  $('nav-badge').textContent=d;$('nav-badge').classList.toggle('hide',!d);
+  $('best-digit').textContent=S.best.digit;$('best-words').textContent=S.best.words+'%';$('best-rev').textContent=S.best.rev||0;
+  $('best-missing').textContent=S.best.missing;$('best-pairs').textContent=S.best.pairs[8]?S.best.pairs[8]+' ניסיונות':'—';
+  $('p-missing').textContent=S.best.missing;$('p-pairs').textContent=S.best.pairs[8]||'—';$('p-sudoku').textContent=S.best.sudoku;
+  const tp=TIPS[Math.floor(dayRand(5)*TIPS.length)];$('tip-title').textContent=tp[0];$('tip-body').textContent=tp[1];
+  $('best-sch').textContent=S.best.sch5?S.best.sch5+' שנ׳':'—';$('p-sch').textContent=S.best.sch5||'—';
+  renderTasks();renderBoard();renderNotes();renderCards();renderProgress();renderFocus();renderParked();renderDaily();renderWarmList();
+}
+save();render();
+</script>
+</body>
+</html>
