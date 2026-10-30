@@ -1652,12 +1652,17 @@ $('notes').onclick=e=>{const el=e.target.closest('[data-nid]');if(!el)return;con
 
 /* ================= v5: onboarding questionnaire & profile ================= */
 const AREAS=['עבודה','בית ומשק בית','בריאות','הורים','ילדים ונכדים','כספים וניירת','רכב','תחביבים','לימודים','התנדבות','חברים','זוגיות'];
-const ISSUES=[
- ['drive','שוכח/ת מחשבות שעלו בנסיעה'],['asks','שוכח/ת דברים שביקשו ממני'],['calls','שוכח/ת להחזיר שיחות'],
- ['switch','עובר/ת בין משימות ולא חוזר/ת לקודמת'],['names','שוכח/ת שמות ופרצופים'],['details','שוכח/ת פרטים (מתכון, הוראות)'],
- ['appts','שוכח/ת תורים והתחייבויות'],['habit','קשה לי להתמיד באימון'],['places','"איפה שמתי?"'],
+const ISSUE_GROUPS=[
+ ['🏠 ביומיום',[['places','"איפה שמתי?" — מפתחות, משקפיים, טלפון'],['room','נכנס/ת לחדר ושוכח/ת למה'],['didit','לא בטוח/ה אם עשיתי (נעלתי? כיביתי?)'],['leave','שוכח/ת לקחת דברים כשיוצא/ת מהבית'],['meds','לזכור תרופות או דברים קבועים בזמן']]],
+ ['👥 אנשים',[['names','שמות ופרצופים'],['told','מה סיפרו לי / מה כבר סיפרתי'],['dates','ימי הולדת ותאריכים חשובים'],['asks','דברים שביקשו ממני'],['calls','להחזיר שיחות והודעות']]],
+ ['📋 משימות',[['appts','תורים והתחייבויות'],['bills','תשלומים, חשבונות וניירת'],['drive','מחשבות שעולות בדרך או באמצע פעילות'],['switch','עובר/ת בין משימות ולא חוזר/ת לקודמת'],['start','דוחה ושוכח/ת להתחיל']]],
+ ['🎯 ריכוז',[['distract','דעתי מוסחת בקלות'],['thread','מאבד/ת את החוט באמצע שיחה או משפט'],['reading','קשה להתרכז בקריאה ארוכה']]],
+ ['📚 מידע',[['details','פרטים — מתכון, הוראות, שלבים'],['learned','מה שקראתי, שמעתי או למדתי'],['pw','מספרים, קודים וסיסמאות'],['tongue','מילים "על קצה הלשון"'],['nav','מסלולים והתמצאות']]],
+ ['⚓ הרגלים',[['habit','קשה לי להתמיד באימון או בהרגל חדש']]],
 ];
-const STRENGTHS=[['numbers','מספרים'],['visual','זיכרון חזותי / צילומי'],['plans','פרטים של מה שעשיתי ותכננתי'],['focus','כשאני בפוקוס — זוכר/ת מצוין'],['stories','סיפורים ואנשים']];
+const ISSUES=ISSUE_GROUPS.flatMap(g=>g[1]);
+function gz(l,g){return g?l.replace(/([\u0590-\u05FF]+)\/(ת|ה)(?![\u0590-\u05FF])/g,(m,w,suf)=>g==='f'?w+suf:w):l;}
+const STRENGTHS=[['numbers','מספרים'],['visual','זיכרון חזותי / צילומי'],['placesS','מקומות ומסלולים'],['plans','פרטים של מה שעשיתי ותכננתי'],['focus','כשאני בפוקוס — זוכר/ת מצוין'],['stories','סיפורים ואנשים'],['old','זיכרונות ישנים'],['music','מוזיקה ושירים'],['heard','מה ששמעתי (יותר ממה שקראתי)'],['written','מה שכתבתי בעצמי']];
 function gf(g,m,f,n){return g==='f'?f:g==='m'?m:(n||m+'/'+f.slice(-1));}
 function you(){return gf(S.profile&&S.profile.g,'אתה','את','את/ה');}
 function migratePeople(){
@@ -1695,7 +1700,7 @@ function renderOb(){
   if(obStep===2)h=`<h2>📌 תחומים ונושאים</h2><div class="small">במה ${you()} ${gf(ob.g,'עסוק','עסוקה','עסוק/ה')} ועל מה כדאי לשאול "מה שכחתי?". סמנו תחומים רלוונטיים, והוסיפו בכל אחד נושאים ספציפיים (פרויקט, תחביב, קורס…). דלגו על מה שלא רלוונטי.</div>
     <div id="ob-topics" style="margin-top:8px"></div>`;
   if(obStep===3)h=`<h2>🧠 איך הזיכרון שלך עובד?</h2><div class="small">מה קורה לך? (אפשר כמה)</div>
-    <div class="chips" id="ob-issues">${chipsHTML(ISSUES,ob.issues,'i')}</div>
+    <div id="ob-issues">${ISSUE_GROUPS.map(([t,L])=>`<div class="small" style="margin:10px 0 2px;font-weight:600">${t}</div><div class="chips" style="margin-top:2px">${chipsHTML(L.map(([k,l])=>[k,gz(l,ob.g)]),ob.issues,'i')}</div>`).join('')}</div>
     <div class="small" style="margin-top:12px">ובמה ${you()} ${gf(ob.g,'חזק','חזקה','חזק/ה')}?</div>
     <div class="chips" id="ob-str">${chipsHTML(STRENGTHS,ob.strengths,'s')}</div>`;
   if(obStep===4)h=`<h2>⏰ השגרה שלך</h2>
@@ -1777,8 +1782,8 @@ $('sheet').addEventListener('click',e=>{if(e.target.id==='sheet'&&S._obOpen){e.s
 setTimeout(()=>{if(!S.profile)startOnboarding();},400);
 
 /* personalized weights for daily training & method of the day */
-const ISSUE_GAMES={names:['faces'],switch:['schulte','missing'],details:['words','pairs'],places:['missing','pairs'],drive:['digit','words'],asks:['words','digit'],calls:['digit'],appts:['words']};
-const ISSUE_METHODS={drive:['drive','ifthen'],asks:['say','ifthen'],calls:['ifthen','say'],switch:['park','anchor'],names:['names'],details:['recipe','palace','peg','chunk'],appts:['appt','spaced'],habit:['anchor','ifthen'],places:['acro','say']};
+const ISSUE_GAMES={names:['faces'],told:['faces','words'],switch:['schulte','missing'],distract:['schulte','missing'],thread:['digit','rev','schulte'],reading:['schulte','words'],details:['words','pairs'],learned:['words'],pw:['digit','rev'],tongue:['words'],nav:['pairs','missing'],places:['missing','pairs'],room:['digit','missing'],didit:['missing'],leave:['missing','words'],drive:['digit','words'],asks:['words','digit'],calls:['digit'],appts:['words'],bills:['digit'],dates:['digit'],start:['schulte']};
+const ISSUE_METHODS={drive:['drive','ifthen'],asks:['say','ifthen'],calls:['ifthen','say'],switch:['park','anchor'],distract:['park','anchor'],thread:['say','chunk'],reading:['retrieve','chunk'],names:['names'],told:['say','retrieve'],dates:['spaced','peg'],details:['recipe','palace','peg','chunk'],learned:['retrieve','spaced'],pw:['chunk','peg'],tongue:['story','retrieve'],nav:['palace'],appts:['appt','spaced','ifthen'],bills:['ifthen','appt'],habit:['anchor','ifthen'],start:['ifthen','park'],places:['acro','say'],room:['say','ifthen'],didit:['say','ifthen'],leave:['acro','ifthen'],meds:['ifthen','anchor']};
 function pickWeighted(list,key,map,seed){
   const iss=(S.profile&&S.profile.issues)||[];const fav=new Set(iss.flatMap(i=>map[i]||[]));
   const pool=list.flatMap(x=>fav.has(key(x))?[x,x,x]:[x]);return pool[Math.floor(dayRand(seed)*pool.length)];
