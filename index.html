@@ -268,7 +268,7 @@ nav button .ic{font-size:19px}
       <div class="small">5 שאלות קצרות בכל פעם — על האנשים והנושאים שלך, ובכל פעם אחרות. אם בטוח ששכחת עוד משהו, ממשיכים.</div>
       <div class="row" style="margin-top:10px"><button class="primary" id="q-start">5 שאלות מהירות</button><button class="shrink" id="q-edit-btn">✏️ אנשים ונושאים</button></div>
       <div id="q-edit" class="hide" style="margin-top:10px">
-        <div class="small">👤 אנשים שכדאי לשאול עליהם:</div>
+        <div class="small">💛 האנשים שחשובים לך:</div>
         <div class="chips" id="qp-list"></div>
         <div class="row" style="margin-top:6px"><input id="qp-in" placeholder="שם (אפשר כמה, מופרדים בפסיק)"><button class="shrink" id="qp-add">הוסף</button></div>
         <div class="small" style="margin-top:10px">📌 נושאים ותחומים:</div>
@@ -1680,7 +1680,7 @@ function renderOb(){
     <input id="ob-name" style="margin-top:12px" placeholder="איך לקרוא לך?" value="${esc(ob.name)}">
     <div class="small" style="margin-top:10px">איך לפנות אליך?</div>
     <div class="chips" id="ob-g">${chipsHTML([['m','בלשון זכר'],['f','בלשון נקבה'],['','לא משנה']],[ob.g],'g')}</div>`;
-  if(obStep===1)h=`<h2>👥 האנשים בחיים שלך</h2><div class="small">על מי כדאי ש"מם או…" ישאל? כתבו שמות בכל קבוצה (אפשר כמה, מופרדים בפסיק), ודלגו על מה שלא רלוונטי. ♂/♀ קובע איך לנסח ("ביקש" / "ביקשה").</div>
+  if(obStep===1)h=`<h2>💛 האנשים שחשובים לך</h2><div class="small">אנשים שחשוב לך לא לשכוח: להתקשר, לשאול מה שלומם, לעשות משהו בשבילם, או לחזור אליהם עם תשובה. "מם או…" ישאל עליהם מדי פעם.<br>כתבו שמות בכל קבוצה (אפשר כמה, מופרדים בפסיק) ודלגו על מה שלא רלוונטי. ♂/♀ קובע איך לנסח ("ביקש" / "ביקשה").</div>
     <div id="ob-people" style="margin-top:8px"></div>`;
   if(obStep===2)h=`<h2>📌 תחומים ונושאים</h2><div class="small">במה ${you()} ${gf(ob.g,'עסוק','עסוקה','עסוק/ה')} ועל מה כדאי לשאול "מה שכחתי?". סמנו תחומים רלוונטיים, והוסיפו בכל אחד נושאים ספציפיים (פרויקט, תחביב, קורס…). דלגו על מה שלא רלוונטי.</div>
     <div id="ob-topics" style="margin-top:8px"></div>`;
