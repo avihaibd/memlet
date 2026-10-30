@@ -346,9 +346,12 @@ nav button .ic{font-size:19px}
   <div class="card" id="recall-card">
     <h2>🎯 אתגר הזיכרון היומי</h2>
     <div id="recall-intro">
-      <div class="small">בלי להסתכל ברשימה — כתבו את כל המשימות הפתוחות שאתם זוכרים. ככה מתאמנים על הזיכרון עם הדברים האמיתיים שלכם.</div>
-      <button class="primary" style="margin-top:10px;width:100%" id="recall-start">התחל אתגר</button>
+      <div class="q" id="ch-title" style="margin:2px 0 4px"></div>
+      <div class="small" id="ch-desc"></div>
+      <div class="row" style="margin-top:10px"><button class="primary" id="recall-start">התחל אתגר</button><button class="shrink" id="ch-other">🎲 אתגר אחר</button></div>
+      <div class="tip hide" id="ch-delayed">⏰ זוכרים את רשימת הקניות מהאתגר הקודם? <button class="ghost" id="ch-delayed-go" style="padding:0 4px">בואו נבדוק ←</button></div>
     </div>
+    <div id="ch-run" class="hide"></div>
     <div id="recall-run" class="hide">
       <textarea id="recall-text" placeholder="משימה אחת בכל שורה…"></textarea>
       <div class="row" style="margin-top:8px">
@@ -827,12 +830,13 @@ $('task-list').onclick=e=>{
 S.tasks=S.tasks.filter(t=>!(t.done&&t.doneAt&&t.doneAt<addDays(-30)));
 
 /* ---------- recall challenge ---------- */
-$('recall-start').onclick=()=>{
+function startTasksRecall(){
   if(!S.tasks.some(t=>!t.done)){toast('צריך קודם כמה משימות פתוחות');return;}
+  $('ch-run').classList.add('hide');
   $('recall-intro').classList.add('hide');$('recall-result').classList.add('hide');
   $('recall-run').classList.remove('hide');$('task-board').classList.add('hide');
   $('recall-text').value='';$('recall-text').focus();
-};
+}
 $('recall-cancel').onclick=endRecall;
 function endRecall(){
   $('recall-run').classList.add('hide');$('recall-intro').classList.remove('hide');$('task-board').classList.remove('hide');
@@ -2249,7 +2253,7 @@ function renderDayMem(){
   const st=$('dm-story');if(st)st.oninput=()=>{S.dmStory={d:TODAY(),t:st.value};save();};
 }
 document.querySelectorAll('#dm-methods .chip').forEach(c=>c.onclick=()=>{dmMethod=c.dataset.dm;renderDayMem();});
-$('dm-test').onclick=()=>{logAct('g_daymem');$('recall-start').click();$('recall-card').scrollIntoView({behavior:'smooth',block:'start'});};
+$('dm-test').onclick=()=>{logAct('g_daymem');startTasksRecall();$('recall-card').scrollIntoView({behavior:'smooth',block:'start'});};
 
 /* ---------- 💡 contextual method hint while capturing ---------- */
 const HINTS=[
@@ -2271,6 +2275,81 @@ $('task-input').addEventListener('input',capHint);
 document.querySelectorAll('#kind-chips .chip').forEach(c=>c.addEventListener('click',capHint));
 $('cap-hint').onclick=e=>{const b=e.target.closest('[data-hgo]');if(!b)return;const g=b.dataset.hgo;
   if(g.startsWith('tool:'))openTool(g.slice(5));else{goTab('methods');const card=$('m-'+g);if(card){if(card.querySelector('.mb').classList.contains('hide'))card.querySelector('[data-open]').click();setTimeout(()=>card.scrollIntoView({behavior:'smooth',block:'start'}),50);}}};
+
+/* ---------- daily memory challenge (varied) ---------- */
+const SHOP=['חלב','לחם','ביצים','עגבניות','מלפפונים','גבינה צהובה','יוגורט','אורז','פסטה','שמן זית','בננות','תפוחים','קפה','סוכר','קמח','טחינה','חומוס','טונה','נייר טואלט','סבון כלים','שקיות זבל','סוללות','נורה','לימון','בצל','שום','תפוחי אדמה','עוף','דגים','שוקולד','מיץ תפוזים','דבש','ריבה','קורנפלקס','חמאה'];
+const STORIES=[
+ {t:'ביום שלישי בבוקר יצאה רינה מהבית בשמונה ורבע. היא לקחה איתה מטריה כחולה, כי בתחזית אמרו שירד גשם. בתחנה פגשה את השכן שלה, יורם, שסיפר לה שהבן שלו מתחתן בחודש הבא בחיפה. האוטובוס איחר בעשר דקות, ורינה הגיעה לעבודה רק בתשע.',
+  q:[['איזה צבע הייתה המטריה?',['כחולה','אדומה','שחורה','צהובה']],['איך קראו לשכן?',['יורם','יוסי','יעקב','יגאל']],['איפה תתקיים החתונה?',['בחיפה','בירושלים','באילת','בטבריה']],['באיזו שעה הגיעה רינה לעבודה?',['בתשע','בשמונה וחצי','בעשר','בשמונה ורבע']]]},
+ {t:'משה הלך לשוק ביום שישי עם רשימה של חמישה דברים. הוא קנה שני קילו עגבניות, צרור נענע ואבטיח קטן. את הגבינה שכח, ונזכר רק כשהגיע לרכב החום שלו. בדרך חזרה עצר במאפייה וקנה שלוש חלות, אחת עם צימוקים.',
+  q:[['באיזה יום הלך משה לשוק?',['שישי','חמישי','ראשון','שלישי']],['מה הוא שכח?',['גבינה','עגבניות','נענע','אבטיח']],['מה צבע הרכב?',['חום','לבן','אפור','כחול']],['כמה חלות קנה?',['שלוש','שתיים','ארבע','אחת']]]},
+ {t:'דנה הזמינה שולחן לשישה אנשים במסעדה איטלקית ברחוב הרצל, לשעה שמונה בערב. היא הזמינה את אחותה מיכל, שהגיעה עם חבר חדש בשם עידו. כולם הזמינו פיצה, חוץ מעידו שהזמין ריזוטו פטריות. לקינוח חלקו טירמיסו אחד גדול.',
+  q:[['לכמה אנשים הוזמן השולחן?',['שישה','ארבעה','חמישה','שמונה']],['באיזה רחוב המסעדה?',['הרצל','ויצמן','בן יהודה','ז׳בוטינסקי']],['מה הזמין עידו?',['ריזוטו פטריות','פיצה','לזניה','סלט']],['מה היה הקינוח?',['טירמיסו','גלידה','פנקוטה','עוגת שוקולד']]]},
+ {t:'אבי נסע ברכבת מתל אביב לבאר שבע לפגישה באחת וחצי. ברכבת ישב ליד אישה שקראה ספר על ציפורים. הוא שכח את המטען של הטלפון בבית, וקנה חדש בקיוסק בתחנה בשישים שקלים. הפגישה נדחתה לשתיים.',
+  q:[['לאן נסע אבי?',['באר שבע','חיפה','ירושלים','נתניה']],['על מה היה הספר?',['ציפורים','בישול','היסטוריה','כוכבים']],['כמה עלה המטען?',['שישים שקלים','ארבעים שקלים','מאה שקלים','שלושים שקלים']],['לאיזו שעה נדחתה הפגישה?',['שתיים','אחת וחצי','שלוש','שתיים וחצי']]]},
+];
+const CH={
+ tasks:{t:'🗂️ המשימות שלי',d:'בלי להסתכל ברשימה — כתבו את המשימות הפתוחות שאתם זוכרים.',ok:()=>S.tasks.filter(t=>!t.done&&t.kind!=='thought').length>=3,run:()=>startTasksRecall()},
+ shop:{t:'🛒 רשימת קניות',d:'10 פריטים, 30 שניות לשנן, הסחת דעת קצרה — ואז לשחזר. בונוס: שאלה חוזרת בעוד כמה שעות.',run:()=>chShop()},
+ phone:{t:'📞 מספר טלפון',d:'מספר של 10 ספרות, 8 שניות, הסחת דעת — ואז להקליד. טיפ: חלקו לקבוצות.',run:()=>chPhone()},
+ story:{t:'📰 סיפור קצר',d:'קוראים סיפור קצר פעם אחת — ועונים על שאלות על הפרטים.',run:()=>chStory()},
+ grid:{t:'🔲 איפה זה היה?',d:'פריטים מופיעים בטבלה לכמה שניות — וצריך לזכור איפה כל אחד.',run:()=>chGrid()},
+ yesterday:{t:'🕰️ אתמול שלי',d:'תרגיל שליפה מהחיים: מה עשיתם אתמול? עם מי דיברתם? מה אכלתם?',run:()=>chYesterday()},
+};
+let chKey=null;
+function chAvail(){return Object.keys(CH).filter(k=>!CH[k].ok||CH[k].ok());}
+function chPickDaily(){const A=chAvail();return A[Math.floor(dayRand(9)*A.length)];}
+function renderChIntro(){
+  if(!chKey||!chAvail().includes(chKey))chKey=chPickDaily();
+  $('ch-title').textContent=CH[chKey].t;$('ch-desc').textContent=CH[chKey].d;
+  const dl=S.delayed,showD=dl&&!dl.done&&Date.now()-dl.at>2*3600e3&&Date.now()-dl.at<36*3600e3;
+  $('ch-delayed').classList.toggle('hide',!showD);
+}
+function chShow(h){$('recall-intro').classList.add('hide');$('ch-run').classList.remove('hide');$('ch-run').innerHTML=h;}
+function chEnd(k,score,max,extra){const pct=max?Math.round(score/max*100):score,key='ch_'+k,rec=pct>(S.best[key]||0);if(rec)S.best[key]=pct;
+  logAct('recall');logAct('g_recall');save();
+  chShow(`<div class="flash">${rec?'🏆 ':''}${max?score+' / '+max:score+' פרטים'}</div>${extra||''}<button class="primary" style="width:100%;margin-top:8px" id="ch-close">סגור</button>`);
+  $('ch-close').onclick=()=>{$('ch-run').classList.add('hide');$('recall-intro').classList.remove('hide');render();};}
+function chDistract(sec,then){const n=60+Math.floor(Math.random()*40);let left=sec;
+  chShow(`<div class="small">הסחת דעת: ספרו לאחור בקול מ־<b>${n}</b> בקפיצות של 3 (${n}, ${n-3}, ${n-6}…)</div><div class="big" id="ch-t">${left}</div>`);
+  clearInterval(gInt);gInt=setInterval(()=>{left--;const el=$('ch-t');if(el)el.textContent=left;if(left<=0){clearInterval(gInt);then();}},1000);}
+function chStudy(html,sec,then){let left=sec*10;chShow(`<div class="bar"><i id="ch-bar"></i></div>${html}<button style="width:100%;margin-top:8px" id="ch-ready">זכרתי, המשך</button>`);
+  clearInterval(gInt);gInt=setInterval(()=>{left--;$('ch-bar').style.width=left/(sec*10)*100+'%';if(left<=0){clearInterval(gInt);then();}},100);
+  $('ch-ready').onclick=()=>{clearInterval(gInt);then();};}
+function chShop(){const items=[...SHOP].sort(()=>Math.random()-.5).slice(0,10);
+  chStudy(`<div class="small">שננו את רשימת הקניות (טיפ: ארמון זיכרון או סיפור):</div><div class="words">${items.map(i=>`<span>${i}</span>`).join('')}</div>`,30,()=>chDistract(15,()=>{
+    chShow(`<div class="small">כתבו את כל הפריטים שאתם זוכרים:</div><textarea id="ch-in"></textarea><button class="primary" style="width:100%;margin-top:6px" id="ch-go">בדיקה</button>`);$('ch-in').focus();
+    $('ch-go').onclick=()=>{const txt=norm($('ch-in').value),hits=items.filter(i=>txt.includes(norm(i)));
+      S.delayed={kind:'shop',items,at:Date.now(),done:false};
+      chEnd('shop',hits.length,items.length,`<div class="words">${items.map(i=>`<span class="${hits.includes(i)?'':'miss'}">${i}</span>`).join('')}</div><div class="tip">⏰ בעוד כמה שעות תופיע כאן שאלה: "זוכרים את הרשימה מקודם?" — זה אימון לזיכרון לטווח ארוך.</div>`);};}));}
+function chPhone(){const num='05'+[...Array(8)].map(()=>Math.floor(Math.random()*10)).join(''),shown=num.slice(0,3)+'-'+num.slice(3,6)+'-'+num.slice(6);
+  chStudy(`<div class="big" style="font-size:34px;letter-spacing:3px">${shown}</div>`,8,()=>chDistract(10,()=>{
+    chShow(`<div class="small">הקלידו את המספר:</div><input id="ch-in" inputmode="numeric" style="text-align:center;font-size:24px;direction:ltr"><button class="primary" style="width:100%;margin-top:6px" id="ch-go">בדיקה</button>`);$('ch-in').focus();
+    $('ch-go').onclick=()=>{const a=$('ch-in').value.replace(/\D/g,'');let sc=0;for(let i=0;i<10;i++)if(a[i]===num[i])sc++;
+      chEnd('phone',sc,10,`<div class="big" style="font-size:26px;direction:ltr">${shown}</div><div class="small" style="text-align:center">ספרות במקום הנכון</div>`);};}));}
+function chStory(){const st=STORIES[Math.floor(Math.random()*STORIES.length)];
+  chStudy(`<div class="small">קראו פעם אחת, בתשומת לב (טיפ: דמיינו את הסצנה):</div><div class="txl" style="font-size:17px">${st.t}</div>`,40,()=>{
+    let k=0,sc=0;const ask=()=>{if(k>=st.q.length)return chEnd('story',sc,st.q.length);const [q,o]=st.q[k],ans=o[0];
+      chShow(`<div class="small">${k+1} / ${st.q.length}</div><div class="q">${q}</div><div class="opts" style="grid-template-columns:1fr 1fr">${[...o].sort(()=>Math.random()-.5).map(x=>`<button data-c="${x}" style="font-size:17px">${x}</button>`).join('')}</div>`);
+      $('ch-run').onclick=e=>{const b=e.target.closest('[data-c]');if(!b)return;$('ch-run').onclick=null;if(b.dataset.c===ans){sc++;toast('✓');}else toast('✗ '+ans);k++;setTimeout(ask,450);};};
+    ask();});}
+function chGrid(){const N=16,pick=[...Array(N).keys()].sort(()=>Math.random()-.5).slice(0,5),emo=[...EMO].sort(()=>Math.random()-.5).slice(0,5),map={};pick.forEach((p,i)=>map[p]=emo[i]);
+  const grid=f=>`<div class="pairs" style="grid-template-columns:repeat(4,1fr)">${[...Array(N).keys()].map(i=>f(i)).join('')}</div>`;
+  chStudy(grid(i=>`<button class="up" style="font-size:30px">${map[i]||''}</button>`),8,()=>{
+    let k=0,sc=0;const ask=()=>{if(k>=emo.length)return chEnd('grid',sc,emo.length);
+      chShow(`<div class="small">איפה היה <span style="font-size:28px">${emo[k]}</span>?</div>${grid(i=>`<button data-g="${i}" style="font-size:26px"></button>`)}`);
+      $('ch-run').onclick=e=>{const b=e.target.closest('[data-g]');if(!b)return;$('ch-run').onclick=null;const ok=+b.dataset.g===pick[k];if(ok){sc++;b.textContent='✓';}else{b.textContent='✗';$('ch-run').querySelector(`[data-g="${pick[k]}"]`).textContent=emo[k];}k++;setTimeout(ask,700);};};
+    ask();});}
+function chYesterday(){const Qs=['5 דברים שעשיתם אתמול, לפי הסדר','עם מי דיברתם אתמול?','מה אכלתם בארוחת הערב?','משהו אחד שגרם לכם לחייך','מה לבשתם?'].sort(()=>Math.random()-.5).slice(0,3);
+  chShow(`<div class="small">שליפה מהזיכרון האפיזודי — אין תשובה "נכונה", העיקר להתאמץ להיזכר בפרטים.</div>${Qs.map((q,i)=>`<div class="q" style="font-size:16px;margin-top:10px">${q}</div><textarea class="ch-y" style="min-height:60px"></textarea>`).join('')}<button class="primary" style="width:100%;margin-top:6px" id="ch-go">סיימתי</button>`);
+  $('ch-go').onclick=()=>{const n=[...document.querySelectorAll('.ch-y')].reduce((a,t)=>a+norm(t.value).split(/\s+/).filter(x=>x.length>1).length,0);
+    chEnd('yesterday',n,0,`<div class="small" style="text-align:center">ככל שמשחזרים יותר פרטים, הזיכרון מתחזק. נסו מחר לשחזר עוד יותר.</div>`);};}
+$('ch-other').onclick=()=>{const A=chAvail().filter(k=>k!==chKey);chKey=A[Math.floor(Math.random()*A.length)];renderChIntro();};
+$('recall-start').onclick=()=>{renderChIntro();CH[chKey].run();};
+$('ch-delayed-go').onclick=()=>{const dl=S.delayed;
+  chShow(`<div class="small">רשימת הקניות מקודם — מה אתם עוד זוכרים?</div><textarea id="ch-in"></textarea><button class="primary" style="width:100%;margin-top:6px" id="ch-go">בדיקה</button>`);
+  $('ch-go').onclick=()=>{const txt=norm($('ch-in').value),hits=dl.items.filter(i=>txt.includes(norm(i)));dl.done=true;
+    chEnd('delayed',hits.length,dl.items.length,`<div class="words">${dl.items.map(i=>`<span class="${hits.includes(i)?'':'miss'}">${i}</span>`).join('')}</div><div class="tip">זיכרון אחרי כמה שעות — זה מה שבאמת חשוב ביומיום. שיטות כמו ארמון וסיפור עוזרות במיוחד כאן.</div>`);};};
 
 /* ---------- progress & backup ---------- */
 function renderProgress(){
@@ -2309,7 +2388,7 @@ function render(){
   $('p-missing').textContent=S.best.missing;$('p-pairs').textContent=S.best.pairs[8]||'—';$('p-sudoku').textContent=S.best.sudoku;
   const tp=TIPS[Math.floor(dayRand(5)*TIPS.length)];$('tip-title').textContent=tp[0];$('tip-body').textContent=tp[1];$('tip-more-body').textContent=tp[3]||'';$('tip-x').classList.toggle('hide',!tp[3]);
   $('best-sch').textContent=S.best.sch5?S.best.sch5+' שנ׳':'—';$('p-sch').textContent=S.best.sch5||'—';
-  renderParkBanner();renderDayMem();renderSkills();renderContacts();renderTasks();renderBoard();renderNotes();renderCards();renderProgress();renderFocus();renderParked();renderDaily();renderWarmList();
+  renderParkBanner();renderDayMem();renderChIntro();renderSkills();renderContacts();renderTasks();renderBoard();renderNotes();renderCards();renderProgress();renderFocus();renderParked();renderDaily();renderWarmList();
 }
 save();render();
 /* PWA: offline + install when hosted on its own site (e.g. GitHub Pages) */
