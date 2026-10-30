@@ -5,6 +5,11 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <style>header{padding-top:calc(18px + env(safe-area-inset-top))!important}</style>
 <meta name="theme-color" content="#2f6f5e">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-192.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="מם או…">
 <title>מם או… — Memo! נזכרתי.</title>
 <style>
 :root{
@@ -1836,6 +1841,8 @@ function render(){
   renderContacts();renderTasks();renderBoard();renderNotes();renderCards();renderProgress();renderFocus();renderParked();renderDaily();renderWarmList();
 }
 save();render();
+/* PWA: offline + install when hosted on its own site (e.g. GitHub Pages) */
+if('serviceWorker' in navigator&&location.protocol==='https:'&&!/claude/.test(location.hostname)){navigator.serviceWorker.register('sw.js').catch(()=>{});}
 </script>
 </body>
 </html>
